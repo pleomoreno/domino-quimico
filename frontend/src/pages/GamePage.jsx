@@ -42,22 +42,59 @@ const dealHands = () => {
 		const start = playerIndex * 7
 		hands[player] = deck.slice(start, start + 7)
 	})
-	return hands
+
+	let starterKey = players[0]
+	let startTile = createTile("start", "Ácido", "Hidreto")
+	players.some((player) => {
+		const tileIndex = hands[player].findIndex(
+			(tile) =>
+				(tile.left === "Ácido" && tile.right === "Hidreto") ||
+				(tile.left === "Hidreto" && tile.right === "Ácido")
+		)
+		if (tileIndex >= 0) {
+			starterKey = player
+			startTile = { ...hands[player][tileIndex] }
+			hands[player].splice(tileIndex, 1)
+			return true
+		}
+		return false
+	})
+
+	return { hands, starterKey, startTile }
+}
+
+const createGameState = () => {
+	const { hands, starterKey, startTile } = dealHands()
+	const starterIndex = players.indexOf(starterKey)
+	return {
+		hands,
+		board: [
+			{
+				...startTile,
+				orientation: startTile.left === startTile.right ? "vertical" : "horizontal",
+			},
+		],
+		currentTurn: (starterIndex + 1) % players.length,
+		message: `Início de jogo: Jogador ${starterKey} jogou ${startTile.left}/${startTile.right}`,
+		starterKey,
+	}
 }
 
 const players = ["A", "B", "C", "D"]
 
 export default function GamePage() {
-	const [hands, setHands] = useState(() => dealHands())
-	const [board, setBoard] = useState([])
-	const [currentTurn, setCurrentTurn] = useState(0)
-	const [message, setMessage] = useState(
-		"Início de jogo: jogue uma peça"
-	)
+	const initialGame = createGameState()
+	const [hands, setHands] = useState(initialGame.hands)
+	const [board, setBoard] = useState(initialGame.board)
+	const [currentTurn, setCurrentTurn] = useState(initialGame.currentTurn)
+	const [message, setMessage] = useState(initialGame.message)
 	const [feedback, setFeedback] = useState(null)
 	const [gameOver, setGameOver] = useState(false)
 	const [summary, setSummary] = useState(null)
 	const [mostMissedTile, setMostMissedTile] = useState(null)
+	const [passStreak, setPassStreak] = useState(0)
+	const [draggingTileId, setDraggingTileId] = useState(null)
+	const [pendingPlacement, setPendingPlacement] = useState(null)
 	const feedbackTimeoutRef = useRef(null)
 	const startTimeRef = useRef(Date.now())
 	const [stats, setStats] = useState(() =>
@@ -71,6 +108,13 @@ export default function GamePage() {
 		if (board.length === 0) return { left: null, right: null }
 		return { left: board[0].left, right: board[board.length - 1].right }
 	}, [board])
+
+	const boardScale = useMemo(() => {
+		if (board.length <= 10) return 1
+		if (board.length <= 14) return 0.9
+		if (board.length <= 18) return 0.8
+		return 0.7
+	}, [board.length])
 
 	const isPlayable = (tile) => {
 		if (!boardEnds.left && !boardEnds.right) return true
@@ -118,6 +162,8 @@ export default function GamePage() {
 			1,
 			Math.round((Date.now() - startTimeRef.current) / 1000)
 		)
+		const durationMin = Math.floor(durationSec / 60)
+		const durationRemSec = durationSec % 60
 		const ranking = [...players].sort((a, b) => {
 			const diff = nextHands[a].length - nextHands[b].length
 			if (diff !== 0) return diff
@@ -132,11 +178,13 @@ export default function GamePage() {
 			totalErrors,
 			totalPasses,
 			durationSec,
+			durationMin,
+			durationRemSec,
 			blocked,
 		}
 	}
 
-	const checkGameOver = (nextHands, nextBoard, nextStats) => {
+	const checkGameOver = (nextHands, nextBoard, nextStats, nextPassStreak) => {
 		const winnerByEmpty = players.find(
 			(player) => nextHands[player].length === 0
 		)
@@ -145,6 +193,13 @@ export default function GamePage() {
 			setGameOver(true)
 			setSummary(buildSummary(nextHands, nextStats, winnerByEmpty, blocked))
 			setMessage("Fim de partida")
+			return true
+		}
+		if (nextPassStreak >= players.length) {
+			const blocked = true
+			setGameOver(true)
+			setSummary(buildSummary(nextHands, nextStats, null, blocked))
+			setMessage("Fim de partida (bloqueio)")
 			return true
 		}
 		return false
@@ -178,14 +233,16 @@ export default function GamePage() {
 	}
 
 	const resetGame = () => {
-		setHands(dealHands())
-		setBoard([])
-		setCurrentTurn(0)
-		setMessage("Início de jogo: jogue uma peça")
+		const nextGame = createGameState()
+		setHands(nextGame.hands)
+		setBoard(nextGame.board)
+		setCurrentTurn(nextGame.currentTurn)
+		setMessage(nextGame.message)
 		setFeedback(null)
 		setGameOver(false)
 		setSummary(null)
 		setMostMissedTile(null)
+		setPassStreak(0)
 		setStats(
 			players.reduce((acc, player) => {
 				acc[player] = { plays: 0, correct: 0, errors: 0, passes: 0 }
@@ -197,8 +254,7 @@ export default function GamePage() {
 
 	const handleSelectTile = (tile) => {
 		if (players[currentTurn] !== "A" || gameOver) return
-		const playable = isPlayable(tile)
-		if (playable) {
+		if (board.length === 0) {
 			placeTile("A", tile.id)
 			showFeedback({
 				type: "success",
@@ -207,22 +263,17 @@ export default function GamePage() {
 			})
 			return
 		}
-		setStats((prev) => ({
-			...prev,
-			A: {
-				...prev.A,
-				errors: prev.A.errors + 1,
-			},
-		}))
-		setMostMissedTile(tile)
-		showFeedback({
-			type: "error",
-			title: "Ops!",
-			message: `A peça ${tile.left} / ${tile.right} não encaixa nas extremidades. Tente outra pedra.`,
-		})
+		const canLeft = tile.left === boardEnds.left || tile.right === boardEnds.left
+		const canRight = tile.left === boardEnds.right || tile.right === boardEnds.right
+		if (!canLeft && !canRight) return
+		if (canLeft && canRight) {
+			setPendingPlacement({ tileId: tile.id })
+			return
+		}
+		placeTile("A", tile.id, canRight ? "right" : "left")
 	}
 
-	const placeTile = (playerKey, tileId) => {
+	const placeTile = (playerKey, tileId, preferredSide) => {
 		const hand = hands[playerKey]
 		const tile = hand.find((item) => item.id === tileId)
 		if (!tile) return
@@ -235,14 +286,18 @@ export default function GamePage() {
 			const canLeft = tile.left === boardEnds.left || tile.right === boardEnds.left
 			if (!canRight && !canLeft) return
 
-			const placeOnRight = canRight
+			const placeOnRight =
+				preferredSide === "left" ? false : preferredSide === "right" ? true : canRight
 			const placedTile = placeOnRight
 				? tile.left === boardEnds.right
-					? { ...tile, orientation: "horizontal" }
-					: { ...tile, left: tile.right, right: tile.left, orientation: "horizontal" }
+					? { ...tile }
+					: { ...tile, left: tile.right, right: tile.left }
 				: tile.right === boardEnds.left
-					? { ...tile, orientation: "vertical" }
-					: { ...tile, left: tile.right, right: tile.left, orientation: "vertical" }
+					? { ...tile }
+					: { ...tile, left: tile.right, right: tile.left }
+
+			placedTile.orientation =
+				placedTile.left === placedTile.right ? "vertical" : "horizontal"
 
 			nextBoard = placeOnRight ? [...board, placedTile] : [placedTile, ...board]
 		}
@@ -263,10 +318,51 @@ export default function GamePage() {
 		setBoard(nextBoard)
 		setHands(nextHands)
 		setStats(nextStats)
+		setPassStreak(0)
+		setDraggingTileId(null)
+		setPendingPlacement(null)
 		setMessage(`${playerKey} jogou ${tile.left}/${tile.right}`)
-		if (!checkGameOver(nextHands, nextBoard, nextStats)) {
+		if (!checkGameOver(nextHands, nextBoard, nextStats, 0)) {
 			setCurrentTurn((prev) => (prev + 1) % players.length)
 		}
+	}
+
+	const handleDrop = (side) => {
+		if (players[currentTurn] !== "A" || gameOver || !draggingTileId) return
+		const tile = hands.A.find((item) => item.id === draggingTileId)
+		if (!tile) return
+		if (board.length === 0) {
+			placeTile("A", draggingTileId, side)
+			return
+		}
+		const canDropLeft =
+			tile.left === boardEnds.left || tile.right === boardEnds.left
+		const canDropRight =
+			tile.left === boardEnds.right || tile.right === boardEnds.right
+		const canDrop = side === "left" ? canDropLeft : canDropRight
+		if (canDrop) {
+			placeTile("A", draggingTileId, side)
+			return
+		}
+		setStats((prev) => ({
+			...prev,
+			A: {
+				...prev.A,
+				errors: prev.A.errors + 1,
+			},
+		}))
+		setMostMissedTile(tile)
+		showFeedback({
+			type: "error",
+			title: "Ops!",
+			message: `A peça ${tile.left} / ${tile.right} não encaixa nesse lado.`,
+		})
+		setDraggingTileId(null)
+	}
+
+	const handleChooseSide = (side) => {
+		if (!pendingPlacement) return
+		placeTile("A", pendingPlacement.tileId, side)
 	}
 
 	const handlePass = () => {
@@ -279,10 +375,12 @@ export default function GamePage() {
 				passes: stats[playerKey].passes + 1,
 			},
 		}
+		const nextPassStreak = passStreak + 1
 		setStats(nextStats)
+		setPassStreak(nextPassStreak)
 		setMessage(`Jogador ${players[currentTurn]} passou a vez`)
 		setCurrentTurn((prev) => (prev + 1) % players.length)
-		checkGameOver(hands, board, nextStats)
+		checkGameOver(hands, board, nextStats, nextPassStreak)
 	}
 
 	useEffect(() => {
@@ -303,14 +401,29 @@ export default function GamePage() {
 					passes: stats[playerKey].passes + 1,
 				},
 			}
+			const nextPassStreak = passStreak + 1
 			setStats(nextStats)
+			setPassStreak(nextPassStreak)
 			setMessage(`Jogador ${playerKey} passou a vez`)
 			setCurrentTurn((prev) => (prev + 1) % players.length)
-			checkGameOver(hands, board, nextStats)
-		}, 650)
+			checkGameOver(hands, board, nextStats, nextPassStreak)
+		}, 1300)
 
 		return () => clearTimeout(timeout)
-	}, [currentTurn, hands, boardEnds.left, boardEnds.right, gameOver, stats])
+	}, [currentTurn, hands, boardEnds.left, boardEnds.right, gameOver, stats, passStreak])
+
+	useEffect(() => {
+		if (gameOver) return
+		const playerKey = players[currentTurn]
+		if (playerKey !== "A") return
+		const hand = hands.A
+		const playable = hand.some((tile) => isPlayable(tile))
+		if (playable) return
+		const timeout = setTimeout(() => {
+			handlePass()
+		}, 400)
+		return () => clearTimeout(timeout)
+	}, [currentTurn, hands, gameOver, boardEnds.left, boardEnds.right])
 
 	useEffect(() => {
 		return () => {
@@ -394,7 +507,24 @@ export default function GamePage() {
 					</div>
 
 					{/* played tiles */}
-					<div className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
+					<div
+						className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 flex flex-nowrap items-center gap-2 max-w-[84%] overflow-hidden px-2"
+						style={{ transform: `translate(-50%, -50%) scale(${boardScale})`, transformOrigin: "center" }}
+					>
+						<div className="absolute -left-14 top-1/2 -translate-y-1/2">
+							<DropZone
+								label="Esquerda"
+								isActive={!!draggingTileId}
+								onDrop={() => handleDrop("left")}
+							/>
+						</div>
+						<div className="absolute -right-14 top-1/2 -translate-y-1/2">
+							<DropZone
+								label="Direita"
+								isActive={!!draggingTileId}
+								onDrop={() => handleDrop("right")}
+							/>
+						</div>
 						{board.map((tile) => (
 							<DominoTile
 								key={tile.id}
@@ -404,6 +534,25 @@ export default function GamePage() {
 							/>
 						))}
 					</div>
+
+					{pendingPlacement && !gameOver && (
+						<div className="absolute left-1/2 top-[62%] -translate-x-1/2 flex items-center gap-3">
+							<button
+								type="button"
+								className="bg-white text-dq-red border border-dq-red text-[12px] px-4 py-2 rounded-full"
+								onClick={() => handleChooseSide("left")}
+							>
+								Colocar à esquerda
+							</button>
+							<button
+								type="button"
+								className="bg-dq-red text-white text-[12px] px-4 py-2 rounded-full"
+								onClick={() => handleChooseSide("right")}
+							>
+								Colocar à direita
+							</button>
+						</div>
+					)}
 
 					{/* bottom area */}
 					<div className="absolute bottom-8 left-24">
@@ -426,8 +575,12 @@ export default function GamePage() {
 									labelTop={item.left}
 									labelBottom={item.right}
 									onClick={() => handleSelectTile(item)}
+									onDragStart={() => setDraggingTileId(item.id)}
+									onDragEnd={() => setDraggingTileId(null)}
 									isDisabled={players[currentTurn] !== "A" || gameOver}
-									isInvalid={false}
+									isInvalid={
+										!gameOver && players[currentTurn] === "A" && !isPlayable(item)
+									}
 								/>
 							))}
 						</div>
@@ -493,7 +646,7 @@ export default function GamePage() {
 								<p className="text-[13px] text-dq-muted">Resumo da partida</p>
 							</div>
 							<div className="text-[12px] text-dq-muted">
-								Tempo: {summary.durationSec}s
+								Tempo: {summary.durationMin}m {String(summary.durationRemSec).padStart(2, "0")}s
 							</div>
 						</div>
 
@@ -616,6 +769,8 @@ function DominoTile({
 	labelBottom,
 	orientation = "horizontal",
 	onClick,
+	onDragStart,
+	onDragEnd,
 	isDisabled,
 	isInvalid,
 }) {
@@ -628,8 +783,15 @@ function DominoTile({
 				isVertical ? "w-[48px] h-[54px]" : "w-[60px] h-[34px]"
 			} flex ${isVertical ? "flex-col" : "flex-row"} ${
 				isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-			} ${isInvalid ? "border-dq-red shadow-[0_0_0_2px_rgba(200,16,46,0.2)]" : ""}`}
+			} ${
+				isInvalid
+					? "opacity-40 border-dq-red shadow-[0_0_0_2px_rgba(200,16,46,0.2)]"
+					: ""
+			}`}
 			onClick={onClick}
+			draggable={!isDisabled}
+			onDragStart={onDragStart}
+			onDragEnd={onDragEnd}
 		>
 			<div
 				className={`flex-1 flex items-center justify-center text-[9px] ${
@@ -641,6 +803,20 @@ function DominoTile({
 			<div className="flex-1 flex items-center justify-center text-[9px]">
 				{labelBottom}
 			</div>
+		</div>
+	)
+}
+
+function DropZone({ label, onDrop, isActive }) {
+	return (
+		<div
+			className={`w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center text-[10px] uppercase tracking-[1px] ${
+				isActive ? "border-dq-red text-dq-red bg-white" : "border-black/20 text-dq-muted"
+			}`}
+			onDragOver={(event) => event.preventDefault()}
+			onDrop={onDrop}
+		>
+			{label}
 		</div>
 	)
 }
