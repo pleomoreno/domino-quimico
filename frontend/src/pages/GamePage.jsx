@@ -2,14 +2,231 @@ import { useEffect, useMemo, useRef, useState } from "react"
 
 const createTile = (id, left, right) => ({ id, left, right })
 
-const dominoValues = [
-	"Ácido",
-	"Base",
-	"Sal",
-	"Óxido",
-	"Hidreto",
-	"HNO3",
-	"H2SO4",
+const LEVELS = [
+	{
+		id: "nivel1",
+		title: "Nível 1: Fórmula ↔ Função",
+		description: "Conecte fórmulas, nomes e funções químicas.",
+		values: [
+			{
+				id: "acid",
+				label: "Ácido",
+				category: "Ácido",
+				kind: "classificacao",
+				detail: "Libera H+ em solução aquosa.",
+			},
+			{
+				id: "base",
+				label: "Base",
+				category: "Base",
+				kind: "classificacao",
+				detail: "Libera OH- em solução aquosa.",
+			},
+			{
+				id: "sal",
+				label: "Sal",
+				category: "Sal",
+				kind: "classificacao",
+				detail: "Composto iônico formado por cátion e ânion.",
+			},
+			{
+				id: "oxido",
+				label: "Óxido",
+				category: "Óxido",
+				kind: "classificacao",
+				detail: "Composto binário com oxigênio.",
+			},
+			{
+				id: "hidreto",
+				label: "Hidreto",
+				category: "Hidreto",
+				kind: "classificacao",
+				detail: "Composto binário com hidrogênio.",
+			},
+			{
+				id: "hcl",
+				label: "HCl",
+				category: "Ácido",
+				kind: "formula",
+				detail: "Ácido clorídrico.",
+			},
+			{
+				id: "h2so4",
+				label: "H2SO4",
+				category: "Ácido",
+				kind: "formula",
+				detail: "Ácido sulfúrico.",
+			},
+			{
+				id: "naoh",
+				label: "NaOH",
+				category: "Base",
+				kind: "formula",
+				detail: "Hidróxido de sódio.",
+			},
+			{
+				id: "caoh2",
+				label: "Ca(OH)2",
+				category: "Base",
+				kind: "formula",
+				detail: "Hidróxido de cálcio.",
+			},
+			{
+				id: "nacl",
+				label: "NaCl",
+				category: "Sal",
+				kind: "formula",
+				detail: "Cloreto de sódio.",
+			},
+			{
+				id: "na2so4",
+				label: "Na2SO4",
+				category: "Sal",
+				kind: "formula",
+				detail: "Sulfato de sódio.",
+			},
+			{
+				id: "co2",
+				label: "CO2",
+				category: "Óxido",
+				kind: "formula",
+				detail: "Dióxido de carbono.",
+			},
+			{
+				id: "fe2o3",
+				label: "Fe2O3",
+				category: "Óxido",
+				kind: "formula",
+				detail: "Óxido de ferro(III).",
+			},
+			{
+				id: "cah2",
+				label: "CaH2",
+				category: "Hidreto",
+				kind: "formula",
+				detail: "Hidreto de cálcio.",
+			},
+			{
+				id: "nah",
+				label: "NaH",
+				category: "Hidreto",
+				kind: "formula",
+				detail: "Hidreto de sódio.",
+			},
+			{
+				id: "acid-name",
+				label: "Ácido clorídrico",
+				category: "Ácido",
+				kind: "nome",
+				detail: "Fórmula: HCl.",
+			},
+			{
+				id: "base-name",
+				label: "Hidróxido de sódio",
+				category: "Base",
+				kind: "nome",
+				detail: "Fórmula: NaOH.",
+			},
+			{
+				id: "sal-name",
+				label: "Cloreto de sódio",
+				category: "Sal",
+				kind: "nome",
+				detail: "Fórmula: NaCl.",
+			},
+			{
+				id: "oxido-name",
+				label: "Dióxido de carbono",
+				category: "Óxido",
+				kind: "nome",
+				detail: "Fórmula: CO2.",
+			},
+			{
+				id: "hidreto-name",
+				label: "Hidreto de cálcio",
+				category: "Hidreto",
+				kind: "nome",
+				detail: "Fórmula: CaH2.",
+			},
+		],
+	},
+	{
+		id: "nivel2",
+		title: "Nível 2: Propriedades ↔ Classificação",
+		description: "Combine propriedades com a classificação correta.",
+		values: [
+			{
+				id: "acid",
+				label: "Ácido",
+				category: "Ácido",
+				kind: "classificacao",
+				detail: "Libera H+ em solução aquosa.",
+			},
+			{
+				id: "base",
+				label: "Base",
+				category: "Base",
+				kind: "classificacao",
+				detail: "Libera OH- em solução aquosa.",
+			},
+			{
+				id: "sal",
+				label: "Sal",
+				category: "Sal",
+				kind: "classificacao",
+				detail: "Composto iônico formado por cátion e ânion.",
+			},
+			{
+				id: "oxido",
+				label: "Óxido",
+				category: "Óxido",
+				kind: "classificacao",
+				detail: "Composto binário com oxigênio.",
+			},
+			{
+				id: "hidreto",
+				label: "Hidreto",
+				category: "Hidreto",
+				kind: "classificacao",
+				detail: "Composto binário com hidrogênio.",
+			},
+			{
+				id: "acid-prop",
+				label: "Libera H+",
+				category: "Ácido",
+				kind: "propriedade",
+				detail: "Característica típica de ácidos em água.",
+			},
+			{
+				id: "base-prop",
+				label: "Libera OH-",
+				category: "Base",
+				kind: "propriedade",
+				detail: "Característica típica de bases em água.",
+			},
+			{
+				id: "sal-prop",
+				label: "Iônico",
+				category: "Sal",
+				kind: "propriedade",
+				detail: "Formado por cátion e ânion.",
+			},
+			{
+				id: "oxido-prop",
+				label: "O + outro",
+				category: "Óxido",
+				kind: "propriedade",
+				detail: "Composto binário contendo oxigênio.",
+			},
+			{
+				id: "hidreto-prop",
+				label: "Metal + H",
+				category: "Hidreto",
+				kind: "propriedade",
+				detail: "Hidrogênio com metal.",
+			},
+		],
+	},
 ]
 
 const shuffleArray = (list) => {
@@ -23,20 +240,22 @@ const shuffleArray = (list) => {
 	return array
 }
 
-const buildDeck = () => {
+const buildDeck = (levelId) => {
+	const level = LEVELS.find((item) => item.id === levelId) || LEVELS[0]
+	const values = level.values
 	const tiles = []
 	let index = 1
-	for (let i = 0; i < dominoValues.length; i += 1) {
-		for (let j = i; j < dominoValues.length; j += 1) {
-			tiles.push(createTile(`T-${index}`, dominoValues[i], dominoValues[j]))
+	for (let i = 0; i < values.length; i += 1) {
+		for (let j = i; j < values.length; j += 1) {
+			tiles.push(createTile(`T-${index}`, values[i], values[j]))
 			index += 1
 		}
 	}
 	return shuffleArray(tiles)
 }
 
-const dealHands = () => {
-	const deck = buildDeck()
+const dealHands = (levelId) => {
+	const deck = buildDeck(levelId)
 	const hands = { A: [], B: [], C: [], D: [] }
 	players.forEach((player, playerIndex) => {
 		const start = playerIndex * 7
@@ -44,13 +263,16 @@ const dealHands = () => {
 	})
 
 	let starterKey = players[0]
-	let startTile = createTile("start", "Ácido", "Hidreto")
+	let startTile = { ...hands[starterKey][0] }
 	players.some((player) => {
-		const tileIndex = hands[player].findIndex(
-			(tile) =>
-				(tile.left === "Ácido" && tile.right === "Hidreto") ||
-				(tile.left === "Hidreto" && tile.right === "Ácido")
-		)
+		const tileIndex = hands[player].findIndex((tile) => {
+			const leftCategory = tile.left.category
+			const rightCategory = tile.right.category
+			return (
+				(leftCategory === "Ácido" && rightCategory === "Hidreto") ||
+				(leftCategory === "Hidreto" && rightCategory === "Ácido")
+			)
+		})
 		if (tileIndex >= 0) {
 			starterKey = player
 			startTile = { ...hands[player][tileIndex] }
@@ -63,19 +285,19 @@ const dealHands = () => {
 	return { hands, starterKey, startTile }
 }
 
-const createGameState = () => {
-	const { hands, starterKey, startTile } = dealHands()
+const createGameState = (levelId) => {
+	const { hands, starterKey, startTile } = dealHands(levelId)
 	const starterIndex = players.indexOf(starterKey)
 	return {
 		hands,
 		board: [
 			{
 				...startTile,
-				orientation: startTile.left === startTile.right ? "vertical" : "horizontal",
+				orientation: startTile.left.id === startTile.right.id ? "vertical" : "horizontal",
 			},
 		],
 		currentTurn: (starterIndex + 1) % players.length,
-		message: `Início de jogo: Jogador ${starterKey} jogou ${startTile.left}/${startTile.right}`,
+		message: `Início de jogo: Jogador ${starterKey} jogou ${startTile.left.label}/${startTile.right.label}`,
 		starterKey,
 	}
 }
@@ -83,7 +305,8 @@ const createGameState = () => {
 const players = ["A", "B", "C", "D"]
 
 export default function GamePage() {
-	const initialGame = createGameState()
+	const [levelId, setLevelId] = useState(LEVELS[0].id)
+	const initialGame = useMemo(() => createGameState(LEVELS[0].id), [])
 	const [hands, setHands] = useState(initialGame.hands)
 	const [board, setBoard] = useState(initialGame.board)
 	const [currentTurn, setCurrentTurn] = useState(initialGame.currentTurn)
@@ -104,6 +327,11 @@ export default function GamePage() {
 		}, {})
 	)
 
+	const currentLevel = useMemo(
+		() => LEVELS.find((level) => level.id === levelId) || LEVELS[0],
+		[levelId]
+	)
+
 	const boardEnds = useMemo(() => {
 		if (board.length === 0) return { left: null, right: null }
 		return { left: board[0].left, right: board[board.length - 1].right }
@@ -111,28 +339,29 @@ export default function GamePage() {
 
 	const boardScale = useMemo(() => {
 		if (board.length <= 10) return 1
-		if (board.length <= 14) return 0.9
-		if (board.length <= 18) return 0.8
-		return 0.7
+		if (board.length <= 14) return 0.98
+		if (board.length <= 18) return 0.95
+		return 0.92
 	}, [board.length])
+
 
 	const isPlayable = (tile) => {
 		if (!boardEnds.left && !boardEnds.right) return true
 		return (
-			tile.left === boardEnds.left ||
-			tile.right === boardEnds.left ||
-			tile.left === boardEnds.right ||
-			tile.right === boardEnds.right
+			tile.left.category === boardEnds.left?.category ||
+			tile.right.category === boardEnds.left?.category ||
+			tile.left.category === boardEnds.right?.category ||
+			tile.right.category === boardEnds.right?.category
 		)
 	}
 
 	const isPlayableWithEnds = (tile, ends) => {
 		if (!ends.left && !ends.right) return true
 		return (
-			tile.left === ends.left ||
-			tile.right === ends.left ||
-			tile.left === ends.right ||
-			tile.right === ends.right
+			tile.left.category === ends.left?.category ||
+			tile.right.category === ends.left?.category ||
+			tile.left.category === ends.right?.category ||
+			tile.right.category === ends.right?.category
 		)
 	}
 
@@ -205,21 +434,19 @@ export default function GamePage() {
 		return false
 	}
 
-	const getExplanationForType = (tile) => {
-		switch (tile.left) {
-			case "Ácido":
-				return `${tile.right} é um Ácido pois libera H+ em solução aquosa.`
-			case "Base":
-				return `${tile.right} é uma base pois libera OH- em solução aquosa.`
-			case "Sal":
-				return `${tile.right} é um sal, composto iônico formado por cátion e ânion.`
-			case "Óxido":
-				return `${tile.right} é um óxido, composto binário com oxigênio.`
-			case "Hidreto":
-				return `${tile.right} é um hidreto, composto binário com hidrogênio.`
-			default:
-				return `Peça encaixada: ${tile.left} / ${tile.right}.`
+	const getExplanationForMatch = (tile) => {
+		const sides = [tile.left, tile.right]
+		const classificationSide = sides.find((side) => side.kind === "classificacao")
+		const propertySide = sides.find((side) => side.kind === "propriedade")
+		if (classificationSide) {
+			const otherSide = sides.find((side) => side !== classificationSide)
+			return `${otherSide.label} é ${classificationSide.label}. ${classificationSide.detail}`
 		}
+		if (propertySide) {
+			const otherSide = sides.find((side) => side !== propertySide)
+			return `${otherSide.label} combina com ${propertySide.label}. ${propertySide.detail}`
+		}
+		return `Peça encaixada: ${tile.left.label} / ${tile.right.label}.`
 	}
 
 	const showFeedback = (nextFeedback) => {
@@ -229,11 +456,11 @@ export default function GamePage() {
 		setFeedback(nextFeedback)
 		feedbackTimeoutRef.current = setTimeout(() => {
 			setFeedback(null)
-		}, 2000)
+		}, 3500)
 	}
 
-	const resetGame = () => {
-		const nextGame = createGameState()
+	const resetGame = (nextLevelId = levelId) => {
+		const nextGame = createGameState(nextLevelId)
 		setHands(nextGame.hands)
 		setBoard(nextGame.board)
 		setCurrentTurn(nextGame.currentTurn)
@@ -252,6 +479,26 @@ export default function GamePage() {
 		startTimeRef.current = Date.now()
 	}
 
+	const handleRestartLevelOne = () => {
+		const levelOneId = LEVELS[0].id
+		setLevelId(levelOneId)
+		resetGame(levelOneId)
+	}
+
+	const handleNextLevel = () => {
+		const currentIndex = LEVELS.findIndex((level) => level.id === levelId)
+		const nextLevel = LEVELS[currentIndex + 1]
+		if (!nextLevel) return
+		setLevelId(nextLevel.id)
+		resetGame(nextLevel.id)
+	}
+
+	const handleLevelChange = (event) => {
+		const nextLevelId = event.target.value
+		setLevelId(nextLevelId)
+		resetGame(nextLevelId)
+	}
+
 	const handleSelectTile = (tile) => {
 		if (players[currentTurn] !== "A" || gameOver) return
 		if (board.length === 0) {
@@ -259,12 +506,16 @@ export default function GamePage() {
 			showFeedback({
 				type: "success",
 				title: "Correto!",
-				message: getExplanationForType(tile),
+				message: getExplanationForMatch(tile),
 			})
 			return
 		}
-		const canLeft = tile.left === boardEnds.left || tile.right === boardEnds.left
-		const canRight = tile.left === boardEnds.right || tile.right === boardEnds.right
+		const canLeft =
+			tile.left.category === boardEnds.left?.category ||
+			tile.right.category === boardEnds.left?.category
+		const canRight =
+			tile.left.category === boardEnds.right?.category ||
+			tile.right.category === boardEnds.right?.category
 		if (!canLeft && !canRight) return
 		if (canLeft && canRight) {
 			setPendingPlacement({ tileId: tile.id })
@@ -282,22 +533,26 @@ export default function GamePage() {
 		if (board.length === 0) {
 			nextBoard = [{ ...tile, orientation: "horizontal" }]
 		} else {
-			const canRight = tile.left === boardEnds.right || tile.right === boardEnds.right
-			const canLeft = tile.left === boardEnds.left || tile.right === boardEnds.left
+			const canRight =
+				tile.left.category === boardEnds.right?.category ||
+				tile.right.category === boardEnds.right?.category
+			const canLeft =
+				tile.left.category === boardEnds.left?.category ||
+				tile.right.category === boardEnds.left?.category
 			if (!canRight && !canLeft) return
 
 			const placeOnRight =
 				preferredSide === "left" ? false : preferredSide === "right" ? true : canRight
 			const placedTile = placeOnRight
-				? tile.left === boardEnds.right
+				? tile.left.category === boardEnds.right?.category
 					? { ...tile }
 					: { ...tile, left: tile.right, right: tile.left }
-				: tile.right === boardEnds.left
+				: tile.right.category === boardEnds.left?.category
 					? { ...tile }
 					: { ...tile, left: tile.right, right: tile.left }
 
 			placedTile.orientation =
-				placedTile.left === placedTile.right ? "vertical" : "horizontal"
+				placedTile.left.id === placedTile.right.id ? "vertical" : "horizontal"
 
 			nextBoard = placeOnRight ? [...board, placedTile] : [placedTile, ...board]
 		}
@@ -321,7 +576,7 @@ export default function GamePage() {
 		setPassStreak(0)
 		setDraggingTileId(null)
 		setPendingPlacement(null)
-		setMessage(`${playerKey} jogou ${tile.left}/${tile.right}`)
+		setMessage(`${playerKey} jogou ${tile.left.label}/${tile.right.label}`)
 		if (!checkGameOver(nextHands, nextBoard, nextStats, 0)) {
 			setCurrentTurn((prev) => (prev + 1) % players.length)
 		}
@@ -333,15 +588,27 @@ export default function GamePage() {
 		if (!tile) return
 		if (board.length === 0) {
 			placeTile("A", draggingTileId, side)
+			showFeedback({
+				type: "success",
+				title: "Correto!",
+				message: getExplanationForMatch(tile),
+			})
 			return
 		}
 		const canDropLeft =
-			tile.left === boardEnds.left || tile.right === boardEnds.left
+			tile.left.category === boardEnds.left?.category ||
+			tile.right.category === boardEnds.left?.category
 		const canDropRight =
-			tile.left === boardEnds.right || tile.right === boardEnds.right
+			tile.left.category === boardEnds.right?.category ||
+			tile.right.category === boardEnds.right?.category
 		const canDrop = side === "left" ? canDropLeft : canDropRight
 		if (canDrop) {
 			placeTile("A", draggingTileId, side)
+			showFeedback({
+				type: "success",
+				title: "Correto!",
+				message: getExplanationForMatch(tile),
+			})
 			return
 		}
 		setStats((prev) => ({
@@ -355,7 +622,7 @@ export default function GamePage() {
 		showFeedback({
 			type: "error",
 			title: "Ops!",
-			message: `A peça ${tile.left} / ${tile.right} não encaixa nesse lado.`,
+			message: `A peça ${tile.left.label} / ${tile.right.label} não encaixa nesse lado.`,
 		})
 		setDraggingTileId(null)
 	}
@@ -385,7 +652,7 @@ export default function GamePage() {
 
 	useEffect(() => {
 		const playerKey = players[currentTurn]
-		if (playerKey === "A" || gameOver) return
+		if (playerKey === "A" || gameOver || feedback) return
 
 		const timeout = setTimeout(() => {
 			const hand = hands[playerKey]
@@ -407,13 +674,13 @@ export default function GamePage() {
 			setMessage(`Jogador ${playerKey} passou a vez`)
 			setCurrentTurn((prev) => (prev + 1) % players.length)
 			checkGameOver(hands, board, nextStats, nextPassStreak)
-		}, 1300)
+		}, 1800)
 
 		return () => clearTimeout(timeout)
-	}, [currentTurn, hands, boardEnds.left, boardEnds.right, gameOver, stats, passStreak])
+	}, [currentTurn, hands, boardEnds.left, boardEnds.right, gameOver, stats, passStreak, feedback])
 
 	useEffect(() => {
-		if (gameOver) return
+		if (gameOver || feedback) return
 		const playerKey = players[currentTurn]
 		if (playerKey !== "A") return
 		const hand = hands.A
@@ -421,9 +688,9 @@ export default function GamePage() {
 		if (playable) return
 		const timeout = setTimeout(() => {
 			handlePass()
-		}, 400)
+		}, 700)
 		return () => clearTimeout(timeout)
-	}, [currentTurn, hands, gameOver, boardEnds.left, boardEnds.right])
+	}, [currentTurn, hands, gameOver, boardEnds.left, boardEnds.right, feedback])
 
 	useEffect(() => {
 		return () => {
@@ -455,13 +722,16 @@ export default function GamePage() {
 			<Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
 			{/* top bar */}
-			<div className="absolute top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-4">
-				<div className="flex-1 text-center font-bold tracking-[4px] text-[16px]">
-					DOMINO QUIMICO
+			<div className="absolute top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-4 gap-4">
+				<div className="flex items-center gap-2 z-10 text-[11px] tracking-[2px] uppercase text-white/80">
+					Nível: <span className="text-white">{currentLevel.title}</span>
+				</div>
+				<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+					<div className="font-bold tracking-[4px] text-[16px]">DOMINO QUIMICO</div>
 				</div>
 				<button
 					type="button"
-					className="w-8 h-8 flex items-center justify-center rounded-full border border-white/60 text-white hover:bg-white/10"
+					className="ml-auto w-8 h-8 flex items-center justify-center rounded-full border border-white/60 text-white hover:bg-white/10 z-10"
 					aria-label="Fechar"
 				>
 					✕
@@ -470,11 +740,11 @@ export default function GamePage() {
 
 			{/* board */}
 			<div className="relative z-10 w-full h-full flex items-center justify-center pt-12">
-				<div className="relative w-[94%] h-[82%] bg-neutral-200 border border-black/10 rounded-sm">
+				<div className="relative w-[97.5%] h-[90%] bg-neutral-200 border border-black/10 rounded-sm">
 					{/* top hand */}
 					<div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-2">
 						{hands.C.map((item) => (
-							<HiddenTile key={item.id} orientation="vertical" />
+							<HiddenTile key={item.id} orientation="vertical" size="sm" />
 						))}
 					</div>
 					<div className="absolute top-4 left-1/2 -translate-x-1/2 text-[14px] text-dq-text">
@@ -482,9 +752,9 @@ export default function GamePage() {
 					</div>
 
 					{/* left hand */}
-					<div className="absolute top-[54%] left-6 -translate-y-1/2 flex flex-col gap-2">
+					<div className="absolute top-[54%] left-2 -translate-y-1/2 flex flex-col gap-1">
 						{hands.B.map((item) => (
-							<HiddenTile key={item.id} orientation="horizontal" />
+							<HiddenTile key={item.id} orientation="horizontal" size="sm" />
 						))}
 					</div>
 					<div className="absolute top-[12%] left-8 text-[14px] text-dq-text">
@@ -492,9 +762,9 @@ export default function GamePage() {
 					</div>
 
 					{/* right hand */}
-					<div className="absolute top-[54%] right-6 -translate-y-1/2 flex flex-col gap-2">
+					<div className="absolute top-[54%] right-2 -translate-y-1/2 flex flex-col gap-1">
 						{hands.D.map((item) => (
-							<HiddenTile key={item.id} orientation="horizontal" />
+							<HiddenTile key={item.id} orientation="horizontal" size="sm" />
 						))}
 					</div>
 					<div className="absolute top-[12%] right-10 text-[14px] text-dq-text">
@@ -502,13 +772,14 @@ export default function GamePage() {
 					</div>
 
 					{/* center info */}
-					<div className="absolute inset-x-0 top-[38%] text-center text-[15px] text-dq-muted">
-						{message}
+					<div className="absolute inset-x-0 top-[34%] text-center">
+						<div className="text-[11px] text-dq-muted">{currentLevel.description}</div>
+						<div className="mt-1 text-[14px] text-dq-muted">{message}</div>
 					</div>
 
 					{/* played tiles */}
 					<div
-						className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 flex flex-nowrap items-center gap-2 max-w-[84%] overflow-hidden px-2"
+						className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 flex flex-nowrap items-center gap-2 max-w-[94%] overflow-hidden px-2"
 						style={{ transform: `translate(-50%, -50%) scale(${boardScale})`, transformOrigin: "center" }}
 					>
 						<div className="absolute -left-14 top-1/2 -translate-y-1/2">
@@ -528,8 +799,10 @@ export default function GamePage() {
 						{board.map((tile) => (
 							<DominoTile
 								key={tile.id}
-								labelTop={tile.left}
-								labelBottom={tile.right}
+								labelTop={tile.left.label}
+								labelBottom={tile.right.label}
+								detailTop={tile.left.detail}
+								detailBottom={tile.right.detail}
 								orientation={tile.orientation || "horizontal"}
 							/>
 						))}
@@ -572,8 +845,10 @@ export default function GamePage() {
 							{hands.A.map((item) => (
 								<DominoTile
 									key={item.id}
-									labelTop={item.left}
-									labelBottom={item.right}
+									labelTop={item.left.label}
+									labelBottom={item.right.label}
+									detailTop={item.left.detail}
+									detailBottom={item.right.detail}
 									onClick={() => handleSelectTile(item)}
 									onDragStart={() => setDraggingTileId(item.id)}
 									onDragEnd={() => setDraggingTileId(null)}
@@ -694,9 +969,9 @@ export default function GamePage() {
 										<div className="mt-2 inline-flex items-center gap-2 bg-white border border-black/20 rounded-md px-2 py-1 text-[11px]">
 											{mostMissedTile ? (
 												<>
-													<span>{mostMissedTile.left}</span>
+													<span>{mostMissedTile.left.label}</span>
 													<span className="text-dq-muted">|</span>
-													<span>{mostMissedTile.right}</span>
+													<span>{mostMissedTile.right.label}</span>
 												</>
 											) : (
 												<span className="text-dq-muted">Sem dados</span>
@@ -728,6 +1003,16 @@ export default function GamePage() {
 						</div>
 
 						<div className="mt-5 flex items-center justify-center gap-3">
+							{LEVELS.findIndex((level) => level.id === levelId) <
+								LEVELS.length - 1 && (
+								<button
+									type="button"
+									className="bg-emerald-500 text-white text-[13px] px-5 py-2 rounded-full"
+									onClick={handleNextLevel}
+								>
+									Próximo nível
+								</button>
+							)}
 							<button
 								type="button"
 								className="bg-dq-red text-white text-[13px] px-5 py-2 rounded-full"
@@ -738,7 +1023,7 @@ export default function GamePage() {
 							<button
 								type="button"
 								className="bg-white text-dq-red border border-dq-red text-[13px] px-5 py-2 rounded-full"
-								onClick={resetGame}
+								onClick={handleRestartLevelOne}
 							>
 								Jogar Novamente
 							</button>
@@ -754,11 +1039,23 @@ function Corner({ pos, borders }) {
 	return <div className={`absolute w-5 h-5 ${pos} ${borders} border-dq-red`} />
 }
 
-function HiddenTile({ orientation = "vertical" }) {
+function HiddenTile({ orientation = "vertical", size = "md" }) {
 	const base =
 		"bg-white border border-black/50 rounded-[6px] shadow-[0_1px_0_rgba(0,0,0,0.15)]"
+	const sizeMap = {
+		md: {
+			vertical: "w-[42px] h-[64px]",
+			horizontal: "w-[64px] h-[42px]",
+		},
+		sm: {
+			vertical: "w-[34px] h-[52px]",
+			horizontal: "w-[52px] h-[34px]",
+		},
+	}
 	const tileClass =
-		orientation === "vertical" ? "w-[42px] h-[64px]" : "w-[64px] h-[42px]"
+		orientation === "vertical"
+			? sizeMap[size]?.vertical || sizeMap.md.vertical
+			: sizeMap[size]?.horizontal || sizeMap.md.horizontal
 	return (
 		<div className={`${base} ${tileClass}`} />
 	)
@@ -767,6 +1064,8 @@ function HiddenTile({ orientation = "vertical" }) {
 function DominoTile({
 	labelTop,
 	labelBottom,
+	detailTop,
+	detailBottom,
 	orientation = "horizontal",
 	onClick,
 	onDragStart,
@@ -780,7 +1079,7 @@ function DominoTile({
 	return (
 		<div
 			className={`${base} ${
-				isVertical ? "w-[48px] h-[54px]" : "w-[60px] h-[34px]"
+				isVertical ? "w-[64px] h-[78px]" : "w-[86px] h-[50px]"
 			} flex ${isVertical ? "flex-col" : "flex-row"} ${
 				isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
 			} ${
@@ -794,13 +1093,17 @@ function DominoTile({
 			onDragEnd={onDragEnd}
 		>
 			<div
-				className={`flex-1 flex items-center justify-center text-[9px] ${
+				className={`flex-1 flex items-center justify-center text-[11px] ${
 					isVertical ? "border-b border-black/20" : "border-r border-black/20"
 				}`}
+				title={detailTop ? `${labelTop} — ${detailTop}` : labelTop}
 			>
 				{labelTop}
 			</div>
-			<div className="flex-1 flex items-center justify-center text-[9px]">
+			<div
+				className="flex-1 flex items-center justify-center text-[11px]"
+				title={detailBottom ? `${labelBottom} — ${detailBottom}` : labelBottom}
+			>
 				{labelBottom}
 			</div>
 		</div>
