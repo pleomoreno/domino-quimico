@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 const createTile = (id, left, right) => ({ id, left, right })
 
@@ -305,6 +306,7 @@ const createGameState = (levelId) => {
 const players = ["A", "B", "C", "D"]
 
 export default function GamePage() {
+	const navigate = useNavigate()
 	const [levelId, setLevelId] = useState(LEVELS[0].id)
 	const initialGame = useMemo(() => createGameState(LEVELS[0].id), [])
 	const [hands, setHands] = useState(initialGame.hands)
@@ -318,6 +320,8 @@ export default function GamePage() {
 	const [passStreak, setPassStreak] = useState(0)
 	const [draggingTileId, setDraggingTileId] = useState(null)
 	const [pendingPlacement, setPendingPlacement] = useState(null)
+	const [exitPromptOpen, setExitPromptOpen] = useState(false)
+	const [exitConfirmStep, setExitConfirmStep] = useState(false)
 	const feedbackTimeoutRef = useRef(null)
 	const startTimeRef = useRef(Date.now())
 	const [stats, setStats] = useState(() =>
@@ -344,6 +348,35 @@ export default function GamePage() {
 		return 0.92
 	}, [board.length])
 
+	const boardRows = useMemo(() => {
+		if (board.length === 0) return []
+		const maxPerRow =
+			board.length > 28 ? 9 : board.length > 22 ? 10 : board.length > 16 ? 11 : 12
+		const rows = []
+		for (let i = 0; i < board.length; i += maxPerRow) {
+			rows.push(board.slice(i, i + maxPerRow))
+		}
+		return rows
+	}, [board])
+
+	const handleOpenExitPrompt = () => {
+		setExitPromptOpen(true)
+		setExitConfirmStep(false)
+	}
+
+	const handleContinueGame = () => {
+		setExitPromptOpen(false)
+		setExitConfirmStep(false)
+	}
+
+	const handleAskExitConfirm = () => {
+		setExitConfirmStep(true)
+	}
+
+	const handleConfirmExit = () => {
+		navigate("/")
+	}
+
 
 	const isPlayable = (tile) => {
 		if (!boardEnds.left && !boardEnds.right) return true
@@ -354,6 +387,11 @@ export default function GamePage() {
 			tile.right.category === boardEnds.right?.category
 		)
 	}
+
+	const playerHasPlayable = useMemo(
+		() => hands.A.some((tile) => isPlayable(tile)),
+		[hands, boardEnds.left, boardEnds.right]
+	)
 
 	const isPlayableWithEnds = (tile, ends) => {
 		if (!ends.left && !ends.right) return true
@@ -635,6 +673,16 @@ export default function GamePage() {
 	const handlePass = () => {
 		if (gameOver) return
 		const playerKey = players[currentTurn]
+		const hand = hands[playerKey]
+		const hasPlayable = hand.some((tile) => isPlayable(tile))
+		if (hasPlayable) {
+			showFeedback({
+				type: "error",
+				title: "Você ainda pode jogar",
+				message: "Há uma pedra disponível para encaixar na mesa.",
+			})
+			return
+		}
 		const nextStats = {
 			...stats,
 			[playerKey]: {
@@ -722,7 +770,7 @@ export default function GamePage() {
 			<Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
 			{/* top bar */}
-			<div className="absolute top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-4 gap-4">
+			<div className="absolute top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-4 gap-4 z-20">
 				<div className="flex items-center gap-2 z-10 text-[11px] tracking-[2px] uppercase text-white/80">
 					Nível: <span className="text-white">{currentLevel.title}</span>
 				</div>
@@ -733,6 +781,7 @@ export default function GamePage() {
 					type="button"
 					className="ml-auto w-8 h-8 flex items-center justify-center rounded-full border border-white/60 text-white hover:bg-white/10 z-10"
 					aria-label="Fechar"
+					onClick={handleOpenExitPrompt}
 				>
 					✕
 				</button>
@@ -772,14 +821,14 @@ export default function GamePage() {
 					</div>
 
 					{/* center info */}
-					<div className="absolute inset-x-0 top-[34%] text-center">
+					<div className="absolute inset-x-0 top-[24%] text-center">
 						<div className="text-[11px] text-dq-muted">{currentLevel.description}</div>
 						<div className="mt-1 text-[14px] text-dq-muted">{message}</div>
 					</div>
 
 					{/* played tiles */}
 					<div
-						className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 flex flex-nowrap items-center gap-2 max-w-[94%] overflow-hidden px-2"
+						className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 max-w-[94%] px-2 py-2"
 						style={{ transform: `translate(-50%, -50%) scale(${boardScale})`, transformOrigin: "center" }}
 					>
 						<div className="absolute -left-14 top-1/2 -translate-y-1/2">
@@ -796,16 +845,43 @@ export default function GamePage() {
 								onDrop={() => handleDrop("right")}
 							/>
 						</div>
-						{board.map((tile) => (
-							<DominoTile
-								key={tile.id}
-								labelTop={tile.left.label}
-								labelBottom={tile.right.label}
-								detailTop={tile.left.detail}
-								detailBottom={tile.right.detail}
-								orientation={tile.orientation || "horizontal"}
-							/>
-						))}
+						{boardRows.map((row, rowIndex) => {
+							const isOddRow = rowIndex % 2 === 1;
+							const displayRow = isOddRow ? [...row].reverse() : row;
+							const hasNextRow = rowIndex < boardRows.length - 1;
+
+							return (
+								<div
+									key={`row-${rowIndex}`}
+									className={`flex flex-nowrap items-center gap-2 ${
+										isOddRow ? "justify-start" : "justify-end"
+									}`}
+									style={{ width: "100%" }}
+								>
+									{displayRow.map((tile, tileIndex) => {
+										const isRowConnector =
+											hasNextRow &&
+											((!isOddRow && tileIndex === displayRow.length - 1) ||
+												(isOddRow && tileIndex === 0));
+
+										const orientation = isRowConnector
+											? "vertical"
+											: tile.orientation || "horizontal";
+
+										return (
+											<DominoTile
+												key={tile.id}
+												labelTop={tile.left.label}
+												labelBottom={tile.right.label}
+												detailTop={tile.left.detail}
+												detailBottom={tile.right.detail}
+												orientation={orientation}
+											/>
+										);
+									})}
+								</div>
+							);
+						})}
 					</div>
 
 					{pendingPlacement && !gameOver && (
@@ -834,7 +910,7 @@ export default function GamePage() {
 							type="button"
 							className="mt-2 bg-dq-red text-white text-[13px] px-6 py-2 rounded-full shadow-inner shadow-black/20 disabled:opacity-50"
 							onClick={handlePass}
-							disabled={players[currentTurn] !== "A" || gameOver}
+							disabled={players[currentTurn] !== "A" || gameOver || playerHasPlayable}
 						>
 							PASSAR VEZ
 						</button>
@@ -867,6 +943,57 @@ export default function GamePage() {
 				</div>
 			</div>
 			</div>
+
+			{exitPromptOpen && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+					<div className="w-[420px] bg-white rounded-xl border border-dq-red/40 shadow-[0_8px_30px_rgba(0,0,0,0.25)] px-8 py-6 text-center text-dq-text">
+						<h2 className="text-[18px] font-bold text-dq-text">Sair do jogo?</h2>
+						<p className="mt-2 text-[14px] text-dq-muted leading-relaxed">
+							Você pode continuar a partida ou sair agora.
+						</p>
+						{!exitConfirmStep ? (
+							<div className="mt-5 flex items-center justify-center gap-3">
+								<button
+									type="button"
+									className="bg-white text-dq-red border border-dq-red text-[13px] px-5 py-2 rounded-full"
+									onClick={handleContinueGame}
+								>
+									Continuar
+								</button>
+								<button
+									type="button"
+									className="bg-dq-red text-white text-[13px] px-5 py-2 rounded-full"
+									onClick={handleAskExitConfirm}
+								>
+									Sair
+								</button>
+							</div>
+						) : (
+							<div className="mt-5">
+								<p className="text-[13px] text-dq-muted">
+									Tem certeza? Essa ação encerra a partida atual.
+								</p>
+								<div className="mt-4 flex items-center justify-center gap-3">
+									<button
+										type="button"
+										className="bg-white text-dq-red border border-dq-red text-[13px] px-5 py-2 rounded-full"
+										onClick={handleContinueGame}
+									>
+										Voltar
+									</button>
+									<button
+										type="button"
+										className="bg-dq-red text-white text-[13px] px-5 py-2 rounded-full"
+										onClick={handleConfirmExit}
+									>
+										Confirmar saída
+									</button>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
 
 			{feedback && !gameOver && (
 			<div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
@@ -1088,12 +1215,12 @@ function DominoTile({
 					: ""
 			}`}
 			onClick={onClick}
-			draggable={!isDisabled}
+			draggable={!isDisabled && !isInvalid}
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
 		>
 			<div
-				className={`flex-1 flex items-center justify-center text-[11px] ${
+				className={`flex-1 flex items-center justify-center text-[10px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden ${
 					isVertical ? "border-b border-black/20" : "border-r border-black/20"
 				}`}
 				title={detailTop ? `${labelTop} — ${detailTop}` : labelTop}
@@ -1101,7 +1228,7 @@ function DominoTile({
 				{labelTop}
 			</div>
 			<div
-				className="flex-1 flex items-center justify-center text-[11px]"
+				className="flex-1 flex items-center justify-center text-[10px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden"
 				title={detailBottom ? `${labelBottom} — ${detailBottom}` : labelBottom}
 			>
 				{labelBottom}
@@ -1113,13 +1240,12 @@ function DominoTile({
 function DropZone({ label, onDrop, isActive }) {
 	return (
 		<div
-			className={`w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center text-[10px] uppercase tracking-[1px] ${
+			className={`w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center ${
 				isActive ? "border-dq-red text-dq-red bg-white" : "border-black/20 text-dq-muted"
 			}`}
 			onDragOver={(event) => event.preventDefault()}
 			onDrop={onDrop}
 		>
-			{label}
 		</div>
 	)
 }
