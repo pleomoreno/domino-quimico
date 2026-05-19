@@ -348,15 +348,101 @@ export default function GamePage() {
 		return 0.92
 	}, [board.length])
 
-	const boardRows = useMemo(() => {
-		if (board.length === 0) return []
-		const maxPerRow =
-			board.length > 28 ? 9 : board.length > 22 ? 10 : board.length > 16 ? 11 : 12
-		const rows = []
-		for (let i = 0; i < board.length; i += maxPerRow) {
-			rows.push(board.slice(i, i + maxPerRow))
+	const boardLayout = useMemo(() => {
+		if (board.length === 0) {
+			return { tiles: [], width: 0, height: 0, startDrop: null, endDrop: null }
 		}
-		return rows
+
+		const STEP = 60
+		const PATH_COLS = 12
+		const PATH_ROWS = 6
+		const MIN_X = 0
+		const MIN_Y = 0
+		const MAX_X = STEP * (PATH_COLS - 1)
+		const MAX_Y = STEP * (PATH_ROWS - 1)
+		const H_TILE = { w: 86, h: 50 }
+		const V_TILE = { w: 64, h: 78 }
+		const gap = 2
+
+		let minX = MIN_X
+		let minY = MIN_Y
+		let maxX = MAX_X
+		let maxY = MAX_Y
+		let x = minX
+		let y = minY
+		let direction = "RIGHT"
+
+		const tiles = board.map((tile, index) => {
+			const isHorizontal = direction === "RIGHT" || direction === "LEFT"
+			const orientation = isHorizontal ? "horizontal" : "vertical"
+			const item = { tile, x, y, orientation, direction, index }
+
+			if (direction === "RIGHT") {
+				if (x + STEP > maxX) {
+					direction = "DOWN"
+					minY += STEP
+					y += STEP
+				} else {
+					x += STEP
+				}
+			} else if (direction === "DOWN") {
+				if (y + STEP > maxY) {
+					direction = "LEFT"
+					maxX -= STEP
+					x -= STEP
+				} else {
+					y += STEP
+				}
+			} else if (direction === "LEFT") {
+				if (x - STEP < minX) {
+					direction = "UP"
+					maxY -= STEP
+					y -= STEP
+				} else {
+					x -= STEP
+				}
+			} else {
+				if (y - STEP < minY) {
+					direction = "RIGHT"
+					minX += STEP
+					x += STEP
+				} else {
+					y -= STEP
+				}
+			}
+
+			return item
+		})
+
+		const boardWidth = MAX_X + H_TILE.w
+		const boardHeight = MAX_Y + V_TILE.h
+		const first = tiles[0]
+		const last = tiles[tiles.length - 1]
+		const getDropLayout = (item, isStart) => {
+			if (!item) return null
+			const dir = item.direction
+			const isHorizontal = dir === "RIGHT" || dir === "LEFT"
+			const size = isHorizontal ? H_TILE : V_TILE
+			let dx = 0
+			let dy = 0
+			if (dir === "RIGHT") dx = isStart ? -(size.w + gap) : size.w + gap
+			if (dir === "LEFT") dx = isStart ? size.w + gap : -(size.w + gap)
+			if (dir === "DOWN") dy = isStart ? -(size.h + gap) : size.h + gap
+			if (dir === "UP") dy = isStart ? size.h + gap : -(size.h + gap)
+			return {
+				x: item.x + dx,
+				y: item.y + dy,
+				orientation: isHorizontal ? "horizontal" : "vertical",
+			}
+		}
+
+		return {
+			tiles,
+			width: boardWidth,
+			height: boardHeight,
+			startDrop: getDropLayout(first, true),
+			endDrop: getDropLayout(last, false),
+		}
 	}, [board])
 
 	const handleOpenExitPrompt = () => {
@@ -748,6 +834,8 @@ export default function GamePage() {
 		}
 	}, [])
 
+
+
 	return (
 		<>
 			<div className="relative w-screen h-screen bg-white overflow-hidden font-mono text-dq-red">
@@ -828,60 +916,57 @@ export default function GamePage() {
 
 					{/* played tiles */}
 					<div
-						className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 max-w-[94%] px-2 py-2"
+						className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2"
 						style={{ transform: `translate(-50%, -50%) scale(${boardScale})`, transformOrigin: "center" }}
 					>
-						<div className="absolute -left-14 top-1/2 -translate-y-1/2">
-							<DropZone
-								label="Esquerda"
-								isActive={!!draggingTileId}
-								onDrop={() => handleDrop("left")}
-							/>
-						</div>
-						<div className="absolute -right-14 top-1/2 -translate-y-1/2">
-							<DropZone
-								label="Direita"
-								isActive={!!draggingTileId}
-								onDrop={() => handleDrop("right")}
-							/>
-						</div>
-						{boardRows.map((row, rowIndex) => {
-							const isOddRow = rowIndex % 2 === 1;
-							const displayRow = isOddRow ? [...row].reverse() : row;
-							const hasNextRow = rowIndex < boardRows.length - 1;
-
-							return (
+						<div
+							className="relative"
+							style={{ width: `${boardLayout.width}px`, height: `${boardLayout.height}px` }}
+						>
+							{boardLayout.startDrop && (
 								<div
-									key={`row-${rowIndex}`}
-									className={`flex flex-nowrap items-center gap-2 ${
-										isOddRow ? "justify-start" : "justify-end"
-									}`}
-									style={{ width: "100%" }}
+									className="absolute"
+									style={{ left: boardLayout.startDrop.x, top: boardLayout.startDrop.y }}
 								>
-									{displayRow.map((tile, tileIndex) => {
-										const isRowConnector =
-											hasNextRow &&
-											((!isOddRow && tileIndex === displayRow.length - 1) ||
-												(isOddRow && tileIndex === 0));
-
-										const orientation = isRowConnector
-											? "vertical"
-											: tile.orientation || "horizontal";
-
-										return (
-											<DominoTile
-												key={tile.id}
-												labelTop={tile.left.label}
-												labelBottom={tile.right.label}
-												detailTop={tile.left.detail}
-												detailBottom={tile.right.detail}
-												orientation={orientation}
-											/>
-										);
-									})}
+									<DropZone
+										label="Esquerda"
+										orientation={boardLayout.startDrop.orientation}
+										isActive={!!draggingTileId}
+										onDrop={() => handleDrop("left")}
+									/>
 								</div>
-							);
-						})}
+							)}
+							{boardLayout.endDrop && (
+								<div
+									className="absolute"
+									style={{ left: boardLayout.endDrop.x, top: boardLayout.endDrop.y }}
+								>
+									<DropZone
+										label="Direita"
+										orientation={boardLayout.endDrop.orientation}
+										isActive={!!draggingTileId}
+										onDrop={() => handleDrop("right")}
+									/>
+								</div>
+							)}
+							{boardLayout.tiles.map((item) => (
+								<div
+									key={item.tile.id}
+									className="absolute"
+									style={{ left: item.x, top: item.y }}
+								>
+									<DominoTile
+										labelTop={item.tile.left.label}
+										labelBottom={item.tile.right.label}
+										detailTop={item.tile.left.detail}
+										detailBottom={item.tile.right.detail}
+										orientation={item.orientation}
+										isBoardStart={item.index === 0}
+										isBoardEnd={item.index === boardLayout.tiles.length - 1}
+									/>
+								</div>
+							))}
+						</div>
 					</div>
 
 					{pendingPlacement && !gameOver && (
@@ -1205,7 +1290,7 @@ function DominoTile({
 		"bg-white border border-black/50 rounded-[6px] shadow-[0_1px_0_rgba(0,0,0,0.15)] text-dq-text"
 	return (
 		<div
-			className={`${base} ${
+			className={`domino-tile ${base} ${
 				isVertical ? "w-[64px] h-[78px]" : "w-[86px] h-[50px]"
 			} flex ${isVertical ? "flex-col" : "flex-row"} ${
 				isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
@@ -1237,10 +1322,12 @@ function DominoTile({
 	)
 }
 
-function DropZone({ label, onDrop, isActive }) {
+function DropZone({ label, onDrop, isActive, orientation = "horizontal" }) {
+	const sizeClass =
+		orientation === "vertical" ? "w-[64px] h-[78px]" : "w-[86px] h-[50px]"
 	return (
 		<div
-			className={`w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center ${
+			className={`${sizeClass} rounded-[6px] border-2 border-dashed flex items-center justify-center ${
 				isActive ? "border-dq-red text-dq-red bg-white" : "border-black/20 text-dq-muted"
 			}`}
 			onDragOver={(event) => event.preventDefault()}
