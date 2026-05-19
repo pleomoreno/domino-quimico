@@ -353,82 +353,102 @@ export default function GamePage() {
 			return { tiles: [], width: 0, height: 0, startDrop: null, endDrop: null }
 		}
 
-		const STEP = 60
-		const PATH_COLS = 12
-		const PATH_ROWS = 6
-		const MIN_X = 0
-		const MIN_Y = 0
-		const MAX_X = STEP * (PATH_COLS - 1)
-		const MAX_Y = STEP * (PATH_ROWS - 1)
-		const H_TILE = { w: 86, h: 50 }
-		const V_TILE = { w: 64, h: 78 }
-		const gap = 2
+		const H_SIZE = { w: 86, h: 50 }
+		const V_SIZE = { w: 64, h: 78 }
+		const BOARD_W = 980
+		const BOARD_H = 520
+		const MARGIN = 28
+		const GAP = 4
 
-		let minX = MIN_X
-		let minY = MIN_Y
-		let maxX = MAX_X
-		let maxY = MAX_Y
-		let x = minX
-		let y = minY
-		let direction = "RIGHT"
+		let x = (BOARD_W - H_SIZE.w) / 2
+		let y = (BOARD_H - H_SIZE.h) / 2
+		let direction = "right"
+		let horizontalDir = "right"
+
+		const getRotation = (dir, isDouble) => {
+			if (dir === "right" || dir === "left") {
+				if (isDouble) return 90
+				return dir === "left" ? 180 : 0
+			}
+			if (isDouble) return 0
+			return dir === "up" ? 270 : 90
+		}
+
+		const getSize = (dir, isDouble) => {
+			if (dir === "right" || dir === "left") {
+				return isDouble ? V_SIZE : H_SIZE
+			}
+			return isDouble ? H_SIZE : V_SIZE
+		}
 
 		const tiles = board.map((tile, index) => {
-			const isHorizontal = direction === "RIGHT" || direction === "LEFT"
-			const orientation = isHorizontal ? "horizontal" : "vertical"
-			const item = { tile, x, y, orientation, direction, index }
+			const isDouble = tile.left.id === tile.right.id
+			const rotation = getRotation(direction, isDouble)
+			const orientation = rotation % 180 === 0 ? "horizontal" : "vertical"
+			const size = getSize(direction, isDouble)
+			const item = { tile, x, y, rotation, orientation, direction, index, isDouble }
 
-			if (direction === "RIGHT") {
-				if (x + STEP > maxX) {
-					direction = "DOWN"
-					minY += STEP
-					y += STEP
-				} else {
-					x += STEP
+			if (index < board.length - 1) {
+				const nextTile = board[index + 1]
+				const nextIsDouble = nextTile.left.id === nextTile.right.id
+				let nextDirection = direction
+				let nextHorizontalDir = horizontalDir
+
+				if (direction === "right" || direction === "left") {
+					const nextSize = getSize(direction, nextIsDouble)
+					const step = Math.max(size.w, nextSize.w) + GAP
+					const nextX = direction === "right" ? x + step : x - step
+					const limit =
+						direction === "right"
+							? BOARD_W - MARGIN - nextSize.w
+							: MARGIN
+					if (
+						(direction === "right" && nextX > limit) ||
+						(direction === "left" && nextX < limit)
+					) {
+						nextDirection = "down"
+						nextHorizontalDir = direction
+						const downNextSize = getSize("down", nextIsDouble)
+						const stepY = Math.max(size.h, downNextSize.h) + GAP
+						y = Math.min(y + stepY, BOARD_H - MARGIN - downNextSize.h)
+					} else {
+						x = nextX
+					}
+				} else if (direction === "down") {
+					const nextDir = horizontalDir === "right" ? "left" : "right"
+					const nextSize = getSize(nextDir, nextIsDouble)
+					const stepY = Math.max(size.h, nextSize.h) + GAP
+					const nextY = y + stepY
+					y = Math.min(nextY, BOARD_H - MARGIN - nextSize.h)
+					nextDirection = nextDir
+					nextHorizontalDir = nextDir
 				}
-			} else if (direction === "DOWN") {
-				if (y + STEP > maxY) {
-					direction = "LEFT"
-					maxX -= STEP
-					x -= STEP
-				} else {
-					y += STEP
-				}
-			} else if (direction === "LEFT") {
-				if (x - STEP < minX) {
-					direction = "UP"
-					maxY -= STEP
-					y -= STEP
-				} else {
-					x -= STEP
-				}
-			} else {
-				if (y - STEP < minY) {
-					direction = "RIGHT"
-					minX += STEP
-					x += STEP
-				} else {
-					y -= STEP
-				}
+
+				direction = nextDirection
+				horizontalDir = nextHorizontalDir
 			}
 
 			return item
 		})
 
-		const boardWidth = MAX_X + H_TILE.w
-		const boardHeight = MAX_Y + V_TILE.h
-		const first = tiles[0]
-		const last = tiles[tiles.length - 1]
+		const oppositeDir = (dir) => {
+			if (dir === "right") return "left"
+			if (dir === "left") return "right"
+			if (dir === "up") return "down"
+			return "up"
+		}
+
 		const getDropLayout = (item, isStart) => {
 			if (!item) return null
-			const dir = item.direction
-			const isHorizontal = dir === "RIGHT" || dir === "LEFT"
-			const size = isHorizontal ? H_TILE : V_TILE
+			const dir = isStart ? oppositeDir(item.direction) : item.direction
+			const isHorizontal = dir === "right" || dir === "left"
 			let dx = 0
 			let dy = 0
-			if (dir === "RIGHT") dx = isStart ? -(size.w + gap) : size.w + gap
-			if (dir === "LEFT") dx = isStart ? size.w + gap : -(size.w + gap)
-			if (dir === "DOWN") dy = isStart ? -(size.h + gap) : size.h + gap
-			if (dir === "UP") dy = isStart ? size.h + gap : -(size.h + gap)
+			const size = isHorizontal ? H_SIZE : V_SIZE
+			if (dir === "right") dx = size.w + GAP
+			if (dir === "left") dx = -(size.w + GAP)
+			if (dir === "down") dy = size.h + GAP
+			if (dir === "up") dy = -(size.h + GAP)
 			return {
 				x: item.x + dx,
 				y: item.y + dy,
@@ -438,10 +458,10 @@ export default function GamePage() {
 
 		return {
 			tiles,
-			width: boardWidth,
-			height: boardHeight,
-			startDrop: getDropLayout(first, true),
-			endDrop: getDropLayout(last, false),
+			width: BOARD_W,
+			height: BOARD_H,
+			startDrop: getDropLayout(tiles[0], true),
+			endDrop: getDropLayout(tiles[tiles.length - 1], false),
 		}
 	}, [board])
 
@@ -876,7 +896,7 @@ export default function GamePage() {
 			</div>
 
 			{/* board */}
-			<div className="relative z-10 w-full h-full flex items-center justify-center pt-12">
+				<div className="relative z-10 w-full h-full flex items-center justify-center pt-12">
 				<div className="relative w-[97.5%] h-[90%] bg-neutral-200 border border-black/10 rounded-sm">
 					{/* top hand */}
 					<div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-2">
@@ -916,7 +936,7 @@ export default function GamePage() {
 
 					{/* played tiles */}
 					<div
-						className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2"
+						className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2"
 						style={{ transform: `translate(-50%, -50%) scale(${boardScale})`, transformOrigin: "center" }}
 					>
 						<div
@@ -953,7 +973,13 @@ export default function GamePage() {
 								<div
 									key={item.tile.id}
 									className="absolute"
-									style={{ left: item.x, top: item.y }}
+									style={{
+										left: 0,
+										top: 0,
+										transform: `translate(${item.x}px, ${item.y}px) rotate(${item.rotation}deg)`,
+										transformOrigin: "center",
+										transition: "transform 0.3s linear",
+									}}
 								>
 									<DominoTile
 										labelTop={item.tile.left.label}
