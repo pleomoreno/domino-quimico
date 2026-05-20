@@ -580,19 +580,27 @@ export default function GamePage() {
 	}
 
 
+	const isDoubleTile = (tile) => tile?.left?.id === tile?.right?.id
+
+	const canPlaceTileOnSide = (tile, side) => {
+		if (board.length === 0) return true
+		const endTile = side === "left" ? board[0] : board[board.length - 1]
+		const endValue = side === "left" ? endTile?.left : endTile?.right
+		const matchesCategory =
+			tile.left.category === endValue?.category ||
+			tile.right.category === endValue?.category
+		if (!matchesCategory) return false
+		return !(isDoubleTile(tile) && isDoubleTile(endTile))
+	}
+
 	const isPlayable = (tile) => {
 		if (!boardEnds.left && !boardEnds.right) return true
-		return (
-			tile.left.category === boardEnds.left?.category ||
-			tile.right.category === boardEnds.left?.category ||
-			tile.left.category === boardEnds.right?.category ||
-			tile.right.category === boardEnds.right?.category
-		)
+		return canPlaceTileOnSide(tile, "left") || canPlaceTileOnSide(tile, "right")
 	}
 
 	const playerHasPlayable = useMemo(
 		() => hands.A.some((tile) => isPlayable(tile)),
-		[hands, boardEnds.left, boardEnds.right]
+		[hands, board]
 	)
 
 	const isPlayableWithEnds = (tile, ends) => {
@@ -750,12 +758,8 @@ export default function GamePage() {
 			})
 			return
 		}
-		const canLeft =
-			tile.left.category === boardEnds.left?.category ||
-			tile.right.category === boardEnds.left?.category
-		const canRight =
-			tile.left.category === boardEnds.right?.category ||
-			tile.right.category === boardEnds.right?.category
+		const canLeft = canPlaceTileOnSide(tile, "left")
+		const canRight = canPlaceTileOnSide(tile, "right")
 		if (!canLeft && !canRight) return
 		if (canLeft && canRight) {
 			setPendingPlacement({ tileId: tile.id })
@@ -773,12 +777,8 @@ export default function GamePage() {
 		if (board.length === 0) {
 			nextBoard = [{ ...tile, orientation: "horizontal" }]
 		} else {
-			const canRight =
-				tile.left.category === boardEnds.right?.category ||
-				tile.right.category === boardEnds.right?.category
-			const canLeft =
-				tile.left.category === boardEnds.left?.category ||
-				tile.right.category === boardEnds.left?.category
+			const canRight = canPlaceTileOnSide(tile, "right")
+			const canLeft = canPlaceTileOnSide(tile, "left")
 			if (!canRight && !canLeft) return
 
 			const placeOnRight =
@@ -835,12 +835,8 @@ export default function GamePage() {
 			})
 			return
 		}
-		const canDropLeft =
-			tile.left.category === boardEnds.left?.category ||
-			tile.right.category === boardEnds.left?.category
-		const canDropRight =
-			tile.left.category === boardEnds.right?.category ||
-			tile.right.category === boardEnds.right?.category
+		const canDropLeft = canPlaceTileOnSide(tile, "left")
+		const canDropRight = canPlaceTileOnSide(tile, "right")
 		const canDrop = side === "left" ? canDropLeft : canDropRight
 		if (canDrop) {
 			placeTile("A", draggingTileId, side)
@@ -927,7 +923,7 @@ export default function GamePage() {
 		}, 1800)
 
 		return () => clearTimeout(timeout)
-	}, [currentTurn, hands, boardEnds.left, boardEnds.right, gameOver, stats, passStreak, feedback])
+	}, [currentTurn, hands, board, boardEnds.left, boardEnds.right, gameOver, stats, passStreak, feedback])
 
 	useEffect(() => {
 		if (gameOver || feedback) return
@@ -940,7 +936,7 @@ export default function GamePage() {
 			handlePass()
 		}, 700)
 		return () => clearTimeout(timeout)
-	}, [currentTurn, hands, gameOver, boardEnds.left, boardEnds.right, feedback])
+	}, [currentTurn, hands, board, gameOver, boardEnds.left, boardEnds.right, feedback])
 
 	useEffect(() => {
 		return () => {
