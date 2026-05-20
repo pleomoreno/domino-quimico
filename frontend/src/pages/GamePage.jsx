@@ -344,8 +344,10 @@ export default function GamePage() {
 	const boardScale = useMemo(() => {
 		if (board.length <= 10) return 1
 		if (board.length <= 14) return 0.98
-		if (board.length <= 18) return 0.95
-		return 0.92
+		if (board.length <= 18) return 0.93
+		if (board.length <= 22) return 0.86
+		if (board.length <= 26) return 0.8
+		return 0.74
 	}, [board.length])
 
 	const boardLayout = useMemo(() => {
@@ -354,14 +356,20 @@ export default function GamePage() {
 		}
 
 		const H_SIZE = { w: 86, h: 50 }
-		const V_SIZE = { w: 64, h: 78 }
+		const V_SIZE = { w: 50, h: 86 }
+		const UPRIGHT_BEND_SIZE = V_SIZE
 		const BOARD_W = 980
 		const BOARD_H = 520
 		const MARGIN = 28
-		const GAP = 4
+		const GAP = 0
+		const BEND_OVERLAP = 0
+		const BOTTOM_ROW_BACKSHIFT = 0
+		const DOUBLE_JOIN_ADJUST = 8
+		
+		
 
-		let x = (BOARD_W - H_SIZE.w) / 2
-		let y = (BOARD_H - H_SIZE.h) / 2
+		let cx = BOARD_W / 2
+		let cy = BOARD_H / 2
 		let direction = "right"
 		let horizontalDir = "right"
 
@@ -374,19 +382,54 @@ export default function GamePage() {
 			return dir === "up" ? 270 : 90
 		}
 
-		const getSize = (dir, isDouble) => {
+		const getBaseSize = (dir, isDouble) => {
 			if (dir === "right" || dir === "left") {
 				return isDouble ? V_SIZE : H_SIZE
 			}
 			return isDouble ? H_SIZE : V_SIZE
 		}
 
+		const getRenderSize = (baseSize, rotation) => {
+			if (rotation % 180 === 0) return baseSize
+			return { w: baseSize.h, h: baseSize.w }
+		}
+
+		const getTileMetrics = (dir, isDouble) => {
+			const forceUpright = isDouble || (dir === "down" && !isDouble)
+			const rotation = forceUpright ? 0 : getRotation(dir, isDouble)
+			const orientation = forceUpright
+				? "vertical"
+				: rotation % 180 === 0
+					? "horizontal"
+					: "vertical"
+			const baseSize = forceUpright
+				? UPRIGHT_BEND_SIZE
+				: getBaseSize(dir, isDouble)
+			const renderSize = getRenderSize(baseSize, rotation)
+			return { baseSize, orientation, renderSize, rotation }
+		}
+
 		const tiles = board.map((tile, index) => {
 			const isDouble = tile.left.id === tile.right.id
-			const rotation = getRotation(direction, isDouble)
-			const orientation = rotation % 180 === 0 ? "horizontal" : "vertical"
-			const size = getSize(direction, isDouble)
-			const item = { tile, x, y, rotation, orientation, direction, index, isDouble }
+			const { orientation, renderSize, rotation } = getTileMetrics(
+				direction,
+				isDouble
+			)
+			const x = Math.round(cx - renderSize.w / 2)
+			const y = Math.round(cy - renderSize.h / 2)
+			const item = {
+				tile,
+				x,
+				y,
+				rotation,
+				orientation,
+				direction,
+				index,
+				isDouble,
+				renderSize,
+				centerX: cx,
+				centerY: cy,
+			}
 
 			if (index < board.length - 1) {
 				const nextTile = board[index + 1]
@@ -395,33 +438,82 @@ export default function GamePage() {
 				let nextHorizontalDir = horizontalDir
 
 				if (direction === "right" || direction === "left") {
-					const nextSize = getSize(direction, nextIsDouble)
-					const step = Math.max(size.w, nextSize.w) + GAP
-					const nextX = direction === "right" ? x + step : x - step
+					const { renderSize: nextRenderSize } = getTileMetrics(
+						direction,
+						nextIsDouble
+					)
+					const joinAdjust = nextIsDouble ? DOUBLE_JOIN_ADJUST : 0
+					const minStep = renderSize.w / 2 + nextRenderSize.w / 2
+					const step = Math.max(
+						minStep,
+						minStep + GAP - joinAdjust
+					)
+					const nextCx = direction === "right" ? cx + step : cx - step
 					const limit =
 						direction === "right"
-							? BOARD_W - MARGIN - nextSize.w
-							: MARGIN
+							? BOARD_W - MARGIN - nextRenderSize.w / 2
+							: MARGIN + nextRenderSize.w / 2
 					if (
-						(direction === "right" && nextX > limit) ||
-						(direction === "left" && nextX < limit)
+						(direction === "right" && nextCx > limit) ||
+						(direction === "left" && nextCx < limit)
 					) {
 						nextDirection = "down"
 						nextHorizontalDir = direction
-						const downNextSize = getSize("down", nextIsDouble)
-						const stepY = Math.max(size.h, downNextSize.h) + GAP
-						y = Math.min(y + stepY, BOARD_H - MARGIN - downNextSize.h)
+						const bendX =
+							direction === "right" ? cx + renderSize.w / 4 : cx - renderSize.w / 4
+						const bendY = cy + renderSize.h / 2
+						const { renderSize: downNextRenderSize } = getTileMetrics(
+							"down",
+							nextIsDouble
+						)
+						const nextCy =
+							bendY + downNextRenderSize.h / 2 + GAP - BEND_OVERLAP
+						const clampX = Math.min(
+							Math.max(bendX, MARGIN + downNextRenderSize.w / 2),
+							BOARD_W - MARGIN - downNextRenderSize.w / 2
+						)
+						cx = clampX
+						cy = nextCy
 					} else {
-						x = nextX
+						cx = nextCx
 					}
 				} else if (direction === "down") {
 					const nextDir = horizontalDir === "right" ? "left" : "right"
-					const nextSize = getSize(nextDir, nextIsDouble)
-					const stepY = Math.max(size.h, nextSize.h) + GAP
-					const nextY = y + stepY
-					y = Math.min(nextY, BOARD_H - MARGIN - nextSize.h)
+					const { renderSize: nextRenderSize } = getTileMetrics(
+						nextDir,
+						nextIsDouble
+					)
+					const joinAdjust = nextIsDouble ? DOUBLE_JOIN_ADJUST : 0
+					if (nextIsDouble || isDouble) {
+						const nextCy =
+							cy + renderSize.h / 2 + nextRenderSize.h / 2 + GAP
+						cy = nextCy
+						nextDirection = "down"
+					} else {
+					const bendX =
+						nextDir === "right"
+							? cx + renderSize.w / 2 - BOTTOM_ROW_BACKSHIFT
+							: cx - renderSize.w / 2 + BOTTOM_ROW_BACKSHIFT
+					const bendY = cy + renderSize.h / 4
+					const nextCy = bendY
+					const minStepX = nextRenderSize.w / 2
+					const stepX = Math.max(
+						minStepX,
+						minStepX + GAP - joinAdjust
+					)
+					const nextCx = nextDir === "right" ? bendX + stepX : bendX - stepX
+					const limitX =
+						nextDir === "right"
+							? BOARD_W - MARGIN - nextRenderSize.w / 2
+							: MARGIN + nextRenderSize.w / 2
+					cy = nextCy
+					cx =
+						nextDir === "right"
+							? Math.min(nextCx, limitX)
+							: Math.max(nextCx, limitX)
 					nextDirection = nextDir
 					nextHorizontalDir = nextDir
+					}
 				}
 
 				direction = nextDirection
@@ -445,13 +537,17 @@ export default function GamePage() {
 			let dx = 0
 			let dy = 0
 			const size = isHorizontal ? H_SIZE : V_SIZE
-			if (dir === "right") dx = size.w + GAP
-			if (dir === "left") dx = -(size.w + GAP)
-			if (dir === "down") dy = size.h + GAP
-			if (dir === "up") dy = -(size.h + GAP)
+			const offsetX = item.renderSize.w / 2 + size.w / 2 + GAP
+			const offsetY = item.renderSize.h / 2 + size.h / 2 + GAP
+			if (dir === "right") dx = offsetX
+			if (dir === "left") dx = -offsetX
+			if (dir === "down") dy = offsetY
+			if (dir === "up") dy = -offsetY
+			const centerX = item.centerX + dx
+			const centerY = item.centerY + dy
 			return {
-				x: item.x + dx,
-				y: item.y + dy,
+				x: Math.round(centerX - size.w / 2),
+				y: Math.round(centerY - size.h / 2),
 				orientation: isHorizontal ? "horizontal" : "vertical",
 			}
 		}
@@ -987,6 +1083,8 @@ export default function GamePage() {
 										detailTop={item.tile.left.detail}
 										detailBottom={item.tile.right.detail}
 										orientation={item.orientation}
+										isDouble={item.tile.left.id === item.tile.right.id}
+										textRotation={item.rotation === 180 ? 180 : 0}
 										isBoardStart={item.index === 0}
 										isBoardEnd={item.index === boardLayout.tiles.length - 1}
 									/>
@@ -1036,6 +1134,9 @@ export default function GamePage() {
 									labelBottom={item.right.label}
 									detailTop={item.left.detail}
 									detailBottom={item.right.detail}
+									orientation="vertical"
+									size="hand"
+									isDouble={item.left.id === item.right.id}
 									onClick={() => handleSelectTile(item)}
 									onDragStart={() => setDraggingTileId(item.id)}
 									onDragEnd={() => setDraggingTileId(null)}
@@ -1305,20 +1406,37 @@ function DominoTile({
 	detailTop,
 	detailBottom,
 	orientation = "horizontal",
+	isDouble = false,
+	textRotation = 0,
+	size = "md",
 	onClick,
 	onDragStart,
 	onDragEnd,
 	isDisabled,
 	isInvalid,
 }) {
-	const isVertical = orientation === "vertical"
+	const isVertical = orientation === "vertical" || isDouble
+	const effectiveRotation = isDouble ? 0 : textRotation
 	const base =
 		"bg-white border border-black/50 rounded-[6px] shadow-[0_1px_0_rgba(0,0,0,0.15)] text-dq-text"
+	const sizeMap = {
+		md: {
+			vertical: "w-[50px] h-[86px]",
+			horizontal: "w-[86px] h-[50px]",
+		},
+		hand: {
+			vertical: "w-[50px] h-[78px]",
+			horizontal: "w-[78px] h-[50px]",
+		},
+	}
+	const tileSize = isVertical
+		? sizeMap[size]?.vertical || sizeMap.md.vertical
+		: sizeMap[size]?.horizontal || sizeMap.md.horizontal
 	return (
 		<div
-			className={`domino-tile ${base} ${
-				isVertical ? "w-[64px] h-[78px]" : "w-[86px] h-[50px]"
-			} flex ${isVertical ? "flex-col" : "flex-row"} ${
+			className={`domino-tile ${base} ${tileSize} flex ${
+				isVertical ? "flex-col" : "flex-row"
+			} ${
 				isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
 			} ${
 				isInvalid
@@ -1331,18 +1449,26 @@ function DominoTile({
 			onDragEnd={onDragEnd}
 		>
 			<div
-				className={`flex-1 flex items-center justify-center text-[10px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden ${
+				className={`flex-1 min-w-0 min-h-0 flex items-center justify-center text-[10px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden ${
 					isVertical ? "border-b border-black/20" : "border-r border-black/20"
 				}`}
 				title={detailTop ? `${labelTop} — ${detailTop}` : labelTop}
 			>
-				{labelTop}
+				<span
+					style={{ transform: `rotate(${effectiveRotation}deg)`, display: "inline-block" }}
+				>
+					{labelTop}
+				</span>
 			</div>
 			<div
-				className="flex-1 flex items-center justify-center text-[10px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden"
+				className="flex-1 min-w-0 min-h-0 flex items-center justify-center text-[10px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden"
 				title={detailBottom ? `${labelBottom} — ${detailBottom}` : labelBottom}
 			>
-				{labelBottom}
+				<span
+					style={{ transform: `rotate(${effectiveRotation}deg)`, display: "inline-block" }}
+				>
+					{labelBottom}
+				</span>
 			</div>
 		</div>
 	)
@@ -1350,7 +1476,7 @@ function DominoTile({
 
 function DropZone({ label, onDrop, isActive, orientation = "horizontal" }) {
 	const sizeClass =
-		orientation === "vertical" ? "w-[64px] h-[78px]" : "w-[86px] h-[50px]"
+		orientation === "vertical" ? "w-[50px] h-[86px]" : "w-[86px] h-[50px]"
 	return (
 		<div
 			className={`${sizeClass} rounded-[6px] border-2 border-dashed flex items-center justify-center ${
