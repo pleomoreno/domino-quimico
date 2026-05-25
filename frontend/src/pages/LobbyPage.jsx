@@ -60,17 +60,6 @@ const styles = `
     background: var(--white);
   }
 
-  .logo-badge {
-    width: 40px;
-    height: 40px;
-    background: var(--red);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
   .lobby-title {
     font-family: var(--display);
     font-size: 22px;
@@ -392,17 +381,7 @@ export default function LobbyMultiplayer() {
           {/* ── Header ── */}
           <div className="lobby-header">
             <div className="logo-badge">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <rect x="2"  y="2"  width="9" height="9" rx="1" fill="white" opacity="0.9"/>
-                <rect x="13" y="2"  width="9" height="9" rx="1" fill="white" opacity="0.6"/>
-                <rect x="2"  y="13" width="9" height="9" rx="1" fill="white" opacity="0.6"/>
-                <rect x="13" y="13" width="9" height="9" rx="1" fill="white" opacity="0.9"/>
-                <circle cx="5"  cy="5"  r="1.2" fill="#e8302a"/>
-                <circle cx="18" cy="5"  r="1.2" fill="#e8302a"/>
-                <circle cx="5"  cy="18" r="1.2" fill="#e8302a"/>
-                <circle cx="16" cy="16" r="1.2" fill="#e8302a"/>
-                <circle cx="20" cy="20" r="1.2" fill="#e8302a"/>
-              </svg>
+              <img src="/logo.png" alt="Logo" width="32" height="32" style={{ objectFit: "contain" }} />
             </div>
             <div className="lobby-title"><span>// </span>LOBBY MULTIPLAYER</div>
             {flash && <div className="flash-msg">{flash}</div>}
@@ -414,7 +393,9 @@ export default function LobbyMultiplayer() {
             {/* ── Left: Create Room ── */}
             <div className="left-panel">
               <div className="tab-header">
-                <button className="tab-btn active">CRIAR SALA</button>
+                <button className="tab-btn active" style={{ cursor : "default" }}>
+                    CRIAR SALA
+                  </button>
               </div>
 
               <div className="panel-section">
