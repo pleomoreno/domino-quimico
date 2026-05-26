@@ -6,6 +6,7 @@ import GamePage from './pages/GamePage'
 import LobbyPage from './pages/LobbyPage'
 import WaitingPage from './pages/WaitingPage'
 import ConfigPage from './pages/ConfigPage'
+import DashboardAlunoPage from './pages/DashboardAlunoPage'
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/lobby" element={<LobbyPage />} />
         <Route path="/waiting" element={<WaitingPage />} />
         <Route path="/config" element={<ConfigPage/>} />
+        <Route path="/dashAluno" element={<DashboardAlunoPage/>} />
       </Routes>
     </BrowserRouter>
   )
