@@ -8,6 +8,7 @@ import WaitingPage from './pages/WaitingPage'
 import ConfigPage from './pages/ConfigPage'
 import DashboardAlunoPage from './pages/DashboardAlunoPage'
 import DashboardProfPage from './pages/DashboardProfPage'
+import GerenciarAlunosPage from './pages/GerenciarAlunosPage'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/config" element={<ConfigPage/>} />
         <Route path="/dashAluno" element={<DashboardAlunoPage/>} />
         <Route path="/dashProf" element={<DashboardProfPage/>} />
+        <Route path="/gerenciar" element={<GerenciarAlunosPage/>} />
       </Routes>
     </BrowserRouter>
   )
