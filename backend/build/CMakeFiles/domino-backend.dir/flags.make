@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON
 
-CXX_INCLUDES = -I"/home/leonardo/Documentos/domino-quimico AG/backend/include" -isystem /home/leonardo/vcpkg/installed/x64-linux/include
+CXX_INCLUDES = -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include
 
-CXX_FLAGS = -O3 -DNDEBUG -std=gnu++17
+CXX_FLAGS = -std=gnu++17
 

@@ -1,0 +1,80 @@
+[
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/db/database.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/db/database.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/db/database.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/db/database.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/main.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/main.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/main.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/middleware/auth_middleware.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/middleware/auth_middleware.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/models/match.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/models/match.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/models/match.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/models/match.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/models/tile.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/models/tile.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/models/tile.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/models/tile.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/models/user.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/models/user.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/models/user.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/models/user.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/routes/auth_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/auth_routes.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/routes/auth_routes.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/routes/auth_routes.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/routes/game_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/game_routes.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/routes/game_routes.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/routes/game_routes.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/match_routes.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/routes/match_routes.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/report_routes.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/routes/report_routes.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/user_routes.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/routes/user_routes.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/utils/hash_utils.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/utils/hash_utils.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/utils/jwt_utils.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/utils/jwt_utils.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o"
+}
+]

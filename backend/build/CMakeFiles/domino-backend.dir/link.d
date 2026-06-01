@@ -16,8 +16,8 @@ domino-backend: \
   CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o \
   CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o \
   /usr/lib/gcc/x86_64-redhat-linux/15/../../../../lib64/libpqxx.so \
-  /home/leonardo/vcpkg/installed/x64-linux/lib/libssl.a \
-  /home/leonardo/vcpkg/installed/x64-linux/lib/libcrypto.a \
+  /home/leonardo/vcpkg/installed/x64-linux/debug/lib/libssl.a \
+  /home/leonardo/vcpkg/installed/x64-linux/debug/lib/libcrypto.a \
   /usr/lib/gcc/x86_64-redhat-linux/15/../../../../lib64/libpthread.a \
   /usr/lib/gcc/x86_64-redhat-linux/15/../../../../lib64/libdl.a \
   /usr/lib/gcc/x86_64-redhat-linux/15/libstdc++.so \
@@ -100,9 +100,9 @@ CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o:
 
 /usr/lib/gcc/x86_64-redhat-linux/15/../../../../lib64/libpqxx.so:
 
-/home/leonardo/vcpkg/installed/x64-linux/lib/libssl.a:
+/home/leonardo/vcpkg/installed/x64-linux/debug/lib/libssl.a:
 
-/home/leonardo/vcpkg/installed/x64-linux/lib/libcrypto.a:
+/home/leonardo/vcpkg/installed/x64-linux/debug/lib/libcrypto.a:
 
 /usr/lib/gcc/x86_64-redhat-linux/15/../../../../lib64/libpthread.a:
 

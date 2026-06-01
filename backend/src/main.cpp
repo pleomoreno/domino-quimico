@@ -12,26 +12,34 @@
 #include <string>
 
 // Carrega .env simples
-void load_env(const std::string& path = ".env") {
+void load_env(const std::string &path = ".env")
+{
     std::ifstream f(path);
     std::string line;
-    while (std::getline(f, line)) {
-        if (line.empty() || line[0] == '#') continue;
+    while (std::getline(f, line))
+    {
+        if (line.empty() || line[0] == '#')
+            continue;
         auto eq = line.find('=');
-        if (eq == std::string::npos) continue;
+        if (eq == std::string::npos)
+            continue;
         auto key = line.substr(0, eq);
         auto val = line.substr(eq + 1);
         setenv(key.c_str(), val.c_str(), 0);
     }
 }
 
-int main() {
+int main()
+{
     load_env();
 
     // Inicializa DB na startup (falha rápido se não conectar)
-    try {
+    try
+    {
         Database::instance();
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception &e)
+    {
         std::cerr << "[FATAL] " << e.what() << "\n";
         return 1;
     }
@@ -45,15 +53,14 @@ int main() {
 
     // Middleware de CORS via after_handle global não é trivial em Crow.
     // Usamos um catchall OPTIONS e adicionamos headers nas respostas.
-    CROW_ROUTE(app, "/api/<path>").methods(crow::HTTPMethod::OPTIONS)
-    ([cors_origin](const crow::request&, const std::string&) {
+    CROW_ROUTE(app, "/api/<path>").methods(crow::HTTPMethod::OPTIONS)([cors_origin](const crow::request &, const std::string &)
+                                                                      {
         auto res = crow::response(204);
         res.set_header("Access-Control-Allow-Origin", cors_origin);
         res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
         res.set_header("Access-Control-Max-Age", "86400");
-        return res;
-    });
+        return res; });
 
     // CORS headers são injetados via response_utils.hpp em cada resposta.
     // O handler OPTIONS acima cuida dos preflight requests.
@@ -66,16 +73,16 @@ int main() {
     register_report_routes(app);
 
     // Health check
-    CROW_ROUTE(app, "/api/health")([]() {
+    CROW_ROUTE(app, "/api/health")([]()
+                                   {
         crow::json::wvalue res;
         res["status"] = "ok";
         res["service"] = "domino-quimico-api";
-        return res;
-    });
+        return res; });
 
     int port = std::getenv("SERVER_PORT") ? std::stoi(std::getenv("SERVER_PORT")) : 8080;
     std::cout << "[SERVER] Iniciando na porta " << port << "\n";
 
-    app.port(port).multithreaded().run();
+    app.port(port).run();
     return 0;
 }

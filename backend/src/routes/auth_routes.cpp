@@ -5,11 +5,12 @@
 #include "utils/response_utils.hpp"
 #include <pqxx/pqxx>
 
-void register_auth_routes(crow::App<AuthMiddleware>& app) {
+void register_auth_routes(crow::App<AuthMiddleware> &app)
+{
 
     // ───── POST /api/auth/register ─────
-    CROW_ROUTE(app, "/api/auth/register").methods(crow::HTTPMethod::POST)
-    ([](const crow::request& req) {
+    CROW_ROUTE(app, "/api/auth/register").methods(crow::HTTPMethod::POST)([](const crow::request &req)
+                                                                          {
         auto body = crow::json::load(req.body);
         if (!body) return bad_request("JSON inválido");
 
@@ -72,12 +73,11 @@ void register_auth_routes(crow::App<AuthMiddleware>& app) {
 
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── POST /api/auth/login ─────
-    CROW_ROUTE(app, "/api/auth/login").methods(crow::HTTPMethod::POST)
-    ([](const crow::request& req) {
+    CROW_ROUTE(app, "/api/auth/login").methods(crow::HTTPMethod::POST)([](const crow::request &req)
+                                                                       {
         auto body = crow::json::load(req.body);
         if (!body) return bad_request("JSON inválido");
         if (!body.has("email") || !body.has("senha"))
@@ -88,25 +88,38 @@ void register_auth_routes(crow::App<AuthMiddleware>& app) {
 
         try {
             auto& db = Database::instance();
-            pqxx::nontransaction txn(db.conn());
-            auto result = txn.exec(
-                "SELECT id, nome, senha_hash, tipo, anonimizado, deletado_em "
-                "FROM users WHERE email = " + txn.quote(email)
-            );
+            int user_id;
+            std::string tipo;
+            std::string nome;
+            std::string hash;
 
-            if (result.empty()) return unauthorized("Credenciais inválidas");
+            {
+                pqxx::nontransaction txn(db.conn());
 
-            auto row = result[0];
-            if (row["anonimizado"].as<bool>()) return forbidden("Conta anonimizada");
-            if (!row["deletado_em"].is_null()) return forbidden("Conta deletada");
+                auto result = txn.exec(
+                    "SELECT id, nome, senha_hash, tipo, anonimizado, deletado_em "
+                    "FROM users WHERE email = " + txn.quote(email)
+                );
 
-            std::string hash = row["senha_hash"].as<std::string>();
+                if (result.empty())
+                    return unauthorized("Credenciais inválidas");
+
+                auto row = result[0];
+
+                if (row["anonimizado"].as<bool>())
+                    return forbidden("Conta anonimizada");
+
+                if (!row["deletado_em"].is_null())
+                    return forbidden("Conta deletada");
+
+                hash = row["senha_hash"].as<std::string>();
+                user_id = row["id"].as<int>();
+                tipo = row["tipo"].as<std::string>();
+                nome = row["nome"].as<std::string>();
+            }
+
             if (!HashUtils::verify_password(senha, hash))
                 return unauthorized("Credenciais inválidas");
-
-            int user_id     = row["id"].as<int>();
-            std::string tipo = row["tipo"].as<std::string>();
-            std::string nome = row["nome"].as<std::string>();
 
             std::string token = JwtUtils::generate(user_id, tipo);
 
@@ -129,12 +142,11 @@ void register_auth_routes(crow::App<AuthMiddleware>& app) {
 
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── POST /api/auth/logout ─────
-    CROW_ROUTE(app, "/api/auth/logout").methods(crow::HTTPMethod::POST)
-    ([](const crow::request& req) {
+    CROW_ROUTE(app, "/api/auth/logout").methods(crow::HTTPMethod::POST)([](const crow::request &req)
+                                                                        {
         auto auth = req.get_header_value("Authorization");
         if (auth.size() < 8) return bad_request("Token ausente");
         auto token = auth.substr(7);
@@ -155,6 +167,5 @@ void register_auth_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 }

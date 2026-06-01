@@ -1,7 +1,7 @@
 CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o: \
- /home/leonardo/Documentos/domino-quimico\ AG/backend/src/middleware/auth_middleware.cpp \
+ /home/leonardo/Documentos/domino-quimico/backend/src/middleware/auth_middleware.cpp \
  /usr/include/stdc-predef.h \
- /home/leonardo/Documentos/domino-quimico\ AG/backend/include/middleware/auth_middleware.hpp \
+ /home/leonardo/Documentos/domino-quimico/backend/include/middleware/auth_middleware.hpp \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/query_string.h \
  /usr/include/stdio.h /usr/include/bits/libc-header-start.h \
@@ -18,10 +18,10 @@ CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o: \
  /usr/include/bits/types/FILE.h /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/floatn.h \
- /usr/include/bits/floatn-common.h /usr/include/bits/stdio.h \
- /usr/include/string.h /usr/include/bits/types/locale_t.h \
- /usr/include/bits/types/__locale_t.h /usr/include/strings.h \
- /usr/include/c++/15/string /usr/include/c++/15/bits/requires_hosted.h \
+ /usr/include/bits/floatn-common.h /usr/include/string.h \
+ /usr/include/bits/types/locale_t.h /usr/include/bits/types/__locale_t.h \
+ /usr/include/strings.h /usr/include/c++/15/string \
+ /usr/include/c++/15/bits/requires_hosted.h \
  /usr/include/c++/15/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/c++/15/x86_64-redhat-linux/bits/os_defines.h \
  /usr/include/c++/15/x86_64-redhat-linux/bits/cpu_defines.h \
@@ -89,13 +89,12 @@ CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o: \
  /usr/include/bits/pthreadtypes-arch.h \
  /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
  /usr/include/bits/struct_rwlock.h /usr/include/alloca.h \
- /usr/include/bits/stdlib-bsearch.h /usr/include/bits/stdlib-float.h \
- /usr/include/c++/15/bits/std_abs.h /usr/include/c++/15/cstdio \
- /usr/include/c++/15/cerrno /usr/include/errno.h \
- /usr/include/bits/errno.h /usr/include/linux/errno.h \
- /usr/include/asm/errno.h /usr/include/asm-generic/errno.h \
- /usr/include/asm-generic/errno-base.h /usr/include/bits/types/error_t.h \
- /usr/include/c++/15/bits/charconv.h \
+ /usr/include/bits/stdlib-float.h /usr/include/c++/15/bits/std_abs.h \
+ /usr/include/c++/15/cstdio /usr/include/c++/15/cerrno \
+ /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ /usr/include/bits/types/error_t.h /usr/include/c++/15/bits/charconv.h \
  /usr/include/c++/15/bits/basic_string.tcc \
  /usr/include/c++/15/bits/memory_resource.h /usr/include/c++/15/cstddef \
  /usr/include/c++/15/bits/uses_allocator.h \
@@ -859,4 +858,4 @@ CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o: \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/http_server.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/version.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/app.h \
- /home/leonardo/Documentos/domino-quimico\ AG/backend/include/utils/jwt_utils.hpp
+ /home/leonardo/Documentos/domino-quimico/backend/include/utils/jwt_utils.hpp

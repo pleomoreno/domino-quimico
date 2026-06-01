@@ -1,7 +1,7 @@
 CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: \
- /home/leonardo/Documentos/domino-quimico\ AG/backend/src/utils/jwt_utils.cpp \
+ /home/leonardo/Documentos/domino-quimico/backend/src/utils/jwt_utils.cpp \
  /usr/include/stdc-predef.h \
- /home/leonardo/Documentos/domino-quimico\ AG/backend/include/utils/jwt_utils.hpp \
+ /home/leonardo/Documentos/domino-quimico/backend/include/utils/jwt_utils.hpp \
  /usr/include/c++/15/string /usr/include/c++/15/bits/requires_hosted.h \
  /usr/include/c++/15/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \
@@ -82,18 +82,16 @@ CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: \
  /usr/include/bits/pthreadtypes-arch.h \
  /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
  /usr/include/bits/struct_rwlock.h /usr/include/alloca.h \
- /usr/include/bits/stdlib-bsearch.h /usr/include/bits/stdlib-float.h \
- /usr/include/c++/15/bits/std_abs.h /usr/include/c++/15/cstdio \
- /usr/include/stdio.h /usr/include/bits/types/__fpos_t.h \
- /usr/include/bits/types/__fpos64_t.h \
+ /usr/include/bits/stdlib-float.h /usr/include/c++/15/bits/std_abs.h \
+ /usr/include/c++/15/cstdio /usr/include/stdio.h \
+ /usr/include/bits/types/__fpos_t.h /usr/include/bits/types/__fpos64_t.h \
  /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
- /usr/include/bits/stdio_lim.h /usr/include/bits/stdio.h \
- /usr/include/c++/15/cerrno /usr/include/errno.h \
- /usr/include/bits/errno.h /usr/include/linux/errno.h \
- /usr/include/asm/errno.h /usr/include/asm-generic/errno.h \
- /usr/include/asm-generic/errno-base.h /usr/include/bits/types/error_t.h \
- /usr/include/c++/15/bits/charconv.h \
+ /usr/include/bits/stdio_lim.h /usr/include/c++/15/cerrno \
+ /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ /usr/include/bits/types/error_t.h /usr/include/c++/15/bits/charconv.h \
  /usr/include/c++/15/bits/basic_string.tcc \
  /usr/include/c++/15/bits/memory_resource.h /usr/include/c++/15/cstddef \
  /usr/include/c++/15/bits/uses_allocator.h \
@@ -103,7 +101,7 @@ CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: \
  /usr/include/c++/15/bits/cxxabi_init_exception.h \
  /usr/include/c++/15/typeinfo /usr/include/c++/15/bits/nested_exception.h \
  /usr/include/c++/15/bits/enable_special_members.h \
- /home/leonardo/Documentos/domino-quimico\ AG/backend/include/db/database.hpp \
+ /home/leonardo/Documentos/domino-quimico/backend/include/db/database.hpp \
  /usr/include/pqxx/pqxx /usr/include/pqxx/internal/header-pre.hxx \
  /usr/include/c++/15/version /usr/include/pqxx/config-public-compiler.h \
  /usr/include/pqxx/array.hxx /usr/include/c++/15/algorithm \
