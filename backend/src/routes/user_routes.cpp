@@ -29,7 +29,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             data["email"]     = row["email"].as<std::string>();
             data["tipo"]      = row["tipo"].as<std::string>();
             data["criado_em"] = row["criado_em"].as<std::string>();
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -59,7 +59,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             crow::json::wvalue data;
             data["message"] = "Nome atualizado";
             data["nome"]    = nome;
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -87,7 +87,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["message"] = "Conta anonimizada com sucesso (LGPD)";
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -125,7 +125,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
                 stats_list.push_back(std::move(stat));
             }
             data["stats"] = std::move(stats_list);
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -156,7 +156,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             crow::json::wvalue data;
             data["turma_id"] = result[0][0].as<int>();
             data["nome"]     = nome;
-            return created(data);
+            return created(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -190,7 +190,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["turmas"] = std::move(turmas_list);
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -242,7 +242,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             crow::json::wvalue data;
             data["message"]  = "Aluno adicionado à turma";
             data["aluno_id"] = aluno_id;
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -270,7 +270,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["levels"] = std::move(levels);
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -314,7 +314,7 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["tiles"] = std::move(tiles);
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }

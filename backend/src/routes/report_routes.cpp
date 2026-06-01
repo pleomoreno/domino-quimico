@@ -56,7 +56,7 @@ void register_report_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["relatorio"] = std::move(report);
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -194,7 +194,7 @@ void register_report_routes(crow::App<AuthMiddleware>& app) {
             }
             data["historico"] = std::move(hist_list);
 
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }

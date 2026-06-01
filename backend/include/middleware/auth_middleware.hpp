@@ -19,6 +19,10 @@ struct AuthMiddleware {
             auto token = auth.substr(7);
             auto claims = JwtUtils::verify(token);
             if (claims) {
+                // Verifica se a sessão foi revogada no banco (logout real)
+                if (JwtUtils::is_session_revoked(claims->user_id, token)) {
+                    return; // Token revogado, não autentica
+                }
                 ctx.user_id       = claims->user_id;
                 ctx.tipo          = claims->tipo;
                 ctx.authenticated = true;

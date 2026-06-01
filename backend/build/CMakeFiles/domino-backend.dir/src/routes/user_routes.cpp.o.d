@@ -1,7 +1,7 @@
 CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o: \
- /home/leonardo/Documentos/domino-quimico/backend/src/routes/user_routes.cpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/src/routes/user_routes.cpp \
  /usr/include/stdc-predef.h \
- /home/leonardo/Documentos/domino-quimico/backend/include/routes/user_routes.hpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/routes/user_routes.hpp \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/query_string.h \
  /usr/include/stdio.h /usr/include/bits/libc-header-start.h \
@@ -859,9 +859,9 @@ CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o: \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/http_server.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/version.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/app.h \
- /home/leonardo/Documentos/domino-quimico/backend/include/middleware/auth_middleware.hpp \
- /home/leonardo/Documentos/domino-quimico/backend/include/utils/jwt_utils.hpp \
- /home/leonardo/Documentos/domino-quimico/backend/include/db/database.hpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/middleware/auth_middleware.hpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/utils/jwt_utils.hpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/db/database.hpp \
  /usr/include/pqxx/pqxx /usr/include/pqxx/internal/header-pre.hxx \
  /usr/include/pqxx/config-public-compiler.h /usr/include/pqxx/array.hxx \
  /usr/include/pqxx/connection.hxx /usr/include/c++/15/list \
@@ -902,4 +902,4 @@ CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o: \
  /usr/include/pqxx/subtransaction.hxx /usr/include/pqxx/time.hxx \
  /usr/include/pqxx/transactor.hxx \
  /usr/include/pqxx/internal/header-post.hxx \
- /home/leonardo/Documentos/domino-quimico/backend/include/utils/response_utils.hpp
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/utils/response_utils.hpp

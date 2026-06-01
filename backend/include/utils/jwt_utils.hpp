@@ -13,4 +13,7 @@ namespace JwtUtils {
 
     // Valida e decodifica; retorna nullopt se inválido/expirado
     std::optional<Claims> verify(const std::string& token);
+
+    // Consulta user_sessions: retorna true se o token foi revogado
+    bool is_session_revoked(int user_id, const std::string& token);
 }

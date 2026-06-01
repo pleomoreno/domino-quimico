@@ -63,7 +63,7 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             data["codigo_sala"] = codigo;
             data["level_id"]    = level_id;
             data["max_jogadores"] = max_jogadores;
-            return created(data);
+            return created(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -101,7 +101,7 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["matches"] = std::move(matches);
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -148,7 +148,7 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             crow::json::wvalue data;
             data["message"]  = "Entrou na partida";
             data["match_id"] = match_id;
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -209,7 +209,7 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             }
             data["jogadores"] = std::move(players_list);
 
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -309,7 +309,7 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             data["match_id"] = match_id;
             data["jogadores"] = num_players;
             data["pecas_distribuidas"] = num_players * 7;
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -333,7 +333,7 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["message"] = "Partida cancelada";
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }

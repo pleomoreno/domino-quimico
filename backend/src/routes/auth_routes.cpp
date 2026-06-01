@@ -68,7 +68,7 @@ void register_auth_routes(crow::App<AuthMiddleware>& app) {
             data["user_id"] = user_id;
             data["tipo"]    = tipo;
             data["nome"]    = nome;
-            return created(data);
+            return created(std::move(data));
 
         } catch (const std::exception& e) {
             return server_error(e.what());
@@ -125,7 +125,7 @@ void register_auth_routes(crow::App<AuthMiddleware>& app) {
             data["user_id"] = user_id;
             data["tipo"]    = tipo;
             data["nome"]    = nome;
-            return ok(data);
+            return ok(std::move(data));
 
         } catch (const std::exception& e) {
             return server_error(e.what());
@@ -152,7 +152,7 @@ void register_auth_routes(crow::App<AuthMiddleware>& app) {
             txn.commit();
             crow::json::wvalue data;
             data["message"] = "Logout realizado";
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }

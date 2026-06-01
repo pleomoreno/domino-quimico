@@ -1,7 +1,7 @@
 CMakeFiles/domino-backend.dir/src/db/database.cpp.o: \
- /home/leonardo/Documentos/domino-quimico/backend/src/db/database.cpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/src/db/database.cpp \
  /usr/include/stdc-predef.h \
- /home/leonardo/Documentos/domino-quimico/backend/include/db/database.hpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/db/database.hpp \
  /usr/include/pqxx/pqxx /usr/include/pqxx/internal/header-pre.hxx \
  /usr/include/c++/15/version /usr/include/c++/15/bits/version.h \
  /usr/include/c++/15/x86_64-redhat-linux/bits/c++config.h \

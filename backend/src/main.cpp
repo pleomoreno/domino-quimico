@@ -55,12 +55,8 @@ int main() {
         return res;
     });
 
-    // Adiciona CORS headers a todas as respostas via signal
-    app.after_handle([cors_origin](crow::response& res) {
-        res.set_header("Access-Control-Allow-Origin", cors_origin);
-        res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    });
+    // CORS headers são injetados via response_utils.hpp em cada resposta.
+    // O handler OPTIONS acima cuida dos preflight requests.
 
     // Registra todos os grupos de rotas
     register_auth_routes(app);

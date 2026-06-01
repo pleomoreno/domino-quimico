@@ -1,7 +1,7 @@
 CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o: \
- /home/leonardo/Documentos/domino-quimico/backend/src/middleware/auth_middleware.cpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/src/middleware/auth_middleware.cpp \
  /usr/include/stdc-predef.h \
- /home/leonardo/Documentos/domino-quimico/backend/include/middleware/auth_middleware.hpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/middleware/auth_middleware.hpp \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/query_string.h \
  /usr/include/stdio.h /usr/include/bits/libc-header-start.h \
@@ -859,4 +859,4 @@ CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o: \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/http_server.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/version.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/app.h \
- /home/leonardo/Documentos/domino-quimico/backend/include/utils/jwt_utils.hpp
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/utils/jwt_utils.hpp

@@ -14,6 +14,7 @@ find_package(PostgreSQL REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PQXX REQUIRED libpqxx)
 find_package(OpenSSL REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 # Coleta todos os .cpp
 file(GLOB_RECURSE SOURCES "src/*.cpp")
@@ -33,5 +34,6 @@ target_link_libraries(domino-backend
     ${PQXX_LIBRARIES}
     OpenSSL::SSL
     OpenSSL::Crypto
+    nlohmann_json::nlohmann_json
     pthread
 )

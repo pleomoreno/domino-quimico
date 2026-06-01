@@ -1,7 +1,7 @@
 CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: \
- /home/leonardo/Documentos/domino-quimico/backend/src/utils/jwt_utils.cpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/src/utils/jwt_utils.cpp \
  /usr/include/stdc-predef.h \
- /home/leonardo/Documentos/domino-quimico/backend/include/utils/jwt_utils.hpp \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/utils/jwt_utils.hpp \
  /usr/include/c++/15/string /usr/include/c++/15/bits/requires_hosted.h \
  /usr/include/c++/15/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \
@@ -103,51 +103,47 @@ CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: \
  /usr/include/c++/15/bits/cxxabi_init_exception.h \
  /usr/include/c++/15/typeinfo /usr/include/c++/15/bits/nested_exception.h \
  /usr/include/c++/15/bits/enable_special_members.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/jwt-cpp/jwt.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/jwt-cpp/base.h \
- /usr/include/c++/15/algorithm /usr/include/c++/15/bits/stl_algo.h \
+ /home/leonardo/Documentos/domino-quimico\ AG/backend/include/db/database.hpp \
+ /usr/include/pqxx/pqxx /usr/include/pqxx/internal/header-pre.hxx \
+ /usr/include/c++/15/version /usr/include/pqxx/config-public-compiler.h \
+ /usr/include/pqxx/array.hxx /usr/include/c++/15/algorithm \
+ /usr/include/c++/15/bits/stl_algo.h \
  /usr/include/c++/15/bits/algorithmfwd.h \
  /usr/include/c++/15/bits/stl_heap.h \
  /usr/include/c++/15/bits/uniform_int_dist.h \
  /usr/include/c++/15/bits/stl_tempbuf.h \
  /usr/include/c++/15/pstl/glue_algorithm_defs.h \
- /usr/include/c++/15/pstl/execution_defs.h /usr/include/c++/15/array \
- /usr/include/c++/15/compare /usr/include/c++/15/cstdint \
- /usr/lib/gcc/x86_64-redhat-linux/15/include/stdint.h \
- /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
- /usr/include/bits/stdint-least.h /usr/include/c++/15/stdexcept \
+ /usr/include/c++/15/pstl/execution_defs.h /usr/include/c++/15/cassert \
+ /usr/include/assert.h /usr/include/c++/15/stdexcept \
+ /usr/include/c++/15/utility /usr/include/c++/15/bits/stl_relops.h \
  /usr/include/c++/15/vector /usr/include/c++/15/bits/stl_uninitialized.h \
  /usr/include/c++/15/bits/stl_vector.h \
  /usr/include/c++/15/bits/stl_bvector.h \
- /usr/include/c++/15/bits/vector.tcc \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/ec.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/macros.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/opensslconf.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/configuration.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/opensslv.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/types.h \
- /usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h \
- /usr/lib/gcc/x86_64-redhat-linux/15/include/syslimits.h \
- /usr/include/limits.h /usr/include/bits/posix1_lim.h \
- /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
- /usr/include/bits/pthread_stack_min-dynamic.h \
- /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
- /usr/include/bits/uio_lim.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/e_os2.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/safestack.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/stack.h \
- /usr/include/string.h /usr/include/strings.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/asn1.h \
- /usr/include/time.h /usr/include/bits/time.h /usr/include/bits/timex.h \
- /usr/include/bits/types/struct_tm.h \
+ /usr/include/c++/15/bits/vector.tcc /usr/include/pqxx/connection.hxx \
+ /usr/include/c++/15/ctime /usr/include/time.h /usr/include/bits/time.h \
+ /usr/include/bits/timex.h /usr/include/bits/types/struct_tm.h \
  /usr/include/bits/types/struct_itimerspec.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/bio.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/crypto.h \
- /usr/include/c++/15/stdlib.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/cryptoerr.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/symhacks.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/cryptoerr_legacy.h \
- /home/leonardo/vcpkg/installed/x64-linux/include/openssl/core.h \
+ /usr/include/c++/15/functional /usr/include/c++/15/bits/std_function.h \
+ /usr/include/c++/15/unordered_map \
+ /usr/include/c++/15/bits/unordered_map.h \
+ /usr/include/c++/15/bits/hashtable.h \
+ /usr/include/c++/15/bits/hashtable_policy.h \
+ /usr/include/c++/15/ext/aligned_buffer.h \
+ /usr/include/c++/15/bits/node_handle.h \
+ /usr/include/c++/15/bits/erase_if.h /usr/include/c++/15/array \
+ /usr/include/c++/15/compare /usr/include/c++/15/list \
+ /usr/include/c++/15/bits/stl_list.h \
+ /usr/include/c++/15/bits/allocated_ptr.h \
+ /usr/include/c++/15/bits/list.tcc /usr/include/c++/15/map \
+ /usr/include/c++/15/bits/stl_tree.h /usr/include/c++/15/bits/stl_map.h \
+ /usr/include/c++/15/bits/stl_multimap.h /usr/include/c++/15/memory \
+ /usr/include/c++/15/bits/stl_raw_storage_iter.h \
+ /usr/include/c++/15/bits/align.h /usr/include/c++/15/bits/unique_ptr.h \
+ /usr/include/c++/15/bits/shared_ptr.h \
+ /usr/include/c++/15/bits/shared_ptr_base.h \
+ /usr/include/c++/15/ext/atomicity.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/gthr.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/gthr-default.h \
  /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
  /usr/include/linux/sched/types.h /usr/include/linux/types.h \
  /usr/include/asm/types.h /usr/include/asm-generic/types.h \
@@ -158,6 +154,116 @@ CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: \
  /usr/include/bits/types/struct_sched_param.h /usr/include/bits/cpu-set.h \
  /usr/include/bits/setjmp.h \
  /usr/include/bits/types/struct___jmp_buf_tag.h \
+ /usr/include/bits/pthread_stack_min-dynamic.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/atomic_word.h \
+ /usr/include/sys/single_threaded.h /usr/include/c++/15/ext/concurrence.h \
+ /usr/include/c++/15/bits/shared_ptr_atomic.h \
+ /usr/include/c++/15/bits/atomic_base.h \
+ /usr/include/c++/15/bits/atomic_lockfree_defines.h \
+ /usr/include/c++/15/backward/auto_ptr.h \
+ /usr/include/c++/15/pstl/glue_memory_defs.h \
+ /usr/include/pqxx/errorhandler.hxx /usr/include/pqxx/types.hxx \
+ /usr/include/c++/15/cstdint \
+ /usr/lib/gcc/x86_64-redhat-linux/15/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
+ /usr/include/bits/stdint-least.h /usr/include/c++/15/iterator \
+ /usr/include/c++/15/bits/stream_iterator.h \
+ /usr/include/c++/15/bits/streambuf_iterator.h \
+ /usr/include/c++/15/streambuf /usr/include/c++/15/bits/ios_base.h \
+ /usr/include/c++/15/bits/locale_classes.h \
+ /usr/include/c++/15/bits/locale_classes.tcc \
+ /usr/include/c++/15/system_error \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/error_constants.h \
+ /usr/include/c++/15/bits/streambuf.tcc \
+ /usr/include/pqxx/internal/ignore-deprecated-pre.hxx \
+ /usr/include/pqxx/internal/ignore-deprecated-post.hxx \
+ /usr/include/pqxx/except.hxx /usr/include/pqxx/internal/concat.hxx \
+ /usr/include/pqxx/strconv.hxx /usr/include/c++/15/charconv \
+ /usr/include/c++/15/cstring /usr/include/string.h /usr/include/strings.h \
+ /usr/include/c++/15/limits /usr/include/c++/15/sstream \
+ /usr/include/c++/15/istream /usr/include/c++/15/ios \
+ /usr/include/c++/15/bits/basic_ios.h \
+ /usr/include/c++/15/bits/locale_facets.h /usr/include/c++/15/cwctype \
+ /usr/include/wctype.h /usr/include/bits/wctype-wchar.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/ctype_base.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/ctype_inline.h \
+ /usr/include/c++/15/bits/locale_facets.tcc \
+ /usr/include/c++/15/bits/basic_ios.tcc /usr/include/c++/15/ostream \
+ /usr/include/c++/15/bits/ostream.h /usr/include/c++/15/bits/ostream.tcc \
+ /usr/include/c++/15/bits/istream.tcc \
+ /usr/include/c++/15/bits/sstream.tcc /usr/include/c++/15/ranges \
+ /usr/include/pqxx/util.hxx /usr/include/pqxx/version.hxx \
+ /usr/include/pqxx/internal/libpq-forward.hxx /usr/include/pqxx/zview.hxx \
+ /usr/include/pqxx/internal/conversions.hxx /usr/include/c++/15/numeric \
+ /usr/include/c++/15/bits/stl_numeric.h \
+ /usr/include/c++/15/pstl/glue_numeric_defs.h /usr/include/c++/15/variant \
+ /usr/include/c++/15/bits/monostate.h \
+ /usr/include/c++/15/bits/parse_numbers.h /usr/include/pqxx/params.hxx \
+ /usr/include/pqxx/internal/statement_parameters.hxx \
+ /usr/include/pqxx/binarystring.hxx /usr/include/pqxx/result.hxx \
+ /usr/include/pqxx/internal/encodings.hxx /usr/include/c++/15/iomanip \
+ /usr/include/c++/15/locale \
+ /usr/include/c++/15/bits/locale_facets_nonio.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/time_members.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/messages_members.h \
+ /usr/include/libintl.h /usr/include/c++/15/bits/codecvt.h \
+ /usr/include/c++/15/bits/locale_facets_nonio.tcc \
+ /usr/include/c++/15/bits/locale_conv.h \
+ /usr/include/c++/15/bits/quoted_string.h \
+ /usr/include/pqxx/internal/encoding_group.hxx \
+ /usr/include/pqxx/separated_list.hxx \
+ /usr/include/pqxx/internal/array-composite.hxx \
+ /usr/include/pqxx/blob.hxx /usr/include/c++/15/filesystem \
+ /usr/include/c++/15/bits/fs_fwd.h /usr/include/c++/15/bits/chrono.h \
+ /usr/include/c++/15/ratio /usr/include/c++/15/bits/fs_path.h \
+ /usr/include/c++/15/codecvt /usr/include/c++/15/bits/fs_dir.h \
+ /usr/include/c++/15/bits/fs_ops.h /usr/include/c++/15/span \
+ /usr/include/pqxx/dbtransaction.hxx \
+ /usr/include/pqxx/transaction_base.hxx \
+ /usr/include/pqxx/internal/stream_query.hxx \
+ /usr/include/pqxx/internal/gates/connection-stream_from.hxx \
+ /usr/include/pqxx/internal/callgate.hxx \
+ /usr/include/pqxx/internal/stream_iterator.hxx \
+ /usr/include/pqxx/transaction_focus.hxx /usr/include/pqxx/isolation.hxx \
+ /usr/include/pqxx/prepared_statement.hxx /usr/include/pqxx/row.hxx \
+ /usr/include/pqxx/field.hxx /usr/include/pqxx/composite.hxx \
+ /usr/include/pqxx/internal/stream_query_impl.hxx \
+ /usr/include/pqxx/cursor.hxx /usr/include/pqxx/internal/sql_cursor.hxx \
+ /usr/include/pqxx/largeobject.hxx /usr/include/pqxx/nontransaction.hxx \
+ /usr/include/pqxx/transaction.hxx /usr/include/pqxx/notification.hxx \
+ /usr/include/pqxx/pipeline.hxx /usr/include/pqxx/range.hxx \
+ /usr/include/pqxx/internal/result_iterator.hxx \
+ /usr/include/pqxx/internal/result_iter.hxx \
+ /usr/include/pqxx/robusttransaction.hxx \
+ /usr/include/pqxx/stream_from.hxx /usr/include/pqxx/stream_to.hxx \
+ /usr/include/pqxx/subtransaction.hxx /usr/include/pqxx/time.hxx \
+ /usr/include/c++/15/chrono /usr/include/pqxx/transactor.hxx \
+ /usr/include/pqxx/internal/header-post.hxx \
+ /home/leonardo/vcpkg/installed/x64-linux/include/jwt-cpp/jwt.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/jwt-cpp/base.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/ec.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/macros.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/opensslconf.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/configuration.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/opensslv.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/types.h \
+ /usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h \
+ /usr/lib/gcc/x86_64-redhat-linux/15/include/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+ /usr/include/bits/uio_lim.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/e_os2.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/safestack.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/stack.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/asn1.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/bio.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/crypto.h \
+ /usr/include/c++/15/stdlib.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/cryptoerr.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/symhacks.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/cryptoerr_legacy.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/openssl/core.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/openssl/bioerr.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/openssl/asn1err.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/openssl/bn.h \
@@ -213,9 +319,6 @@ CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: \
  /home/leonardo/vcpkg/installed/x64-linux/include/openssl/dtls1.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/openssl/srtp.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/openssl/quic.h \
- /usr/include/c++/15/chrono /usr/include/c++/15/bits/chrono.h \
- /usr/include/c++/15/ratio /usr/include/c++/15/limits \
- /usr/include/c++/15/ctime /usr/include/c++/15/bits/parse_numbers.h \
  /usr/include/c++/15/climits /usr/include/c++/15/cmath \
  /usr/include/math.h /usr/include/bits/math-vector.h \
  /usr/include/bits/libm-simd-decl-stubs.h \
@@ -235,59 +338,70 @@ CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: \
  /usr/include/c++/15/tr1/modified_bessel_func.tcc \
  /usr/include/c++/15/tr1/poly_hermite.tcc \
  /usr/include/c++/15/tr1/poly_laguerre.tcc \
- /usr/include/c++/15/tr1/riemann_zeta.tcc /usr/include/c++/15/cstring \
- /usr/include/c++/15/functional /usr/include/c++/15/bits/std_function.h \
- /usr/include/c++/15/unordered_map \
- /usr/include/c++/15/bits/unordered_map.h \
- /usr/include/c++/15/bits/hashtable.h \
- /usr/include/c++/15/bits/hashtable_policy.h \
- /usr/include/c++/15/ext/aligned_buffer.h \
- /usr/include/c++/15/bits/node_handle.h \
- /usr/include/c++/15/bits/erase_if.h /usr/include/c++/15/iterator \
- /usr/include/c++/15/bits/stream_iterator.h \
- /usr/include/c++/15/bits/streambuf_iterator.h \
- /usr/include/c++/15/streambuf /usr/include/c++/15/bits/ios_base.h \
- /usr/include/c++/15/ext/atomicity.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/gthr.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/gthr-default.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/atomic_word.h \
- /usr/include/sys/single_threaded.h \
- /usr/include/c++/15/bits/locale_classes.h \
- /usr/include/c++/15/bits/locale_classes.tcc \
- /usr/include/c++/15/system_error \
- /usr/include/c++/15/x86_64-redhat-linux/bits/error_constants.h \
- /usr/include/c++/15/bits/streambuf.tcc /usr/include/c++/15/locale \
- /usr/include/c++/15/bits/locale_facets.h /usr/include/c++/15/cwctype \
- /usr/include/wctype.h /usr/include/bits/wctype-wchar.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/ctype_base.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/ctype_inline.h \
- /usr/include/c++/15/bits/locale_facets.tcc \
- /usr/include/c++/15/bits/locale_facets_nonio.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/time_members.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/15/bits/codecvt.h \
- /usr/include/c++/15/bits/locale_facets_nonio.tcc \
- /usr/include/c++/15/bits/locale_conv.h /usr/include/c++/15/memory \
- /usr/include/c++/15/bits/stl_raw_storage_iter.h \
- /usr/include/c++/15/bits/align.h /usr/include/c++/15/bits/unique_ptr.h \
- /usr/include/c++/15/bits/shared_ptr.h \
- /usr/include/c++/15/bits/shared_ptr_base.h \
- /usr/include/c++/15/bits/allocated_ptr.h \
- /usr/include/c++/15/ext/concurrence.h \
- /usr/include/c++/15/bits/shared_ptr_atomic.h \
- /usr/include/c++/15/bits/atomic_base.h \
- /usr/include/c++/15/bits/atomic_lockfree_defines.h \
- /usr/include/c++/15/backward/auto_ptr.h \
- /usr/include/c++/15/pstl/glue_memory_defs.h /usr/include/c++/15/set \
- /usr/include/c++/15/bits/stl_tree.h /usr/include/c++/15/bits/stl_set.h \
- /usr/include/c++/15/bits/stl_multiset.h /usr/include/c++/15/utility \
- /usr/include/c++/15/bits/stl_relops.h \
+ /usr/include/c++/15/tr1/riemann_zeta.tcc /usr/include/c++/15/set \
+ /usr/include/c++/15/bits/stl_set.h \
+ /usr/include/c++/15/bits/stl_multiset.h \
  /usr/include/c++/15/experimental/type_traits \
  /usr/include/c++/15/experimental/bits/lfts_config.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/openssl/param_build.h \
- /usr/include/c++/15/iostream /usr/include/c++/15/ostream \
- /usr/include/c++/15/bits/ostream.h /usr/include/c++/15/ios \
- /usr/include/c++/15/bits/basic_ios.h \
- /usr/include/c++/15/bits/basic_ios.tcc \
- /usr/include/c++/15/bits/ostream.tcc /usr/include/c++/15/istream \
- /usr/include/c++/15/bits/istream.tcc
+ /home/leonardo/vcpkg/installed/x64-linux/include/jwt-cpp/traits/nlohmann-json/defaults.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/jwt-cpp/traits/nlohmann-json/traits.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/json.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/adl_serializer.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/abi_macros.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/conversions/from_json.hpp \
+ /usr/include/c++/15/forward_list /usr/include/c++/15/bits/forward_list.h \
+ /usr/include/c++/15/bits/forward_list.tcc /usr/include/c++/15/valarray \
+ /usr/include/c++/15/bits/valarray_array.h \
+ /usr/include/c++/15/bits/valarray_array.tcc \
+ /usr/include/c++/15/bits/valarray_before.h \
+ /usr/include/c++/15/bits/slice_array.h \
+ /usr/include/c++/15/bits/valarray_after.h \
+ /usr/include/c++/15/bits/gslice.h \
+ /usr/include/c++/15/bits/gslice_array.h \
+ /usr/include/c++/15/bits/mask_array.h \
+ /usr/include/c++/15/bits/indirect_array.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/exceptions.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/value_t.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/macro_scope.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/detected.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/void_t.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/thirdparty/hedley/hedley.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/string_escape.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/input/position_t.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/cpp_future.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/type_traits.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/iterators/iterator_traits.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/call_std/begin.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/call_std/end.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/json_fwd.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/string_concat.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/identity_tag.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/std_fs.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/conversions/to_json.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/iterators/iteration_proxy.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/string_utils.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/byte_container_with_subtype.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/hash.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/input/binary_reader.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/input/input_adapters.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/input/json_sax.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/input/lexer.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/meta/is_sax.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/input/parser.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/iterators/internal_iterator.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/iterators/primitive_iterator.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/iterators/iter_impl.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/iterators/json_reverse_iterator.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/json_custom_base_class.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/json_pointer.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/json_ref.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/output/binary_writer.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/output/output_adapters.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/output/serializer.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/conversions/to_chars.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/ordered_map.hpp \
+ /usr/include/c++/15/any \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/detail/macro_unscope.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/nlohmann/thirdparty/hedley/hedley_undef.hpp \
+ /usr/include/c++/15/iostream

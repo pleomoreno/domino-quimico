@@ -44,7 +44,7 @@ void register_game_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["board"] = std::move(board);
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -95,7 +95,7 @@ void register_game_routes(crow::App<AuthMiddleware>& app) {
             crow::json::wvalue data;
             data["hand"] = std::move(hand);
             data["total"] = (int)hand.size();
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -137,7 +137,7 @@ void register_game_routes(crow::App<AuthMiddleware>& app) {
             data["nome"]         = current["nome"].as<std::string>();
             data["ordem_jogada"] = current["ordem_jogada"].as<int>();
             data["eh_sua_vez"]   = (current["user_id"].as<int>() == ctx.user_id);
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -350,7 +350,7 @@ void register_game_routes(crow::App<AuthMiddleware>& app) {
             data["venceu"]   = venceu;
             data["tile_id"]  = tile_id;
             data["lado"]     = lado;
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
@@ -406,7 +406,7 @@ void register_game_routes(crow::App<AuthMiddleware>& app) {
 
             crow::json::wvalue data;
             data["message"] = "Vez passada";
-            return ok(data);
+            return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
         }
