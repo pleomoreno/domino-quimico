@@ -1,4 +1,5 @@
 {
   "css.validate": false,
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "cmake.sourceDirectory": "/home/leonardo/Documentos/domino-quimico/backend"
 }
