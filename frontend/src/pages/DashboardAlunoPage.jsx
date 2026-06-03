@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const API_URL = 'http://localhost:8080';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
@@ -277,12 +280,50 @@ function pctClass(p) {
 }
 
 export default function DashboardAlunoPage() {
+  const navigate = useNavigate();
+  const [codigoSala, setCodigoSala] = useState('');
+  const [erroSala, setErroSala] = useState('');
+  const [loadingSala, setLoadingSala] = useState(false);
+
+  const nome = localStorage.getItem('nome') || 'Aluno';
+  const iniciais = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
   function handleJogar() {
-    alert("Iniciando jogo...");
+    navigate('/game');
   }
 
   function handleSair() {
-    alert("Saindo...");
+    localStorage.clear();
+    navigate('/login');
+  }
+
+  async function handleEntrarSala() {
+    if (!codigoSala.trim()) {
+      setErroSala('Digite o código da sala');
+      return;
+    }
+    setErroSala('');
+    setLoadingSala(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/rooms/${codigoSala.trim().toUpperCase()}/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setErroSala(json.error || 'Erro ao entrar na sala');
+        return;
+      }
+      navigate(`/room/${codigoSala.trim().toUpperCase()}`);
+    } catch (err) {
+      setErroSala('Erro de conexão');
+    } finally {
+      setLoadingSala(false);
+    }
   }
 
   return (
@@ -299,8 +340,8 @@ export default function DashboardAlunoPage() {
           {/* Header */}
           <div className="dash-header">
             <div className="user-info">
-              <div className="avatar">JM</div>
-              <span className="user-name">João Mendes</span>
+              <div className="avatar">{iniciais}</div>
+              <span className="user-name">{nome}</span>
             </div>
             <button className="btn-sair" onClick={handleSair}>Sair</button>
           </div>
@@ -314,8 +355,67 @@ export default function DashboardAlunoPage() {
               {/* Jogar agora */}
               <button className="btn-jogar" onClick={handleJogar}>
                 <div className="play-icon" />
-                JOGAR AGORA
+                PARTIDA RÁPIDA (VS BOT)
               </button>
+
+              {/* Entrar em Sala */}
+              <div className="desempenho-box">
+                <div className="desempenho-title">Entrar em Sala</div>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: erroSala ? '8px' : '0' }}>
+                  <input
+                    type="text"
+                    placeholder="CÓDIGO DA SALA"
+                    value={codigoSala}
+                    onChange={e => setCodigoSala(e.target.value.toUpperCase())}
+                    maxLength={6}
+                    style={{
+                      flex: 1,
+                      padding: '12px 14px',
+                      border: '1.5px solid var(--red)',
+                      borderRadius: '4px',
+                      fontFamily: 'var(--mono)',
+                      fontSize: '16px',
+                      letterSpacing: '4px',
+                      color: 'var(--dark)',
+                      background: 'rgba(255,255,255,0.5)',
+                      outline: 'none',
+                      textTransform: 'uppercase',
+                      textAlign: 'center',
+                    }}
+                    onKeyDown={e => e.key === 'Enter' && handleEntrarSala()}
+                  />
+                  <button
+                    onClick={handleEntrarSala}
+                    disabled={loadingSala}
+                    style={{
+                      padding: '12px 20px',
+                      border: '1.5px solid var(--red)',
+                      borderRadius: '4px',
+                      fontFamily: 'var(--mono)',
+                      fontSize: '13px',
+                      letterSpacing: '2px',
+                      color: 'var(--red)',
+                      background: 'rgba(255,255,255,0.5)',
+                      cursor: loadingSala ? 'wait' : 'pointer',
+                      textTransform: 'uppercase',
+                      transition: 'background 0.2s',
+                      opacity: loadingSala ? 0.6 : 1,
+                    }}
+                  >
+                    {loadingSala ? '...' : 'ENTRAR'}
+                  </button>
+                </div>
+                {erroSala && (
+                  <div style={{
+                    fontSize: '11px',
+                    letterSpacing: '1px',
+                    color: 'var(--red-bright)',
+                    marginTop: '6px',
+                  }}>
+                    {erroSala}
+                  </div>
+                )}
+              </div>
 
               {/* Meu Desempenho */}
               <div className="desempenho-box">

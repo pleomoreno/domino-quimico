@@ -212,10 +212,24 @@ CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/leonardo/Documentos/domino-quimico/backend/src/routes/report_routes.cpp -o CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.s
 
+CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o: CMakeFiles/domino-backend.dir/flags.make
+CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o: /home/leonardo/Documentos/domino-quimico/backend/src/routes/room_routes.cpp
+CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o: CMakeFiles/domino-backend.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o -MF CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o.d -o CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/room_routes.cpp
+
+CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/leonardo/Documentos/domino-quimico/backend/src/routes/room_routes.cpp > CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.i
+
+CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/leonardo/Documentos/domino-quimico/backend/src/routes/room_routes.cpp -o CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.s
+
 CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o: CMakeFiles/domino-backend.dir/flags.make
 CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o: /home/leonardo/Documentos/domino-quimico/backend/src/routes/user_routes.cpp
 CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o: CMakeFiles/domino-backend.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o -MF CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o.d -o CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/user_routes.cpp
 
 CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.i: cmake_force
@@ -229,7 +243,7 @@ CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.s: cmake_force
 CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o: CMakeFiles/domino-backend.dir/flags.make
 CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o: /home/leonardo/Documentos/domino-quimico/backend/src/utils/hash_utils.cpp
 CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o: CMakeFiles/domino-backend.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o -MF CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o.d -o CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/utils/hash_utils.cpp
 
 CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.i: cmake_force
@@ -243,7 +257,7 @@ CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.s: cmake_force
 CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: CMakeFiles/domino-backend.dir/flags.make
 CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: /home/leonardo/Documentos/domino-quimico/backend/src/utils/jwt_utils.cpp
 CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o: CMakeFiles/domino-backend.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o -MF CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o.d -o CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/utils/jwt_utils.cpp
 
 CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.i: cmake_force
@@ -266,6 +280,7 @@ domino__backend_OBJECTS = \
 "CMakeFiles/domino-backend.dir/src/routes/game_routes.cpp.o" \
 "CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o" \
 "CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o" \
+"CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o" \
 "CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o" \
 "CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o" \
 "CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o"
@@ -283,6 +298,7 @@ domino-backend: CMakeFiles/domino-backend.dir/src/routes/auth_routes.cpp.o
 domino-backend: CMakeFiles/domino-backend.dir/src/routes/game_routes.cpp.o
 domino-backend: CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o
 domino-backend: CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o
+domino-backend: CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o
 domino-backend: CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o
 domino-backend: CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o
 domino-backend: CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o
@@ -291,7 +307,7 @@ domino-backend: CMakeFiles/domino-backend.dir/compiler_depend.ts
 domino-backend: /home/leonardo/vcpkg/installed/x64-linux/debug/lib/libssl.a
 domino-backend: /home/leonardo/vcpkg/installed/x64-linux/debug/lib/libcrypto.a
 domino-backend: CMakeFiles/domino-backend.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Linking CXX executable domino-backend"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Linking CXX executable domino-backend"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/domino-backend.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

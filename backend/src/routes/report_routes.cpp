@@ -5,11 +5,12 @@
 #include <pqxx/pqxx>
 #include <sstream>
 
-void register_report_routes(crow::App<AuthMiddleware>& app) {
+void register_report_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
+{
 
     // ───── GET /api/reports/turma/<int> ───── (relatório da turma)
-    CROW_ROUTE(app, "/api/reports/turma/<int>").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req, int turma_id) {
+    CROW_ROUTE(app, "/api/reports/turma/<int>").methods(crow::HTTPMethod::GET)([&app](const crow::request &req, int turma_id)
+                                                                               {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_PROFESSOR(ctx);
 
@@ -59,12 +60,11 @@ void register_report_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── GET /api/reports/turma/<int>/export ───── (CSV LGPD-safe)
-    CROW_ROUTE(app, "/api/reports/turma/<int>/export").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req, int turma_id) {
+    CROW_ROUTE(app, "/api/reports/turma/<int>/export").methods(crow::HTTPMethod::GET)([&app](const crow::request &req, int turma_id)
+                                                                                      {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_PROFESSOR(ctx);
 
@@ -111,12 +111,11 @@ void register_report_routes(crow::App<AuthMiddleware>& app) {
             return res;
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── GET /api/reports/aluno/<int> ───── (histórico individual)
-    CROW_ROUTE(app, "/api/reports/aluno/<int>").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req, int aluno_id) {
+    CROW_ROUTE(app, "/api/reports/aluno/<int>").methods(crow::HTTPMethod::GET)([&app](const crow::request &req, int aluno_id)
+                                                                               {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_PROFESSOR(ctx);
 
@@ -197,6 +196,5 @@ void register_report_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 }

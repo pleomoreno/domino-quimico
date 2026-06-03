@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS board_tiles        CASCADE;
 DROP TABLE IF EXISTS player_hands       CASCADE;
 DROP TABLE IF EXISTS match_players      CASCADE;
 DROP TABLE IF EXISTS matches            CASCADE;
+DROP TABLE IF EXISTS sala_alunos        CASCADE;
+DROP TABLE IF EXISTS salas              CASCADE;
 DROP TABLE IF EXISTS turma_alunos       CASCADE;
 DROP TABLE IF EXISTS turmas             CASCADE;
 DROP TABLE IF EXISTS player_stats       CASCADE;
@@ -36,7 +38,7 @@ CREATE TABLE users (
 
     -- Validação de e-mail institucional
     CONSTRAINT chk_email_institucional
-        CHECK (email LIKE '%@%.edu.br' OR email LIKE '%@%.ac.br')
+        CHECK (email LIKE '%@aluno.cps.sp.gov.br' OR email LIKE '%@cps.sp.gov.br')
 );
 
 -- 2. SESSÕES / REVOGAÇÃO DE JWT
@@ -67,6 +69,31 @@ CREATE TABLE turma_alunos (
     aluno_id    INT REFERENCES users(id)  ON DELETE CASCADE,
     ingressou_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (turma_id, aluno_id)
+);
+
+-- 3b. SALAS DE JOGO (professor cria, alunos entram por código)
+
+CREATE TABLE salas (
+    id              SERIAL PRIMARY KEY,
+    codigo          VARCHAR(6)      NOT NULL UNIQUE,
+    professor_id    INT             NOT NULL REFERENCES users(id),
+    status          VARCHAR(15)     NOT NULL DEFAULT 'aguardando',
+    max_jogadores   INT             DEFAULT 10,
+    created_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT chk_status_sala
+        CHECK (status IN ('aguardando', 'em_andamento', 'finalizada'))
+);
+
+CREATE INDEX idx_salas_codigo ON salas(codigo);
+CREATE INDEX idx_salas_professor ON salas(professor_id);
+
+CREATE TABLE sala_alunos (
+    id          SERIAL PRIMARY KEY,
+    sala_id     INT NOT NULL REFERENCES salas(id) ON DELETE CASCADE,
+    aluno_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    joined_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (sala_id, aluno_id)
 );
 
 -- 4. NÍVEIS DE DIFICULDADE

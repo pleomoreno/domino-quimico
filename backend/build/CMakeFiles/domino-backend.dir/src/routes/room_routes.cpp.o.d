@@ -1,7 +1,7 @@
-CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o: \
- /home/leonardo/Documentos/domino-quimico/backend/src/routes/report_routes.cpp \
+CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o: \
+ /home/leonardo/Documentos/domino-quimico/backend/src/routes/room_routes.cpp \
  /usr/include/stdc-predef.h \
- /home/leonardo/Documentos/domino-quimico/backend/include/routes/report_routes.hpp \
+ /home/leonardo/Documentos/domino-quimico/backend/include/routes/room_routes.hpp \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/query_string.h \
  /usr/include/stdio.h /usr/include/bits/libc-header-start.h \

@@ -9,21 +9,24 @@
 #include <string>
 
 // Gera código de sala aleatório de 6 caracteres alfanuméricos
-static std::string gerar_codigo_sala() {
+static std::string gerar_codigo_sala()
+{
     static const char chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(0, sizeof(chars) - 2);
     std::string code;
-    for (int i = 0; i < 6; ++i) code += chars[dist(gen)];
+    for (int i = 0; i < 6; ++i)
+        code += chars[dist(gen)];
     return code;
 }
 
-void register_match_routes(crow::App<AuthMiddleware>& app) {
+void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
+{
 
     // ───── POST /api/matches ───── (criar partida)
-    CROW_ROUTE(app, "/api/matches").methods(crow::HTTPMethod::POST)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/matches").methods(crow::HTTPMethod::POST)([&app](const crow::request &req)
+                                                                    {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -66,12 +69,11 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             return created(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── GET /api/matches/open ───── (lobby: partidas abertas)
-    CROW_ROUTE(app, "/api/matches/open").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/matches/open").methods(crow::HTTPMethod::GET)([&app](const crow::request &req)
+                                                                        {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -104,12 +106,11 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── POST /api/matches/<int>/join ───── (entrar via código)
-    CROW_ROUTE(app, "/api/matches/<int>/join").methods(crow::HTTPMethod::POST)
-    ([&app](const crow::request& req, int match_id) {
+    CROW_ROUTE(app, "/api/matches/<int>/join").methods(crow::HTTPMethod::POST)([&app](const crow::request &req, int match_id)
+                                                                               {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -151,12 +152,11 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── GET /api/matches/<int> ───── (detalhes da partida)
-    CROW_ROUTE(app, "/api/matches/<int>").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req, int match_id) {
+    CROW_ROUTE(app, "/api/matches/<int>").methods(crow::HTTPMethod::GET)([&app](const crow::request &req, int match_id)
+                                                                         {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -212,12 +212,11 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── POST /api/matches/<int>/start ───── (iniciar partida + distribuir peças)
-    CROW_ROUTE(app, "/api/matches/<int>/start").methods(crow::HTTPMethod::POST)
-    ([&app](const crow::request& req, int match_id) {
+    CROW_ROUTE(app, "/api/matches/<int>/start").methods(crow::HTTPMethod::POST)([&app](const crow::request &req, int match_id)
+                                                                                {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -312,12 +311,11 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── POST /api/matches/<int>/cancel ─────
-    CROW_ROUTE(app, "/api/matches/<int>/cancel").methods(crow::HTTPMethod::POST)
-    ([&app](const crow::request& req, int match_id) {
+    CROW_ROUTE(app, "/api/matches/<int>/cancel").methods(crow::HTTPMethod::POST)([&app](const crow::request &req, int match_id)
+                                                                                 {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -336,6 +334,5 @@ void register_match_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 }

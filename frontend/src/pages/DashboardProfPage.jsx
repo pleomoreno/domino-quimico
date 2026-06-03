@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+const API_URL = 'http://localhost:8080';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
@@ -306,6 +309,66 @@ const styles = `
   .pct-yellow { color: #c47a00; }
   .pct-red    { color: var(--red-bright); }
 
+  /* Sala criada - código */
+  .sala-criada {
+    border: 1.5px solid var(--green-bright);
+    border-radius: 8px;
+    background: rgba(76,175,80,0.08);
+    padding: 16px 20px;
+    text-align: center;
+  }
+
+  .sala-codigo {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    color: var(--green-bright);
+    margin: 8px 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .sala-codigo:hover { transform: scale(1.05); }
+
+  .sala-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--dark);
+  }
+
+  .btn-copiar {
+    border: 1.5px solid var(--green-bright);
+    background: rgba(76,175,80,0.1);
+    padding: 8px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--green-bright);
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 8px;
+    transition: background 0.2s;
+  }
+
+  .btn-copiar:hover { background: rgba(76,175,80,0.2); }
+
+  .btn-ver-sala {
+    border: 1.5px solid var(--red);
+    background: rgba(255,255,255,0.5);
+    padding: 8px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--red);
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 8px;
+    margin-left: 8px;
+    transition: background 0.2s;
+  }
+
+  .btn-ver-sala:hover { background: rgba(232,48,42,0.08); }
+
   @media (max-width: 720px) {
     .prof-body { grid-template-columns: 1fr; }
     .stats-row { grid-template-columns: 1fr; }
@@ -332,6 +395,57 @@ function pctClass(p) {
 }
 
 export default function DashboardProfessorPage() {
+  const navigate = useNavigate();
+  const [salaCriada, setSalaCriada] = useState(null);
+  const [loadingCriar, setLoadingCriar] = useState(false);
+  const [copiado, setCopiado] = useState(false);
+
+  const nome = localStorage.getItem('nome') || 'Professor';
+  const iniciais = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+  function handleSair() {
+    localStorage.clear();
+    navigate('/login');
+  }
+
+  async function handleCriarSala() {
+    setLoadingCriar(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/rooms`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setSalaCriada(json.data);
+      } else {
+        alert(json.error || 'Erro ao criar sala');
+      }
+    } catch (err) {
+      alert('Erro de conexão com o servidor');
+    } finally {
+      setLoadingCriar(false);
+    }
+  }
+
+  function handleCopiarCodigo() {
+    if (salaCriada?.codigo) {
+      navigator.clipboard.writeText(salaCriada.codigo);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    }
+  }
+
+  function handleVerSala() {
+    if (salaCriada?.codigo) {
+      navigate(`/room/${salaCriada.codigo}`);
+    }
+  }
+
   return (
     <>
       <style>{styles}</style>
@@ -346,11 +460,11 @@ export default function DashboardProfessorPage() {
           {/* Header */}
           <div className="prof-header">
             <div className="user-info">
-              <div className="avatar">PR</div>
-              <span className="user-name">Prof. Rafael</span>
+              <div className="avatar">{iniciais}</div>
+              <span className="user-name">{nome}</span>
               <div className="role-badge">Professor</div>
             </div>
-            <button className="btn-sair" onClick={() => alert("Saindo...")}>Sair</button>
+            <button className="btn-sair" onClick={handleSair}>Sair</button>
           </div>
 
           {/* Body */}
@@ -375,11 +489,29 @@ export default function DashboardProfessorPage() {
                 </div>
               </div>
 
-              {/* Iniciar partida como host */}
-              <button className="btn-host" onClick={() => alert("Iniciando partida como host...")}>
-                <div className="play-icon" />
-                INICIAR PARTIDA COMO HOST
-              </button>
+              {/* Criar Sala / Sala Criada */}
+              {!salaCriada ? (
+                <button className="btn-host" onClick={handleCriarSala} disabled={loadingCriar}>
+                  <div className="play-icon" />
+                  {loadingCriar ? 'CRIANDO SALA...' : 'CRIAR SALA DE JOGO'}
+                </button>
+              ) : (
+                <div className="sala-criada">
+                  <div className="sala-label">SALA CRIADA COM SUCESSO</div>
+                  <div className="sala-codigo" onClick={handleCopiarCodigo} title="Clique para copiar">
+                    {salaCriada.codigo}
+                  </div>
+                  <div className="sala-label">COMPARTILHE ESTE CÓDIGO COM OS ALUNOS</div>
+                  <div>
+                    <button className="btn-copiar" onClick={handleCopiarCodigo}>
+                      {copiado ? '✓ COPIADO!' : 'COPIAR CÓDIGO'}
+                    </button>
+                    <button className="btn-ver-sala" onClick={handleVerSala}>
+                      VER SALA
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Desempenho dos alunos */}
               <div className="desempenho-box">

@@ -369,6 +369,30 @@ src/routes/report_routes.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/domino-backend.dir/build.make CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.s
 .PHONY : src/routes/report_routes.cpp.s
 
+src/routes/room_routes.o: src/routes/room_routes.cpp.o
+.PHONY : src/routes/room_routes.o
+
+# target to build an object file
+src/routes/room_routes.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/domino-backend.dir/build.make CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o
+.PHONY : src/routes/room_routes.cpp.o
+
+src/routes/room_routes.i: src/routes/room_routes.cpp.i
+.PHONY : src/routes/room_routes.i
+
+# target to preprocess a source file
+src/routes/room_routes.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/domino-backend.dir/build.make CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.i
+.PHONY : src/routes/room_routes.cpp.i
+
+src/routes/room_routes.s: src/routes/room_routes.cpp.s
+.PHONY : src/routes/room_routes.s
+
+# target to generate assembly for a file
+src/routes/room_routes.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/domino-backend.dir/build.make CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.s
+.PHONY : src/routes/room_routes.cpp.s
+
 src/routes/user_routes.o: src/routes/user_routes.cpp.o
 .PHONY : src/routes/user_routes.o
 
@@ -480,6 +504,9 @@ help:
 	@echo "... src/routes/report_routes.o"
 	@echo "... src/routes/report_routes.i"
 	@echo "... src/routes/report_routes.s"
+	@echo "... src/routes/room_routes.o"
+	@echo "... src/routes/room_routes.i"
+	@echo "... src/routes/room_routes.s"
 	@echo "... src/routes/user_routes.o"
 	@echo "... src/routes/user_routes.i"
 	@echo "... src/routes/user_routes.s"

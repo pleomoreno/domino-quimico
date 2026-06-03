@@ -10,6 +10,7 @@ import DashboardAlunoPage from './pages/DashboardAlunoPage'
 import DashboardProfPage from './pages/DashboardProfPage'
 import GerenciarAlunosPage from './pages/GerenciarAlunosPage'
 import RelatorioPage from './pages/RelatorioPage'
+import RoomPage from './pages/RoomPage'
 
 export default function App() {
   return (
@@ -22,6 +23,11 @@ export default function App() {
         <Route path="/lobby" element={<LobbyPage />} />
         <Route path="/waiting" element={<WaitingPage />} />
         <Route path="/config" element={<ConfigPage/>} />
+        {/* New canonical dashboard routes */}
+        <Route path="/dashboard/aluno" element={<DashboardAlunoPage/>} />
+        <Route path="/dashboard/professor" element={<DashboardProfPage/>} />
+        <Route path="/room/:code" element={<RoomPage/>} />
+        {/* Legacy routes (backward compat) */}
         <Route path="/dashAluno" element={<DashboardAlunoPage/>} />
         <Route path="/dashProf" element={<DashboardProfPage/>} />
         <Route path="/gerenciar" element={<GerenciarAlunosPage/>} />

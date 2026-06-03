@@ -61,6 +61,12 @@
 },
 {
   "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
+  "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/room_routes.cpp",
+  "file": "/home/leonardo/Documentos/domino-quimico/backend/src/routes/room_routes.cpp",
+  "output": "CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o"
+},
+{
+  "directory": "/home/leonardo/Documentos/domino-quimico/backend/build",
   "command": "/usr/bin/c++ -DASIO_NO_DEPRECATED -DJWT_DISABLE_PICOJSON -I/home/leonardo/Documentos/domino-quimico/backend/include -isystem /home/leonardo/vcpkg/installed/x64-linux/include -std=gnu++17 -o CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o -c /home/leonardo/Documentos/domino-quimico/backend/src/routes/user_routes.cpp",
   "file": "/home/leonardo/Documentos/domino-quimico/backend/src/routes/user_routes.cpp",
   "output": "CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o"

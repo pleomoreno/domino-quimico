@@ -858,4 +858,5 @@ CMakeFiles/domino-backend.dir/src/middleware/auth_middleware.cpp.o: \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/http_server.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/version.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/app.h \
+ /home/leonardo/vcpkg/installed/x64-linux/include/crow/middlewares/cors.h \
  /home/leonardo/Documentos/domino-quimico/backend/include/utils/jwt_utils.hpp

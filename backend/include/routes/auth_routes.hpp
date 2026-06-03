@@ -2,4 +2,4 @@
 #include "crow.h"
 #include "middleware/auth_middleware.hpp"
 
-void register_auth_routes(crow::App<AuthMiddleware>& app);
+void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app);

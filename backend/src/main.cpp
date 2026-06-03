@@ -1,10 +1,12 @@
 #include "crow.h"
+#include <crow/middlewares/cors.h>
 #include "middleware/auth_middleware.hpp"
 #include "routes/auth_routes.hpp"
 #include "routes/user_routes.hpp"
 #include "routes/match_routes.hpp"
 #include "routes/game_routes.hpp"
 #include "routes/report_routes.hpp"
+#include "routes/room_routes.hpp"
 #include "db/database.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -44,26 +46,17 @@ int main()
         return 1;
     }
 
-    crow::App<AuthMiddleware> app;
+    crow::App<crow::CORSHandler, AuthMiddleware> app;
 
-    // CORS para o frontend React
-    // Nota: Crow não tem CORSHandler built-in por padrão.
-    // Vamos adicionar CORS via handler global de OPTIONS e headers.
-    std::string cors_origin = std::getenv("CORS_ORIGIN") ? std::getenv("CORS_ORIGIN") : "*";
+    // --- NOVA CONFIGURAÇÃO DE CORS ---
+    auto& cors = app.get_middleware<crow::CORSHandler>();
+    std::string cors_origin = std::getenv("CORS_ORIGIN") ? std::getenv("CORS_ORIGIN") : "http://localhost:5173";
 
-    // Middleware de CORS via after_handle global não é trivial em Crow.
-    // Usamos um catchall OPTIONS e adicionamos headers nas respostas.
-    CROW_ROUTE(app, "/api/<path>").methods(crow::HTTPMethod::OPTIONS)([cors_origin](const crow::request &, const std::string &)
-                                                                      {
-        auto res = crow::response(204);
-        res.set_header("Access-Control-Allow-Origin", cors_origin);
-        res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        res.set_header("Access-Control-Max-Age", "86400");
-        return res; });
-
-    // CORS headers são injetados via response_utils.hpp em cada resposta.
-    // O handler OPTIONS acima cuida dos preflight requests.
+    cors.global()
+        .headers("Content-Type", "Authorization")
+        .methods("POST"_method, "GET"_method, "OPTIONS"_method, "PUT"_method, "DELETE"_method)
+        .origin(cors_origin);
+    // ---------------------------------
 
     // Registra todos os grupos de rotas
     register_auth_routes(app);
@@ -71,6 +64,7 @@ int main()
     register_match_routes(app);
     register_game_routes(app);
     register_report_routes(app);
+    register_room_routes(app);
 
     // Health check
     CROW_ROUTE(app, "/api/health")([]()

@@ -12,6 +12,7 @@ domino-backend: \
   CMakeFiles/domino-backend.dir/src/routes/game_routes.cpp.o \
   CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o \
   CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o \
+  CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o \
   CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o \
   CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o \
   CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o \
@@ -91,6 +92,8 @@ CMakeFiles/domino-backend.dir/src/routes/game_routes.cpp.o:
 CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o:
 
 CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o:
+
+CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o:
 
 CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o:
 

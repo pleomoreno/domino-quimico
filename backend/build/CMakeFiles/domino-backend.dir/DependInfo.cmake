@@ -18,6 +18,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/leonardo/Documentos/domino-quimico/backend/src/routes/game_routes.cpp" "CMakeFiles/domino-backend.dir/src/routes/game_routes.cpp.o" "gcc" "CMakeFiles/domino-backend.dir/src/routes/game_routes.cpp.o.d"
   "/home/leonardo/Documentos/domino-quimico/backend/src/routes/match_routes.cpp" "CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o" "gcc" "CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o.d"
   "/home/leonardo/Documentos/domino-quimico/backend/src/routes/report_routes.cpp" "CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o" "gcc" "CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o.d"
+  "/home/leonardo/Documentos/domino-quimico/backend/src/routes/room_routes.cpp" "CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o" "gcc" "CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o.d"
   "/home/leonardo/Documentos/domino-quimico/backend/src/routes/user_routes.cpp" "CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o" "gcc" "CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o.d"
   "/home/leonardo/Documentos/domino-quimico/backend/src/utils/hash_utils.cpp" "CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o" "gcc" "CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o.d"
   "/home/leonardo/Documentos/domino-quimico/backend/src/utils/jwt_utils.cpp" "CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o" "gcc" "CMakeFiles/domino-backend.dir/src/utils/jwt_utils.cpp.o.d"

@@ -4,11 +4,12 @@
 #include "utils/response_utils.hpp"
 #include <pqxx/pqxx>
 
-void register_user_routes(crow::App<AuthMiddleware>& app) {
+void register_user_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
+{
 
     // ───── GET /api/users/me ─────
-    CROW_ROUTE(app, "/api/users/me").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/users/me").methods(crow::HTTPMethod::GET)([&app](const crow::request &req)
+                                                                    {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -32,12 +33,11 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── PUT /api/users/me ─────
-    CROW_ROUTE(app, "/api/users/me").methods(crow::HTTPMethod::PUT)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/users/me").methods(crow::HTTPMethod::PUT)([&app](const crow::request &req)
+                                                                    {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -62,12 +62,11 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── DELETE /api/users/me ───── (LGPD: anonimizar conta)
-    CROW_ROUTE(app, "/api/users/me").methods(crow::HTTPMethod::DELETE)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/users/me").methods(crow::HTTPMethod::DELETE)([&app](const crow::request &req)
+                                                                       {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -90,12 +89,11 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── GET /api/users/me/stats ─────
-    CROW_ROUTE(app, "/api/users/me/stats").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/users/me/stats").methods(crow::HTTPMethod::GET)([&app](const crow::request &req)
+                                                                          {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -128,12 +126,11 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── POST /api/turmas ───── (professor cria turma)
-    CROW_ROUTE(app, "/api/turmas").methods(crow::HTTPMethod::POST)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/turmas").methods(crow::HTTPMethod::POST)([&app](const crow::request &req)
+                                                                   {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_PROFESSOR(ctx);
 
@@ -159,12 +156,11 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return created(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── GET /api/turmas ───── (professor lista suas turmas)
-    CROW_ROUTE(app, "/api/turmas").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/turmas").methods(crow::HTTPMethod::GET)([&app](const crow::request &req)
+                                                                  {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_PROFESSOR(ctx);
 
@@ -193,12 +189,11 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── POST /api/turmas/<int>/alunos ───── (professor adiciona aluno)
-    CROW_ROUTE(app, "/api/turmas/<int>/alunos").methods(crow::HTTPMethod::POST)
-    ([&app](const crow::request& req, int turma_id) {
+    CROW_ROUTE(app, "/api/turmas/<int>/alunos").methods(crow::HTTPMethod::POST)([&app](const crow::request &req, int turma_id)
+                                                                                {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_PROFESSOR(ctx);
 
@@ -245,12 +240,11 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── GET /api/game-levels ─────
-    CROW_ROUTE(app, "/api/game-levels").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/game-levels").methods(crow::HTTPMethod::GET)([&app](const crow::request &req)
+                                                                       {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -273,12 +267,11 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 
     // ───── GET /api/tiles ───── (listar peças por nível)
-    CROW_ROUTE(app, "/api/tiles").methods(crow::HTTPMethod::GET)
-    ([&app](const crow::request& req) {
+    CROW_ROUTE(app, "/api/tiles").methods(crow::HTTPMethod::GET)([&app](const crow::request &req)
+                                                                 {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);
 
@@ -317,6 +310,5 @@ void register_user_routes(crow::App<AuthMiddleware>& app) {
             return ok(std::move(data));
         } catch (const std::exception& e) {
             return server_error(e.what());
-        }
-    });
+        } });
 }

@@ -20,6 +20,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o.d"
   "CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o"
   "CMakeFiles/domino-backend.dir/src/routes/report_routes.cpp.o.d"
+  "CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o"
+  "CMakeFiles/domino-backend.dir/src/routes/room_routes.cpp.o.d"
   "CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o"
   "CMakeFiles/domino-backend.dir/src/routes/user_routes.cpp.o.d"
   "CMakeFiles/domino-backend.dir/src/utils/hash_utils.cpp.o"

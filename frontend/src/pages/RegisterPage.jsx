@@ -3,10 +3,87 @@ import { useNavigate } from 'react-router-dom'
 import logo from '/logo.png'
 import FloatingDecor from '../components/FloatingDecor'
 
+const API_URL = 'http://localhost:8080'
+
+function detectarTipo(email) {
+  const domain = email.split('@')[1]?.toLowerCase() || ''
+  if (domain === 'aluno.cps.sp.gov.br') return 'ALUNO'
+  if (domain === 'cps.sp.gov.br') return 'PROFESSOR'
+  return null
+}
+
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const [role, setRole]     = useState('aluno')
+  const [nome, setNome] = useState('')
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [confirmar, setConfirmar] = useState('')
   const [showPw, setShowPw] = useState(false)
+  const [lgpd, setLgpd] = useState(false)
+  const [erro, setErro] = useState('')
+  const [sucesso, setSucesso] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleRegister(e) {
+    e?.preventDefault()
+    setErro('')
+    setSucesso('')
+
+    if (!nome || !email || !senha || !confirmar) {
+      setErro('Preencha todos os campos')
+      return
+    }
+
+    const tipo = detectarTipo(email)
+    if (!tipo) {
+      setErro('Domínio de e-mail não autorizado. Use @aluno.cps.sp.gov.br ou @cps.sp.gov.br')
+      return
+    }
+
+    if (senha !== confirmar) {
+      setErro('As senhas não coincidem')
+      return
+    }
+
+    if (senha.length < 8) {
+      setErro('Senha deve ter no mínimo 8 caracteres')
+      return
+    }
+
+    if (!lgpd) {
+      setErro('Você precisa aceitar os termos LGPD')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome,
+          email,
+          senha,
+          lgpd_consentimento: true,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || !json.success) {
+        setErro(json.error || 'Erro ao cadastrar')
+        return
+      }
+
+      setSucesso('Conta criada com sucesso! Redirecionando...')
+      setTimeout(() => navigate('/login'), 2000)
+    } catch (err) {
+      setErro('Erro de conexão com o servidor')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const tipoDetectado = email.includes('@') ? detectarTipo(email) : null
+  const dominioInvalido = email.includes('@') && !tipoDetectado
 
   return (
     <div className="relative w-screen h-screen bg-white overflow-hidden flex items-center justify-center font-mono">
@@ -40,7 +117,7 @@ export default function RegisterPage() {
 
       {/* z-10: card */}
       <div
-        className="relative z-10 w-[460px] border-2 border-dq-red/50 px-10 py-7 flex flex-col"
+        className="relative z-10 w-[460px] border-2 border-dq-red/50 px-10 py-7 flex flex-col max-h-[90vh] overflow-y-auto"
         style={{
           background: 'rgba(200,16,46,0.08)',
           backdropFilter: 'blur(12px)',
@@ -59,60 +136,75 @@ export default function RegisterPage() {
           // CRIAR CONTA
         </p>
 
-        <div className="flex border-2 border-dq-red/40 mb-5">
-          {['aluno', 'professor'].map(r => (
-            <button key={r} onClick={() => setRole(r)}
-              className={`flex-1 py-[10px] text-[12px] tracking-[3px] uppercase font-bold transition-colors
-                ${role === r ? 'bg-dq-red/15 text-dq-red' : 'text-dq-muted hover:text-dq-red/70'}
-                ${r === 'professor' ? 'border-l-2 border-dq-red/40' : ''}`}>
-              {r}
-            </button>
-          ))}
-        </div>
+        <form onSubmit={handleRegister} className="flex flex-col">
+          <Field label="NOME COMPLETO">
+            <Input type="text" placeholder="João da Silva"
+              value={nome} onChange={e => setNome(e.target.value)} />
+          </Field>
 
-        <Field label="NOME COMPLETO">
-          <Input type="text" placeholder="João da Silva" />
-        </Field>
+          <Field label="E-MAIL INSTITUCIONAL">
+            <Input type="email" placeholder="seu@aluno.cps.sp.gov.br"
+              value={email} onChange={e => setEmail(e.target.value)} />
+            {tipoDetectado && (
+              <span className="text-[9px] tracking-wide font-bold mt-1" style={{ color: '#2e7d32' }}>
+                ✓ IDENTIFICADO COMO {tipoDetectado}
+              </span>
+            )}
+            {dominioInvalido && (
+              <span className="text-[9px] tracking-wide font-bold mt-1" style={{ color: '#e8302a' }}>
+                ✗ USE @aluno.cps.sp.gov.br OU @cps.sp.gov.br
+              </span>
+            )}
+          </Field>
 
-        <Field label="E-MAIL">
-          <Input type="email" placeholder="seu@email.com" />
-        </Field>
-
-        <div className="flex gap-3 mb-5">
-          <div className="flex flex-col gap-[6px] flex-1">
-            <label className="text-[10px] tracking-[3px] text-dq-muted font-bold">SENHA</label>
-            <div className="relative">
-              <Input type={showPw ? 'text' : 'password'} placeholder="••••••••" />
-              <button onClick={() => setShowPw(p => !p)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[7px] tracking-widest text-dq-muted hover:text-dq-red font-bold">
-                {showPw ? 'HIDE' : 'SHOW'}
-              </button>
+          <div className="flex gap-3 mb-5">
+            <div className="flex flex-col gap-[6px] flex-1">
+              <label className="text-[10px] tracking-[3px] text-dq-muted font-bold">SENHA</label>
+              <div className="relative">
+                <Input type={showPw ? 'text' : 'password'} placeholder="••••••••"
+                  value={senha} onChange={e => setSenha(e.target.value)} />
+                <button type="button" onClick={() => setShowPw(p => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[7px] tracking-widest text-dq-muted hover:text-dq-red font-bold">
+                  {showPw ? 'HIDE' : 'SHOW'}
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-[6px] flex-1">
+              <label className="text-[10px] tracking-[3px] text-dq-muted font-bold">CONFIRMAR</label>
+              <Input type={showPw ? 'text' : 'password'} placeholder="••••••••"
+                value={confirmar} onChange={e => setConfirmar(e.target.value)} />
             </div>
           </div>
-          <div className="flex flex-col gap-[6px] flex-1">
-            <label className="text-[10px] tracking-[3px] text-dq-muted font-bold">CONFIRMAR</label>
-            <Input type={showPw ? 'text' : 'password'} placeholder="••••••••" />
-          </div>
-        </div>
 
-        {role === 'aluno' ? (
-          <Field label="CÓDIGO DA TURMA">
-            <Input type="text" placeholder="Ex: QUI-2026-A1" />
-            <span className="text-[10px] tracking-wide text-dq-muted font-bold mt-1">
-              * FORNECIDO PELO PROFESSOR
+          {/* LGPD checkbox */}
+          <label className="flex items-start gap-2 mb-5 cursor-pointer">
+            <input type="checkbox" checked={lgpd} onChange={e => setLgpd(e.target.checked)}
+              className="mt-1 accent-dq-red" />
+            <span className="text-[9px] tracking-wide text-dq-muted font-bold leading-relaxed">
+              ACEITO O TRATAMENTO DOS MEUS DADOS DE ACORDO COM A LGPD *
             </span>
-          </Field>
-        ) : (
-          <Field label="INSTITUIÇÃO">
-            <Input type="text" placeholder="Ex: ETEC Júlio de Mesquita" />
-          </Field>
-        )}
+          </label>
 
-        <button onClick={() => navigate('/login')}
-          className="w-full py-4 border-2 border-dq-red text-dq-red font-bold text-[14px] tracking-[4px] transition-colors mb-5 hover:bg-dq-red/15 mt-2"
-          style={{ background: 'rgba(200,16,46,0.08)' }}>
-          ▶ CRIAR CONTA
-        </button>
+          {erro && (
+            <div className="mb-4 px-3 py-2 border border-dq-red/40 text-[11px] tracking-wide text-dq-red font-bold text-center"
+              style={{ background: 'rgba(200,16,46,0.08)' }}>
+              {erro}
+            </div>
+          )}
+
+          {sucesso && (
+            <div className="mb-4 px-3 py-2 border text-[11px] tracking-wide font-bold text-center"
+              style={{ borderColor: 'rgba(46,125,50,0.4)', color: '#2e7d32', background: 'rgba(46,125,50,0.08)' }}>
+              {sucesso}
+            </div>
+          )}
+
+          <button type="submit" disabled={loading}
+            className="w-full py-4 border-2 border-dq-red text-dq-red font-bold text-[14px] tracking-[4px] transition-colors mb-5 hover:bg-dq-red/15 disabled:opacity-50 mt-2"
+            style={{ background: 'rgba(200,16,46,0.08)' }}>
+            {loading ? '⏳ CRIANDO...' : '▶ CRIAR CONTA'}
+          </button>
+        </form>
 
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 h-px bg-dq-red/20" />
@@ -151,9 +243,9 @@ function Field({ label, children }) {
     </div>
   )
 }
-function Input({ type, placeholder }) {
+function Input({ type, placeholder, value, onChange }) {
   return (
-    <input type={type} placeholder={placeholder}
+    <input type={type} placeholder={placeholder} value={value} onChange={onChange}
       className="w-full border-2 border-dq-red/30 px-4 py-3 text-[13px] text-dq-red placeholder-dq-muted font-bold outline-none focus:border-dq-red/70 transition-colors"
       style={{ background: 'rgba(200,16,46,0.06)' }} />
   )

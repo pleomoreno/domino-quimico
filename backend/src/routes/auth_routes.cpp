@@ -4,10 +4,32 @@
 #include "utils/jwt_utils.hpp"
 #include "utils/response_utils.hpp"
 #include <pqxx/pqxx>
+#include <algorithm>
 
-void register_auth_routes(crow::App<AuthMiddleware> &app)
+// Extrai domínio do e-mail e determina o tipo de usuário
+static std::string extrair_dominio(const std::string &email)
 {
+    auto pos = email.find('@');
+    if (pos == std::string::npos)
+        return "";
+    std::string domain = email.substr(pos + 1);
+    // Lowercase
+    std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
+    return domain;
+}
 
+static std::string detectar_tipo_por_email(const std::string &email)
+{
+    std::string domain = extrair_dominio(email);
+    if (domain == "aluno.cps.sp.gov.br")
+        return "ALUNO";
+    if (domain == "cps.sp.gov.br")
+        return "PROFESSOR";
+    return ""; // domínio inválido
+}
+
+void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
+{
     // ───── POST /api/auth/register ─────
     CROW_ROUTE(app, "/api/auth/register").methods(crow::HTTPMethod::POST)([](const crow::request &req)
                                                                           {
@@ -16,19 +38,21 @@ void register_auth_routes(crow::App<AuthMiddleware> &app)
 
         // Campos obrigatórios
         if (!body.has("nome") || !body.has("email") ||
-            !body.has("senha") || !body.has("tipo") ||
+            !body.has("senha") ||
             !body.has("lgpd_consentimento")) {
-            return bad_request("Campos obrigatórios: nome, email, senha, tipo, lgpd_consentimento");
+            return bad_request("Campos obrigatórios: nome, email, senha, lgpd_consentimento");
         }
 
         std::string nome  = body["nome"].s();
         std::string email = body["email"].s();
         std::string senha = body["senha"].s();
-        std::string tipo  = body["tipo"].s();
         bool lgpd         = body["lgpd_consentimento"].b();
 
-        if (tipo != "ALUNO" && tipo != "PROFESSOR")
-            return bad_request("Tipo deve ser ALUNO ou PROFESSOR");
+        // Detectar tipo pelo domínio do e-mail
+        std::string tipo = detectar_tipo_por_email(email);
+        if (tipo.empty())
+            return bad_request("Domínio de e-mail não autorizado. Use @aluno.cps.sp.gov.br (aluno) ou @cps.sp.gov.br (professor)");
+
         if (!lgpd)
             return bad_request("Consentimento LGPD é obrigatório");
         if (senha.size() < 8)
@@ -85,6 +109,11 @@ void register_auth_routes(crow::App<AuthMiddleware> &app)
 
         std::string email = body["email"].s();
         std::string senha = body["senha"].s();
+
+        // Validar domínio do e-mail no login
+        std::string tipo_esperado = detectar_tipo_por_email(email);
+        if (tipo_esperado.empty())
+            return bad_request("Domínio de e-mail não autorizado. Use @aluno.cps.sp.gov.br (aluno) ou @cps.sp.gov.br (professor)");
 
         try {
             auto& db = Database::instance();

@@ -859,6 +859,7 @@ CMakeFiles/domino-backend.dir/src/routes/match_routes.cpp.o: \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/version.h \
  /home/leonardo/vcpkg/installed/x64-linux/include/crow/app.h \
  /home/leonardo/Documentos/domino-quimico/backend/include/middleware/auth_middleware.hpp \
+ /home/leonardo/vcpkg/installed/x64-linux/include/crow/middlewares/cors.h \
  /home/leonardo/Documentos/domino-quimico/backend/include/utils/jwt_utils.hpp \
  /home/leonardo/Documentos/domino-quimico/backend/include/db/database.hpp \
  /usr/include/pqxx/pqxx /usr/include/pqxx/internal/header-pre.hxx \
