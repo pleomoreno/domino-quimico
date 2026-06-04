@@ -1,363 +1,202 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
-
-  :root {
-    --red: #7a1010;
-    --red-bright: #e8302a;
-    --bg: #f0f4f0;
-    --grid: #b0c8b0;
-    --white: #ffffff;
-    --dark: #3a1010;
-    --green: #2e7d32;
-    --green-bright: #4caf50;
-    --mono: 'Share Tech Mono', monospace;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  .dashboard-wrapper {
-    min-height: 100vh;
-    background-color: var(--bg);
-    background-image:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 48px 48px;
-    padding: 24px;
-    font-family: var(--mono);
-  }
-
-  .dashboard-container {
-    max-width: 960px;
-    margin: 0 auto;
-    position: relative;
-  }
-
-  /* Corner brackets */
-  .corner { position: absolute; width: 24px; height: 24px; }
-  .corner-tl { top: -6px; left: -6px; border-top: 2.5px solid var(--red-bright); border-left: 2.5px solid var(--red-bright); }
-  .corner-tr { top: -6px; right: -6px; border-top: 2.5px solid var(--red-bright); border-right: 2.5px solid var(--red-bright); }
-  .corner-bl { bottom: -6px; left: -6px; border-bottom: 2.5px solid var(--red-bright); border-left: 2.5px solid var(--red-bright); }
-  .corner-br { bottom: -6px; right: -6px; border-bottom: 2.5px solid var(--red-bright); border-right: 2.5px solid var(--red-bright); }
-
-  /* ── Header ── */
-  .dash-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 4px 20px;
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2px solid var(--red);
-    background: #f8d0d0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--red);
-    letter-spacing: 1px;
-    flex-shrink: 0;
-  }
-
-  .user-name {
-    font-size: 15px;
-    letter-spacing: 2px;
-    color: var(--dark);
-  }
-
-  .btn-sair {
-    border: 1.5px solid var(--red);
-    background: rgba(255,255,255,0.5);
-    padding: 8px 28px;
-    font-family: var(--mono);
-    font-size: 14px;
-    letter-spacing: 3px;
-    color: var(--red);
-    cursor: pointer;
-    transition: background 0.2s;
-    border-radius: 4px;
-  }
-
-  .btn-sair:hover { background: rgba(232,48,42,0.1); }
-
-  /* ── Body ── */
-  .dash-body {
-    display: grid;
-    grid-template-columns: 1fr 260px;
-    gap: 16px;
-    align-items: start;
-  }
-
-  .dash-left {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  /* Jogar agora */
-  .btn-jogar {
-    width: 100%;
-    border: 1.5px solid var(--red);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.5);
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-family: var(--mono);
-    font-size: 20px;
-    letter-spacing: 4px;
-    color: var(--red);
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-    text-align: left;
-  }
-
-  .btn-jogar:hover {
-    background: rgba(232,48,42,0.08);
-    box-shadow: 0 0 0 1px var(--red-bright);
-  }
-
-  .btn-jogar:active { transform: scale(0.99); }
-
-  .play-icon {
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 16px solid var(--red);
-    flex-shrink: 0;
-  }
-
-  /* Desempenho */
-  .desempenho-box {
-    border: 1.5px solid var(--red);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.45);
-    padding: 16px 18px;
-  }
-
-  .desempenho-title {
-    font-size: 14px;
-    letter-spacing: 2px;
-    color: var(--red);
-    margin-bottom: 14px;
-  }
-
-  .aulas-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-
-  .aula-card {
-    border: 1.5px solid var(--red);
-    border-radius: 6px;
-    background: rgba(255,255,255,0.5);
-    padding: 10px 12px 8px;
-  }
-
-  .aula-label {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: var(--red);
-    margin-bottom: 10px;
-  }
-
-  .bar-chart {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 10px;
-    height: 60px;
-  }
-
-  .bar {
-    width: 22px;
-    border-radius: 2px 2px 0 0;
-    transition: height 0.4s ease;
-  }
-
-  .bar-green { background: var(--green-bright); }
-  .bar-red   { background: var(--red-bright); }
-
-  /* ── Classificação ── */
-  .ranking-box {
-    border: 1.5px solid var(--red);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.45);
-    padding: 16px 18px;
-  }
-
-  .ranking-title {
-    font-size: 13px;
-    letter-spacing: 2px;
-    color: var(--red);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    line-height: 1.4;
-  }
-
-  .ranking-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .ranking-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    letter-spacing: 1px;
-  }
-
-  .rank-pos {
-    color: var(--dark);
-    min-width: 16px;
-  }
-
-  .rank-name {
-    flex: 1;
-    color: var(--dark);
-  }
-
-  .rank-name.me {
-    font-weight: 700;
-    color: var(--red);
-  }
-
-  .rank-pct {
-    color: var(--green);
-    font-weight: 700;
-    min-width: 38px;
-    text-align: right;
-  }
-
-  .rank-pct.low { color: #c47a00; }
-  .rank-pct.very-low { color: var(--red-bright); }
-
-  @media (max-width: 680px) {
-    .dash-body { grid-template-columns: 1fr; }
-    .aulas-grid { grid-template-columns: 1fr; }
-  }
-`;
-
-const aulas = [
-  { label: "Jogo 1", green: 75, red: 35 },
-  { label: "Jogo 2", green: 60, red: 45 },
-  { label: "Jogo 3", green: 85, red: 20 },
-];
-
-const ranking = [
-  { pos: 1, name: "Ana C.",   pct: 94, me: false },
-  { pos: 2, name: "João M.",  pct: 88, me: true  },
-  { pos: 3, name: "Pleo S.",  pct: 76, me: false },
-  { pos: 4, name: "Laura F.", pct: 67, me: false },
-  { pos: 5, name: "Manja R.", pct: 55, me: false },
-];
-
-function pctClass(p) {
-  if (p >= 75) return "";
-  if (p >= 60) return "low";
-  return "very-low";
-}
+const API_URL = 'http://localhost:8080';
 
 export default function DashboardAlunoPage() {
+  const navigate = useNavigate();
+  const [codigoSala, setCodigoSala] = useState('');
+  const [erroSala, setErroSala] = useState('');
+  const [loadingSala, setLoadingSala] = useState(false);
+
+  const nome = localStorage.getItem('nome') || 'Aluno';
+  const iniciais = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+  // Histórico de partidas recentes (local storage)
+  const [historico] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('game_history') || '[]').slice(0, 8);
+    } catch { return []; }
+  });
+
   function handleJogar() {
-    alert("Iniciando jogo...");
+    navigate('/game');
   }
 
   function handleSair() {
-    alert("Saindo...");
+    localStorage.clear();
+    navigate('/login');
+  }
+
+  async function handleEntrarSala() {
+    if (!codigoSala.trim()) {
+      setErroSala('Digite o código da sala');
+      return;
+    }
+    setErroSala('');
+    setLoadingSala(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/rooms/${codigoSala.trim().toUpperCase()}/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setErroSala(json.error || 'Erro ao entrar na sala');
+        return;
+      }
+      navigate(`/room/${codigoSala.trim().toUpperCase()}`);
+    } catch (err) {
+      setErroSala('Erro de conexão');
+    } finally {
+      setLoadingSala(false);
+    }
   }
 
   return (
-    <>
-      <style>{styles}</style>
+    <div className="relative w-screen h-screen bg-white overflow-hidden font-mono text-dq-red">
+      {/* grid */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: `
+          linear-gradient(rgba(200,16,46,0.12) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(200,16,46,0.12) 1px, transparent 1px)
+        `,
+        backgroundSize: '36px 36px',
+      }} />
 
-      <div className="dashboard-wrapper">
-        <div className="dashboard-container">
-          <div className="corner corner-tl" />
-          <div className="corner corner-tr" />
-          <div className="corner corner-bl" />
-          <div className="corner corner-br" />
+      {/* cantos */}
+      <Corner pos="top-3 left-3" borders="border-t-2 border-l-2" />
+      <Corner pos="top-3 right-3" borders="border-t-2 border-r-2" />
+      <Corner pos="bottom-3 left-3" borders="border-b-2 border-l-2" />
+      <Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
-          {/* Header */}
-          <div className="dash-header">
-            <div className="user-info">
-              <div className="avatar">JM</div>
-              <span className="user-name">João Mendes</span>
-            </div>
-            <button className="btn-sair" onClick={handleSair}>Sair</button>
+      {/* top bar */}
+      <div className="absolute top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-6 z-20">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center text-[11px] font-bold tracking-wider">
+            {iniciais}
           </div>
+          <span className="text-[12px] tracking-[2px] uppercase text-white/80">{nome}</span>
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="font-bold tracking-[4px] text-[16px]">DOMINO QUIMICO</div>
+        </div>
+        <button
+          onClick={handleSair}
+          className="ml-auto text-[11px] tracking-[2px] uppercase text-white/70 hover:text-white border border-white/30 px-4 py-1.5 rounded-full hover:bg-white/10 transition-colors z-10"
+        >
+          Sair
+        </button>
+      </div>
 
-          {/* Body */}
-          <div className="dash-body">
+      {/* main content */}
+      <div className="relative z-10 w-full h-full pt-16 pb-6 px-6 flex items-start justify-center overflow-y-auto">
+        <div className="w-full max-w-[900px] flex flex-col gap-5">
 
-            {/* Left */}
-            <div className="dash-left">
-
-              {/* Jogar agora */}
-              <button className="btn-jogar" onClick={handleJogar}>
-                <div className="play-icon" />
-                JOGAR AGORA
-              </button>
-
-              {/* Meu Desempenho */}
-              <div className="desempenho-box">
-                <div className="desempenho-title">Meu Desempenho</div>
-                <div className="aulas-grid">
-                  {aulas.map((aula) => (
-                    <div className="aula-card" key={aula.label}>
-                      <div className="aula-label">{aula.label}</div>
-                      <div className="bar-chart">
-                        <div
-                          className="bar bar-green"
-                          style={{ height: `${aula.green}%` }}
-                        />
-                        <div
-                          className="bar bar-red"
-                          style={{ height: `${aula.red}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+          {/* Row: Partida Rápida + Entrar na Sala */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Partida Rápida */}
+            <button
+              onClick={handleJogar}
+              className="group relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-8 text-left transition-all hover:border-dq-red hover:shadow-[0_0_20px_rgba(200,16,46,0.15)] active:scale-[0.98]"
+            >
+              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
+              <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-dq-red" />
+              <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-dq-red" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-dq-red" />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-dq-red/10 flex items-center justify-center group-hover:bg-dq-red/20 transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <polygon points="5,2 18,10 5,18" fill="currentColor" className="text-dq-red" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-[18px] font-bold tracking-[3px] text-dq-red">PARTIDA RÁPIDA</div>
+                  <div className="text-[11px] tracking-[1px] text-dq-muted mt-1">JOGAR CONTRA BOTS</div>
                 </div>
               </div>
+            </button>
 
+            {/* Entrar na Sala */}
+            <div className="relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-6">
+              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
+              <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-dq-red" />
+              <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-dq-red" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-dq-red" />
+              <div className="text-[11px] tracking-[3px] text-dq-muted font-bold mb-4">// ENTRAR EM SALA</div>
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  placeholder="CÓDIGO"
+                  value={codigoSala}
+                  onChange={e => setCodigoSala(e.target.value.toUpperCase())}
+                  maxLength={6}
+                  className="flex-1 border-2 border-dq-red/30 px-4 py-3 text-[18px] text-dq-red font-bold tracking-[6px] text-center bg-white/50 outline-none focus:border-dq-red/70 transition-colors placeholder-dq-muted"
+                  onKeyDown={e => e.key === 'Enter' && handleEntrarSala()}
+                />
+                <button
+                  onClick={handleEntrarSala}
+                  disabled={loadingSala}
+                  className="px-5 py-3 border-2 border-dq-red text-dq-red font-bold text-[13px] tracking-[2px] hover:bg-dq-red/10 transition-colors disabled:opacity-50 active:scale-95"
+                >
+                  {loadingSala ? '...' : 'ENTRAR'}
+                </button>
+              </div>
+              {erroSala && (
+                <div className="mt-3 text-[11px] tracking-[1px] text-dq-red font-bold">
+                  {erroSala}
+                </div>
+              )}
             </div>
+          </div>
 
-            {/* Right: Ranking */}
-            <div className="ranking-box">
-              <div className="ranking-title">CLASSIFICAÇÃO DA TURMA</div>
-              <div className="ranking-list">
-                {ranking.map((r) => (
-                  <div className="ranking-row" key={r.pos}>
-                    <span className="rank-pos">{r.pos}</span>
-                    <span className={`rank-name ${r.me ? "me" : ""}`}>{r.name}</span>
-                    <span className={`rank-pct ${pctClass(r.pct)}`}>{r.pct}%</span>
+          {/* Desempenhos Recentes */}
+          <div className="relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-5">
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-dq-red" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-dq-red" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-dq-red" />
+
+            <div className="text-[11px] tracking-[3px] text-dq-muted font-bold mb-4">// DESEMPENHOS RECENTES</div>
+
+            {historico.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-[14px] text-dq-muted tracking-[2px]">NENHUMA PARTIDA REGISTRADA</div>
+                <div className="text-[11px] text-dq-muted/60 mt-2 tracking-[1px]">JOGUE UMA PARTIDA RÁPIDA PARA VER SEU HISTÓRICO</div>
+              </div>
+            ) : (
+              <div className="flex gap-3 flex-wrap">
+                {historico.map((game, i) => (
+                  <div
+                    key={i}
+                    className={`flex flex-col items-center justify-center w-16 h-16 border-2 ${
+                      game.result === 'W'
+                        ? 'border-emerald-500/50 bg-emerald-500/10'
+                        : 'border-dq-red/30 bg-dq-red/5'
+                    }`}
+                  >
+                    <span className={`text-[22px] font-bold ${
+                      game.result === 'W' ? 'text-emerald-500' : 'text-dq-red'
+                    }`}>
+                      {game.result}
+                    </span>
+                    <span className="text-[8px] text-dq-muted tracking-wider">{game.level || 'N1'}</span>
                   </div>
                 ))}
               </div>
-            </div>
-
+            )}
           </div>
+
         </div>
       </div>
-    </>
+    </div>
   );
+}
+
+function Corner({ pos, borders }) {
+  return <div className={`absolute w-5 h-5 ${pos} ${borders} border-dq-red`} />
 }

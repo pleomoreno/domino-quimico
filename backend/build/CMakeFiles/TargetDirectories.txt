@@ -1,0 +1,3 @@
+/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles/domino-backend.dir
+/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles/edit_cache.dir
+/home/leonardo/Documentos/domino-quimico/backend/build/CMakeFiles/rebuild_cache.dir
