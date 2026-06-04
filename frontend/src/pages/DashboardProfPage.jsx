@@ -1,398 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = 'http://localhost:8080';
-
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
-
-  :root {
-    --red: #7a1010;
-    --red-bright: #e8302a;
-    --bg: #f0f4f0;
-    --grid: #b0c8b0;
-    --white: #ffffff;
-    --dark: #3a1010;
-    --green: #2e7d32;
-    --green-bright: #4caf50;
-    --mono: 'Share Tech Mono', monospace;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  .prof-wrapper {
-    min-height: 100vh;
-    background-color: var(--bg);
-    background-image:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 48px 48px;
-    padding: 0;
-    font-family: var(--mono);
-  }
-
-  .prof-container {
-    max-width: 100%;
-    margin: 0;
-    padding: 24px;
-    position: relative;
-  }
-
-  .corner { position: absolute; width: 24px; height: 24px; }
-  .corner-tl { top: 8px; left: 8px; border-top: 2.5px solid var(--red-bright); border-left: 2.5px solid var(--red-bright); }
-  .corner-tr { top: 8px; right: 8px; border-top: 2.5px solid var(--red-bright); border-right: 2.5px solid var(--red-bright); }
-  .corner-bl { bottom: 8px; left: 8px; border-bottom: 2.5px solid var(--red-bright); border-left: 2.5px solid var(--red-bright); }
-  .corner-br { bottom: 8px; right: 8px; border-bottom: 2.5px solid var(--red-bright); border-right: 2.5px solid var(--red-bright); }
-
-  /* Header */
-  .prof-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 4px 20px;
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2px solid var(--red);
-    background: #f8d0d0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--red);
-    letter-spacing: 1px;
-    flex-shrink: 0;
-  }
-
-  .user-name {
-    font-size: 15px;
-    letter-spacing: 2px;
-    color: var(--dark);
-  }
-
-  .role-badge {
-    border: 1.5px solid var(--green-bright);
-    padding: 4px 14px;
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: var(--green-bright);
-    border-radius: 4px;
-  }
-
-  .btn-sair {
-    border: 1.5px solid var(--red);
-    background: rgba(255,255,255,0.5);
-    padding: 8px 28px;
-    font-family: var(--mono);
-    font-size: 14px;
-    letter-spacing: 3px;
-    color: var(--red);
-    cursor: pointer;
-    transition: background 0.2s;
-    border-radius: 4px;
-  }
-
-  .btn-sair:hover { background: rgba(232,48,42,0.1); }
-
-  /* Body */
-  .prof-body {
-    display: grid;
-    grid-template-columns: 1fr 280px;
-    gap: 16px;
-    align-items: start;
-  }
-
-  .prof-left {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  /* Stats */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-
-  .stat-card {
-    border: 1.5px solid var(--red);
-    border-radius: 6px;
-    background: rgba(255,255,255,0.45);
-    padding: 12px 14px;
-  }
-
-  .stat-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--green-bright);
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: var(--dark);
-    line-height: 1.4;
-  }
-
-  /* Iniciar partida */
-  .btn-host {
-    width: 100%;
-    border: 1.5px solid var(--red);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.5);
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-family: var(--mono);
-    font-size: 18px;
-    letter-spacing: 4px;
-    color: var(--red);
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-    text-align: left;
-  }
-
-  .btn-host:hover {
-    background: rgba(232,48,42,0.08);
-    box-shadow: 0 0 0 1px var(--red-bright);
-  }
-
-  .play-icon {
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 16px solid var(--red);
-    flex-shrink: 0;
-  }
-
-  /* Desempenho dos alunos */
-  .desempenho-box {
-    border: 1.5px solid var(--red);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.45);
-    padding: 14px 16px;
-  }
-
-  .desempenho-title {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--red);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .table-header {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1fr;
-    gap: 8px;
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: var(--red);
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--red);
-    padding-bottom: 8px;
-    margin-bottom: 8px;
-  }
-
-  .table-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1fr;
-    gap: 8px;
-    font-size: 12px;
-    letter-spacing: 1px;
-    color: var(--dark);
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(122,16,16,0.1);
-  }
-
-  .table-row:last-child { border-bottom: none; }
-
-  .cell-green { color: var(--green-bright); font-weight: 700; }
-
-  /* Botões de ação */
-  .action-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-
-  .btn-action {
-    border: 1.5px solid var(--red);
-    border-radius: 6px;
-    background: rgba(255,255,255,0.45);
-    padding: 16px 10px;
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 2px;
-    color: var(--red);
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-    text-align: center;
-    line-height: 1.4;
-  }
-
-  .btn-action:hover {
-    background: rgba(232,48,42,0.08);
-    box-shadow: 0 0 0 1px var(--red-bright);
-  }
-
-  .btn-action:active { transform: scale(0.98); }
-
-  /* Lista de turmas */
-  .turmas-box {
-    border: 1.5px solid var(--red);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.45);
-    padding: 14px 16px;
-  }
-
-  .turmas-title {
-    font-size: 13px;
-    letter-spacing: 3px;
-    color: var(--red);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-
-  .turma-item {
-    margin-bottom: 14px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid rgba(122,16,16,0.15);
-  }
-
-  .turma-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-
-  .turma-name {
-    font-size: 13px;
-    letter-spacing: 1.5px;
-    color: var(--dark);
-    margin-bottom: 3px;
-  }
-
-  .turma-alunos {
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: var(--dark);
-    margin-bottom: 3px;
-  }
-
-  .turma-aproveitamento {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: var(--dark);
-    text-transform: uppercase;
-  }
-
-  .turma-aproveitamento span { font-weight: 700; }
-  .pct-green  { color: var(--green-bright); }
-  .pct-yellow { color: #c47a00; }
-  .pct-red    { color: var(--red-bright); }
-
-  /* Sala criada - código */
-  .sala-criada {
-    border: 1.5px solid var(--green-bright);
-    border-radius: 8px;
-    background: rgba(76,175,80,0.08);
-    padding: 16px 20px;
-    text-align: center;
-  }
-
-  .sala-codigo {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: 8px;
-    color: var(--green-bright);
-    margin: 8px 0;
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-
-  .sala-codigo:hover { transform: scale(1.05); }
-
-  .sala-label {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--dark);
-  }
-
-  .btn-copiar {
-    border: 1.5px solid var(--green-bright);
-    background: rgba(76,175,80,0.1);
-    padding: 8px 20px;
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: var(--green-bright);
-    cursor: pointer;
-    border-radius: 4px;
-    margin-top: 8px;
-    transition: background 0.2s;
-  }
-
-  .btn-copiar:hover { background: rgba(76,175,80,0.2); }
-
-  .btn-ver-sala {
-    border: 1.5px solid var(--red);
-    background: rgba(255,255,255,0.5);
-    padding: 8px 20px;
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: var(--red);
-    cursor: pointer;
-    border-radius: 4px;
-    margin-top: 8px;
-    margin-left: 8px;
-    transition: background 0.2s;
-  }
-
-  .btn-ver-sala:hover { background: rgba(232,48,42,0.08); }
-
-  @media (max-width: 720px) {
-    .prof-body { grid-template-columns: 1fr; }
-    .stats-row { grid-template-columns: 1fr; }
-    .action-row { grid-template-columns: 1fr; }
-  }
-`;
-
-const alunos = [
-  { nome: "Ana Carvalho", partidas: 18, aproveitamento: 94, tempo: "28s" },
-  { nome: "Bruno Lima",   partidas: 14, aproveitamento: 81, tempo: "34s" },
-  { nome: "Carla Souza",  partidas: 20, aproveitamento: 67, tempo: "41s" },
-];
-
-const turmas = [
-  { nome: "Turma A - 1º Ano", alunos: 32, aproveitamento: 78 },
-  { nome: "Turma B - 1º Ano", alunos: 33, aproveitamento: 65 },
-  { nome: "Turma C - 2º Ano", alunos: 33, aproveitamento: 85 },
-];
-
-function pctClass(p) {
-  if (p >= 75) return "pct-green";
-  if (p >= 60) return "pct-yellow";
-  return "pct-red";
-}
 
 export default function DashboardProfessorPage() {
   const navigate = useNavigate();
@@ -446,124 +55,176 @@ export default function DashboardProfessorPage() {
     }
   }
 
+  function handleNovaSala() {
+    setSalaCriada(null);
+    setCopiado(false);
+  }
+
   return (
-    <>
-      <style>{styles}</style>
+    <div className="relative w-screen h-screen bg-white overflow-hidden font-mono text-dq-red">
+      {/* grid */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: `
+          linear-gradient(rgba(200,16,46,0.12) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(200,16,46,0.12) 1px, transparent 1px)
+        `,
+        backgroundSize: '36px 36px',
+      }} />
 
-      <div className="prof-wrapper">
-        <div className="prof-container">
-          <div className="corner corner-tl" />
-          <div className="corner corner-tr" />
-          <div className="corner corner-bl" />
-          <div className="corner corner-br" />
+      {/* cantos */}
+      <Corner pos="top-3 left-3" borders="border-t-2 border-l-2" />
+      <Corner pos="top-3 right-3" borders="border-t-2 border-r-2" />
+      <Corner pos="bottom-3 left-3" borders="border-b-2 border-l-2" />
+      <Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
-          {/* Header */}
-          <div className="prof-header">
-            <div className="user-info">
-              <div className="avatar">{iniciais}</div>
-              <span className="user-name">{nome}</span>
-              <div className="role-badge">Professor</div>
+      {/* top bar */}
+      <div className="absolute top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-6 z-20">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center text-[11px] font-bold tracking-wider">
+            {iniciais}
+          </div>
+          <span className="text-[12px] tracking-[2px] uppercase text-white/80">{nome}</span>
+          <span className="text-[10px] tracking-[1px] uppercase text-white/50 border border-white/30 px-2 py-0.5 rounded-full">PROFESSOR</span>
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="font-bold tracking-[4px] text-[16px]">DOMINO QUIMICO</div>
+        </div>
+        <button
+          onClick={handleSair}
+          className="ml-auto text-[11px] tracking-[2px] uppercase text-white/70 hover:text-white border border-white/30 px-4 py-1.5 rounded-full hover:bg-white/10 transition-colors z-10"
+        >
+          Sair
+        </button>
+      </div>
+
+      {/* main content */}
+      <div className="relative z-10 w-full h-full pt-16 pb-6 px-6 flex items-start justify-center overflow-y-auto">
+        <div className="w-full max-w-[900px] flex flex-col gap-5">
+
+          {/* Criar Sala / Sala Criada */}
+          {!salaCriada ? (
+            <button
+              onClick={handleCriarSala}
+              disabled={loadingCriar}
+              className="group relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-8 text-left transition-all hover:border-dq-red hover:shadow-[0_0_20px_rgba(200,16,46,0.15)] active:scale-[0.98] disabled:opacity-50"
+            >
+              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
+              <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-dq-red" />
+              <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-dq-red" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-dq-red" />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-dq-red/10 flex items-center justify-center group-hover:bg-dq-red/20 transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-dq-red" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-[18px] font-bold tracking-[3px] text-dq-red">
+                    {loadingCriar ? 'CRIANDO SALA...' : 'CRIAR SALA DE JOGO'}
+                  </div>
+                  <div className="text-[11px] tracking-[1px] text-dq-muted mt-1">GERAR CÓDIGO PARA OS ALUNOS ENTRAREM</div>
+                </div>
+              </div>
+            </button>
+          ) : (
+            <div className="relative border-2 border-emerald-500/50 bg-emerald-500/5 backdrop-blur-sm px-6 py-6 text-center">
+              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-emerald-500" />
+              <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-emerald-500" />
+              <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-emerald-500" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-emerald-500" />
+
+              <div className="text-[11px] tracking-[3px] text-emerald-600 font-bold mb-2">// SALA CRIADA COM SUCESSO</div>
+              <div
+                className="text-[42px] font-bold tracking-[10px] text-emerald-500 my-3 cursor-pointer hover:scale-105 transition-transform"
+                onClick={handleCopiarCodigo}
+                title="Clique para copiar"
+              >
+                {salaCriada.codigo}
+              </div>
+              <div className="text-[11px] tracking-[2px] text-dq-muted mb-4">COMPARTILHE ESTE CÓDIGO COM OS ALUNOS</div>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={handleCopiarCodigo}
+                  className="px-5 py-2.5 border-2 border-emerald-500 text-emerald-600 font-bold text-[12px] tracking-[2px] hover:bg-emerald-500/10 transition-colors active:scale-95"
+                >
+                  {copiado ? '✓ COPIADO!' : 'COPIAR CÓDIGO'}
+                </button>
+                <button
+                  onClick={handleVerSala}
+                  className="px-5 py-2.5 border-2 border-dq-red/50 text-dq-red font-bold text-[12px] tracking-[2px] hover:bg-dq-red/10 transition-colors active:scale-95"
+                >
+                  VER SALA
+                </button>
+                <button
+                  onClick={handleNovaSala}
+                  className="px-5 py-2.5 border-2 border-dq-red/30 text-dq-muted font-bold text-[12px] tracking-[2px] hover:bg-dq-red/5 transition-colors active:scale-95"
+                >
+                  NOVA SALA
+                </button>
+              </div>
             </div>
-            <button className="btn-sair" onClick={handleSair}>Sair</button>
+          )}
+
+          {/* Ações Rápidas */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <ActionCard
+              title="VER RELATÓRIOS"
+              subtitle="DESEMPENHO DOS ALUNOS"
+              icon="📊"
+              onClick={() => navigate('/relatorio')}
+            />
+            <ActionCard
+              title="GERENCIAR ALUNOS"
+              subtitle="TURMAS E MATRÍCULAS"
+              icon="👥"
+              onClick={() => navigate('/gerenciar')}
+            />
+            <ActionCard
+              title="EXPORTAR CSV"
+              subtitle="DADOS DA TURMA"
+              icon="📁"
+              onClick={() => alert('Exportar CSV')}
+            />
           </div>
 
-          {/* Body */}
-          <div className="prof-body">
+          {/* Desempenhos Recentes dos Alunos (placeholder) */}
+          <div className="relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-5">
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-dq-red" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-dq-red" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-dq-red" />
 
-            {/* Esquerda */}
-            <div className="prof-left">
+            <div className="text-[11px] tracking-[3px] text-dq-muted font-bold mb-4">// ATIVIDADE RECENTE</div>
 
-              {/* Stats */}
-              <div className="stats-row">
-                <div className="stat-card">
-                  <div className="stat-value">34</div>
-                  <div className="stat-label">Alunos Ativos</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-value">12</div>
-                  <div className="stat-label">Partidas Jogadas Hoje</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-value">73%</div>
-                  <div className="stat-label">Média de Acertos da Turma</div>
-                </div>
-              </div>
-
-              {/* Criar Sala / Sala Criada */}
-              {!salaCriada ? (
-                <button className="btn-host" onClick={handleCriarSala} disabled={loadingCriar}>
-                  <div className="play-icon" />
-                  {loadingCriar ? 'CRIANDO SALA...' : 'CRIAR SALA DE JOGO'}
-                </button>
-              ) : (
-                <div className="sala-criada">
-                  <div className="sala-label">SALA CRIADA COM SUCESSO</div>
-                  <div className="sala-codigo" onClick={handleCopiarCodigo} title="Clique para copiar">
-                    {salaCriada.codigo}
-                  </div>
-                  <div className="sala-label">COMPARTILHE ESTE CÓDIGO COM OS ALUNOS</div>
-                  <div>
-                    <button className="btn-copiar" onClick={handleCopiarCodigo}>
-                      {copiado ? '✓ COPIADO!' : 'COPIAR CÓDIGO'}
-                    </button>
-                    <button className="btn-ver-sala" onClick={handleVerSala}>
-                      VER SALA
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Desempenho dos alunos */}
-              <div className="desempenho-box">
-                <div className="desempenho-title">Desempenho dos Alunos</div>
-                <div className="table-header">
-                  <span>Aluno</span>
-                  <span>Partidas</span>
-                  <span>Aproveitamento</span>
-                  <span>Tempo Médio</span>
-                </div>
-                {alunos.map((a) => (
-                  <div className="table-row" key={a.nome}>
-                    <span>{a.nome}</span>
-                    <span>{a.partidas}</span>
-                    <span className="cell-green">{a.aproveitamento}%</span>
-                    <span>{a.tempo}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Botões de ação */}
-              <div className="action-row">
-                <button className="btn-action" onClick={() => alert("Ver Relatórios")}>
-                  VER<br/>RELATÓRIOS
-                </button>
-                <button className="btn-action" onClick={() => alert("Gerenciar Alunos")}>
-                  GERENCIAR<br/>ALUNOS
-                </button>
-                <button className="btn-action" onClick={() => alert("Exportar CSV")}>
-                  EXPORTAR<br/>CSV
-                </button>
-              </div>
-
+            <div className="text-center py-6">
+              <div className="text-[14px] text-dq-muted tracking-[2px]">NENHUMA ATIVIDADE RECENTE</div>
+              <div className="text-[11px] text-dq-muted/60 mt-2 tracking-[1px]">CRIE UMA SALA PARA COMEÇAR</div>
             </div>
-
-            {/* Direita: Lista de turmas */}
-            <div className="turmas-box">
-              <div className="turmas-title">Lista de Turmas</div>
-              {turmas.map((t) => (
-                <div className="turma-item" key={t.nome}>
-                  <div className="turma-name">{t.nome}</div>
-                  <div className="turma-alunos">{t.alunos} alunos</div>
-                  <div className="turma-aproveitamento">
-                    Aproveitamento: <span className={pctClass(t.aproveitamento)}>{t.aproveitamento}%</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
           </div>
+
         </div>
       </div>
-    </>
+    </div>
   );
+}
+
+function ActionCard({ title, subtitle, icon, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="group relative border-2 border-dq-red/30 bg-white/60 backdrop-blur-sm px-5 py-5 text-left transition-all hover:border-dq-red/60 hover:shadow-[0_0_15px_rgba(200,16,46,0.1)] active:scale-[0.98]"
+    >
+      <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-dq-red" />
+      <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-dq-red" />
+      <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-dq-red" />
+      <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-dq-red" />
+      <div className="text-[20px] mb-2">{icon}</div>
+      <div className="text-[14px] font-bold tracking-[2px] text-dq-red">{title}</div>
+      <div className="text-[10px] tracking-[1px] text-dq-muted mt-1">{subtitle}</div>
+    </button>
+  );
+}
+
+function Corner({ pos, borders }) {
+  return <div className={`absolute w-5 h-5 ${pos} ${borders} border-dq-red`} />
 }

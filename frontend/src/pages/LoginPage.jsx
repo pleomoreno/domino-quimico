@@ -31,7 +31,7 @@ export default function LoginPage() {
 
     const tipo = detectarTipo(email)
     if (!tipo) {
-      setErro('Domínio de e-mail não autorizado. Use @aluno.cps.sp.gov.br ou @cps.sp.gov.br')
+      setErro('E-mail não autorizado para esta plataforma')
       return
     }
 
@@ -66,9 +66,6 @@ export default function LoginPage() {
     }
   }
 
-  // Feedback visual do domínio do e-mail
-  const tipoDetectado = email.includes('@') ? detectarTipo(email) : null
-  const dominioInvalido = email.includes('@') && !tipoDetectado
 
   return (
     <div className="relative w-screen h-screen bg-white overflow-hidden flex items-center justify-center font-mono">
@@ -123,18 +120,8 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="flex flex-col">
           <Field label="E-MAIL">
-            <Input type="email" placeholder="seu@aluno.cps.sp.gov.br"
+            <Input type="email" placeholder="seu e-mail institucional"
               value={email} onChange={e => setEmail(e.target.value)} />
-            {tipoDetectado && (
-              <span className="text-[9px] tracking-wide font-bold mt-1" style={{ color: '#2e7d32' }}>
-                ✓ IDENTIFICADO COMO {tipoDetectado}
-              </span>
-            )}
-            {dominioInvalido && (
-              <span className="text-[9px] tracking-wide font-bold mt-1" style={{ color: '#e8302a' }}>
-                ✗ DOMÍNIO NÃO AUTORIZADO
-              </span>
-            )}
           </Field>
 
           <Field label="SENHA">

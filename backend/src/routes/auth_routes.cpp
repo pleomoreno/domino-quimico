@@ -51,7 +51,7 @@ void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
         // Detectar tipo pelo domínio do e-mail
         std::string tipo = detectar_tipo_por_email(email);
         if (tipo.empty())
-            return bad_request("Domínio de e-mail não autorizado. Use @aluno.cps.sp.gov.br (aluno) ou @cps.sp.gov.br (professor)");
+            return bad_request("E-mail não autorizado para esta plataforma");
 
         if (!lgpd)
             return bad_request("Consentimento LGPD é obrigatório");
@@ -113,7 +113,7 @@ void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
         // Validar domínio do e-mail no login
         std::string tipo_esperado = detectar_tipo_por_email(email);
         if (tipo_esperado.empty())
-            return bad_request("Domínio de e-mail não autorizado. Use @aluno.cps.sp.gov.br (aluno) ou @cps.sp.gov.br (professor)");
+            return bad_request("E-mail não autorizado para esta plataforma");
 
         try {
             auto& db = Database::instance();

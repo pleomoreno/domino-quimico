@@ -36,7 +36,7 @@ export default function RegisterPage() {
 
     const tipo = detectarTipo(email)
     if (!tipo) {
-      setErro('Domínio de e-mail não autorizado. Use @aluno.cps.sp.gov.br ou @cps.sp.gov.br')
+      setErro('E-mail não autorizado para esta plataforma')
       return
     }
 
@@ -82,8 +82,7 @@ export default function RegisterPage() {
     }
   }
 
-  const tipoDetectado = email.includes('@') ? detectarTipo(email) : null
-  const dominioInvalido = email.includes('@') && !tipoDetectado
+
 
   return (
     <div className="relative w-screen h-screen bg-white overflow-hidden flex items-center justify-center font-mono">
@@ -143,18 +142,8 @@ export default function RegisterPage() {
           </Field>
 
           <Field label="E-MAIL INSTITUCIONAL">
-            <Input type="email" placeholder="seu@aluno.cps.sp.gov.br"
+            <Input type="email" placeholder="seu e-mail institucional"
               value={email} onChange={e => setEmail(e.target.value)} />
-            {tipoDetectado && (
-              <span className="text-[9px] tracking-wide font-bold mt-1" style={{ color: '#2e7d32' }}>
-                ✓ IDENTIFICADO COMO {tipoDetectado}
-              </span>
-            )}
-            {dominioInvalido && (
-              <span className="text-[9px] tracking-wide font-bold mt-1" style={{ color: '#e8302a' }}>
-                ✗ USE @aluno.cps.sp.gov.br OU @cps.sp.gov.br
-              </span>
-            )}
           </Field>
 
           <div className="flex gap-3 mb-5">
@@ -177,7 +166,7 @@ export default function RegisterPage() {
           </div>
 
           {/* LGPD checkbox */}
-          <label className="flex items-start gap-2 mb-5 cursor-pointer">
+          <label className="flex items-start gap-2 mt-2 mb-5 cursor-pointer">
             <input type="checkbox" checked={lgpd} onChange={e => setLgpd(e.target.checked)}
               className="mt-1 accent-dq-red" />
             <span className="text-[9px] tracking-wide text-dq-muted font-bold leading-relaxed">

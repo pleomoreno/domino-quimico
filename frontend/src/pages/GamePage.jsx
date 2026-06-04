@@ -661,6 +661,19 @@ export default function GamePage() {
 		}
 	}
 
+	const saveGameHistory = (isWin) => {
+		try {
+			const history = JSON.parse(localStorage.getItem('game_history') || '[]');
+			history.unshift({
+				result: isWin ? 'W' : 'L',
+				level: currentLevel.title.split(':')[0] || 'N1',
+				date: new Date().toISOString(),
+			});
+			// Keep only last 20 games
+			localStorage.setItem('game_history', JSON.stringify(history.slice(0, 20)));
+		} catch (e) { /* ignore */ }
+	}
+
 	const checkGameOver = (nextHands, nextBoard, nextStats, nextPassStreak) => {
 		const winnerByEmpty = players.find(
 			(player) => nextHands[player].length === 0
@@ -670,6 +683,7 @@ export default function GamePage() {
 			setGameOver(true)
 			setSummary(buildSummary(nextHands, nextStats, winnerByEmpty, blocked))
 			setMessage("Fim de partida")
+			saveGameHistory(winnerByEmpty === "A")
 			return true
 		}
 		if (nextPassStreak >= players.length) {
@@ -677,6 +691,10 @@ export default function GamePage() {
 			setGameOver(true)
 			setSummary(buildSummary(nextHands, nextStats, null, blocked))
 			setMessage("Fim de partida (bloqueio)")
+			// In blocked games, player A wins if they have fewest tiles
+			const aCount = nextHands.A.length
+			const othersMin = Math.min(...players.filter(p => p !== "A").map(p => nextHands[p].length))
+			saveGameHistory(aCount <= othersMin)
 			return true
 		}
 		return false
@@ -702,9 +720,6 @@ export default function GamePage() {
 			clearTimeout(feedbackTimeoutRef.current)
 		}
 		setFeedback(nextFeedback)
-		feedbackTimeoutRef.current = setTimeout(() => {
-			setFeedback(null)
-		}, 3500)
 	}
 
 	const resetGame = (nextLevelId = levelId) => {
@@ -1221,28 +1236,15 @@ export default function GamePage() {
 					<p className="mt-2 text-[14px] text-dq-text leading-relaxed">
 						{feedback.message}
 					</p>
-					<div className="mt-4 flex items-center gap-2">
-						<div className="h-2 flex-1 bg-neutral-200 rounded-full overflow-hidden">
-							<div
-								className={`h-full ${
-									feedback.type === "success"
-										? "bg-emerald-500"
-										: "bg-dq-red"
-								}`}
-								style={{ width: "28%" }}
-							/>
-						</div>
-						<span className="text-[12px] text-dq-muted">2s</span>
-					</div>
-					{feedback.type === "error" && (
-						<button
-							type="button"
-							className="mt-5 w-full bg-dq-red text-white text-[14px] py-2 rounded-full"
-							onClick={() => setFeedback(null)}
-						>
-							Entendido
-						</button>
-					)}
+					<button
+						type="button"
+						className={`mt-5 w-full text-white text-[15px] font-bold tracking-[2px] py-3 rounded-full transition-transform active:scale-95 ${
+							feedback.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-dq-red hover:bg-red-700"
+						}`}
+						onClick={() => setFeedback(null)}
+					>
+						PRÓXIMO ▶
+					</button>
 				</div>
 			</div>
 			)}
