@@ -68,7 +68,7 @@ export default function LoginPage() {
 
 
   return (
-    <div className="relative w-screen h-screen bg-white overflow-hidden flex items-center justify-center font-mono">
+    <div className="relative w-full min-h-screen bg-white flex items-center justify-center font-mono">
 
       {/* z-0: grid */}
       <div className="absolute inset-0 z-0" style={{
@@ -99,7 +99,7 @@ export default function LoginPage() {
 
       {/* z-10: card */}
       <div
-        className="relative z-10 w-[460px] border-2 border-dq-red/50 px-10 py-8 flex flex-col"
+        className="relative z-10 w-full max-w-[460px] mx-4 border-2 border-dq-red/50 px-6 sm:px-10 py-8 flex flex-col"
         style={{
           background: 'rgba(200,16,46,0.08)',
           backdropFilter: 'blur(12px)',
@@ -165,11 +165,9 @@ export default function LoginPage() {
       </div>
 
       {/* rodapé */}
-      <div className="absolute bottom-3 left-1 right-0 px-5 py-2 flex justify-between text-[9px] tracking-widest text-dq-muted font-bold">
-      <div className="flex justify-between w-[1998px]">
+      <div className="absolute bottom-3 left-0 right-0 px-5 py-2 flex justify-between text-[9px] tracking-widest text-dq-muted font-bold">
         <span>INSTITUTO MAUÁ DE TECNOLOGIA</span>
-        <span>ETEC JÚLIO DE MESQUITA · 2026</span>
-        </div>
+        <span className="hidden sm:inline">ETEC JÚLIO DE MESQUITA · 2026</span>
       </div>
     </div>
   )

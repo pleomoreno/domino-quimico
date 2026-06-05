@@ -305,6 +305,84 @@ const createGameState = (levelId) => {
 
 const players = ["A", "B", "C", "D"]
 
+// ─── Sistema de Efeitos Sonoros ─────────────────────────────────────────────
+let _sfxCtx = null
+function getSfxCtx() {
+  try {
+    if (!_sfxCtx || _sfxCtx.state === 'closed') {
+      _sfxCtx = new (window.AudioContext || window.webkitAudioContext)()
+    }
+    if (_sfxCtx.state === 'suspended') _sfxCtx.resume()
+    return _sfxCtx
+  } catch (_) { return null }
+}
+
+function playSound(name) {
+  try {
+    // Respeita mute geral
+    if (localStorage.getItem('dq_music') === 'false') return
+    const ctx = getSfxCtx()
+    if (!ctx) return
+
+    const now = ctx.currentTime
+
+    const tone = (freq, type, duration, volume, freqEnd) => {
+      const osc  = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = type
+      osc.frequency.setValueAtTime(freq, now)
+      if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, now + duration)
+      gain.gain.setValueAtTime(volume, now)
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+      osc.start(now)
+      osc.stop(now + duration)
+    }
+
+    const chord = (freqs, type, duration, volume, delay = 0.12) => {
+      freqs.forEach((f, i) => {
+        setTimeout(() => {
+          try {
+            const ctx2 = getSfxCtx()
+            if (!ctx2) return
+            const now2 = ctx2.currentTime
+            const osc  = ctx2.createOscillator()
+            const gain = ctx2.createGain()
+            osc.connect(gain)
+            gain.connect(ctx2.destination)
+            osc.type = type
+            osc.frequency.setValueAtTime(f, now2)
+            gain.gain.setValueAtTime(volume, now2)
+            gain.gain.exponentialRampToValueAtTime(0.0001, now2 + duration)
+            osc.start(now2)
+            osc.stop(now2 + duration)
+          } catch (_) {}
+        }, i * delay * 1000)
+      })
+    }
+
+    switch (name) {
+      case 'place':   // Peça encaixada — pancada grave
+        tone(320, 'sine', 0.13, 0.4, 90); break
+      case 'error':   // Erro — buzzer curto
+        tone(180, 'square', 0.18, 0.2); break
+      case 'click':   // Botão — toque suave
+        tone(900, 'sine', 0.06, 0.15); break
+      case 'pass':    // Passa a vez — whoosh descendente
+        tone(600, 'sine', 0.16, 0.2, 200); break
+      case 'win':     // Vitória — acorde ascendente
+        chord([523, 659, 784, 1047], 'sine', 0.35, 0.25); break
+      case 'end':     // Derrota/bloqueio — acorde descendente
+        chord([440, 350, 280], 'sine', 0.25, 0.2); break
+      case 'levelup': // Próximo nível — fanfarra rápida
+        chord([523, 659, 784], 'triangle', 0.22, 0.22, 0.1); break
+      default: break
+    }
+  } catch (_) {}
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function GamePage() {
 	const navigate = useNavigate()
 	const [levelId, setLevelId] = useState(LEVELS[0].id)
@@ -365,8 +443,8 @@ export default function GamePage() {
 		const BEND_OVERLAP = 0
 		const BOTTOM_ROW_BACKSHIFT = 0
 		const DOUBLE_JOIN_ADJUST = 8
-		
-		
+
+
 
 		let cx = BOARD_W / 2
 		let cy = BOARD_H / 2
@@ -562,16 +640,19 @@ export default function GamePage() {
 	}, [board])
 
 	const handleOpenExitPrompt = () => {
+		playSound('click')
 		setExitPromptOpen(true)
 		setExitConfirmStep(false)
 	}
 
 	const handleContinueGame = () => {
+		playSound('click')
 		setExitPromptOpen(false)
 		setExitConfirmStep(false)
 	}
 
 	const handleAskExitConfirm = () => {
+		playSound('click')
 		setExitConfirmStep(true)
 	}
 
@@ -684,6 +765,7 @@ export default function GamePage() {
 			setSummary(buildSummary(nextHands, nextStats, winnerByEmpty, blocked))
 			setMessage("Fim de partida")
 			saveGameHistory(winnerByEmpty === "A")
+			playSound(winnerByEmpty === "A" ? 'win' : 'end')
 			return true
 		}
 		if (nextPassStreak >= players.length) {
@@ -695,6 +777,7 @@ export default function GamePage() {
 			const aCount = nextHands.A.length
 			const othersMin = Math.min(...players.filter(p => p !== "A").map(p => nextHands[p].length))
 			saveGameHistory(aCount <= othersMin)
+			playSound(winnerByEmpty === "A" ? 'win' : 'end')
 			return true
 		}
 		return false
@@ -743,12 +826,14 @@ export default function GamePage() {
 	}
 
 	const handleRestartLevelOne = () => {
+		playSound('click')
 		const levelOneId = LEVELS[0].id
 		setLevelId(levelOneId)
 		resetGame(levelOneId)
 	}
 
 	const handleNextLevel = () => {
+		playSound('levelup')
 		const currentIndex = LEVELS.findIndex((level) => level.id === levelId)
 		const nextLevel = LEVELS[currentIndex + 1]
 		if (!nextLevel) return
@@ -766,6 +851,7 @@ export default function GamePage() {
 		if (players[currentTurn] !== "A" || gameOver) return
 		if (board.length === 0) {
 			placeTile("A", tile.id)
+			playSound('place')
 			showFeedback({
 				type: "success",
 				title: "Correto!",
@@ -775,12 +861,16 @@ export default function GamePage() {
 		}
 		const canLeft = canPlaceTileOnSide(tile, "left")
 		const canRight = canPlaceTileOnSide(tile, "right")
-		if (!canLeft && !canRight) return
+		if (!canLeft && !canRight) {
+			playSound('error')
+			return
+		}
 		if (canLeft && canRight) {
 			setPendingPlacement({ tileId: tile.id })
 			return
 		}
 		placeTile("A", tile.id, canRight ? "right" : "left")
+		playSound('place')
 	}
 
 	const placeTile = (playerKey, tileId, preferredSide) => {
@@ -855,6 +945,7 @@ export default function GamePage() {
 		const canDrop = side === "left" ? canDropLeft : canDropRight
 		if (canDrop) {
 			placeTile("A", draggingTileId, side)
+			playSound('place')
 			showFeedback({
 				type: "success",
 				title: "Correto!",
@@ -862,6 +953,7 @@ export default function GamePage() {
 			})
 			return
 		}
+		playSound('error')
 		setStats((prev) => ({
 			...prev,
 			A: {
@@ -881,6 +973,7 @@ export default function GamePage() {
 	const handleChooseSide = (side) => {
 		if (!pendingPlacement) return
 		placeTile("A", pendingPlacement.tileId, side)
+		playSound('place')
 	}
 
 	const handlePass = () => {
@@ -889,6 +982,7 @@ export default function GamePage() {
 		const hand = hands[playerKey]
 		const hasPlayable = hand.some((tile) => isPlayable(tile))
 		if (hasPlayable) {
+			playSound('error')
 			showFeedback({
 				type: "error",
 				title: "Você ainda pode jogar",
@@ -896,6 +990,7 @@ export default function GamePage() {
 			})
 			return
 		}
+		playSound('pass')
 		const nextStats = {
 			...stats,
 			[playerKey]: {

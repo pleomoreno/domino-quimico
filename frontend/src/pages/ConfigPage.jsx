@@ -245,6 +245,101 @@ const styles = `
 
   .btn-continuar:active { transform: scale(0.98); }
 
+/* ── Seção de Áudio ─────────────────────────────────── */
+  .audio-section {
+    border: 1.5px solid var(--red);
+    background: rgba(255,255,255,0.55);
+    padding: 18px 20px;
+    margin-bottom: 10px;
+  }
+
+  .audio-section-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .audio-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .audio-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .audio-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--red);
+    text-transform: uppercase;
+    min-width: 70px;
+  }
+
+  .toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid var(--red);
+    border-radius: 4px;
+    padding: 8px 18px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--red);
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: background 0.2s;
+    text-transform: uppercase;
+  }
+
+  .toggle-btn:hover { background: rgba(255,255,255,0.8); }
+
+  .toggle-btn.on {
+    background: rgba(232,48,42,0.12);
+    border-color: var(--red-bright);
+  }
+
+  .volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 140px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(122,16,16,0.3);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--red-bright);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 0 4px rgba(232,48,42,0.5);
+  }
+
+  .volume-slider:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 500px) {
+    .audio-row { flex-direction: column; align-items: flex-start; }
+    .volume-slider { width: 100%; }
+  }
+
   @media (max-width: 600px) {
     .mode-grid { grid-template-columns: 1fr; }
     .diff-grid { grid-template-columns: 1fr; }
@@ -268,6 +363,27 @@ export default function ConfigPage() {
   const [difficulty, setDifficulty] = useState(null);
   const [tempo,      setTempo]      = useState("60s");
   const [pedras,     setPedras]     = useState("7");
+
+  const [musicOn, setMusicOn] = useState(
+    () => localStorage.getItem('dq_music') !== 'false'
+  )
+  const [volume, setVolume] = useState(
+    () => parseFloat(localStorage.getItem('dq_volume') ?? '0.4')
+  )
+
+  function handleMusicToggle() {
+    const next = !musicOn
+    setMusicOn(next)
+    localStorage.setItem('dq_music', String(next))
+    window.dispatchEvent(new CustomEvent('dq-audio-update'))
+  }
+
+  function handleVolumeChange(e) {
+    const v = parseFloat(e.target.value)
+    setVolume(v)
+    localStorage.setItem('dq_volume', String(v))
+    window.dispatchEvent(new CustomEvent('dq-audio-update'))
+  }
 
   function handleContinuar() {
     if (!mode || !difficulty) {
@@ -321,6 +437,38 @@ export default function ConfigPage() {
                   <span className="diff-label">{d.label}</span>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Música e Sons */}
+          <div className="audio-section">
+            <div className="audio-section-title">// MÚSICA E SONS</div>
+            <div className="audio-row">
+              <div className="audio-control">
+                <div className="audio-label">Música:</div>
+                <button
+                  className={`toggle-btn ${musicOn ? 'on' : ''}`}
+                  onClick={handleMusicToggle}
+                >
+                  {musicOn ? '♪ LIGADA' : '♪ DESLIGADA'}
+                </button>
+              </div>
+              <div className="audio-control">
+                <div className="audio-label">Volume:</div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  className="volume-slider"
+                  disabled={!musicOn}
+                />
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--red)', minWidth: 36 }}>
+                  {Math.round(volume * 100)}%
+                </span>
+              </div>
             </div>
           </div>
 

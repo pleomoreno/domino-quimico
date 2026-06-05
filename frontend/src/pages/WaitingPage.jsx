@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
@@ -322,14 +323,21 @@ const players = [
 const totalNeeded = 0; // todos prontos
 
 export default function WaitingPage() {
+  const navigate = useNavigate();
+  const tipo = localStorage.getItem('tipo');
+  const isProfessor = tipo === 'PROFESSOR';
   const notReady = players.filter(p => !p.ready).length;
 
   function handleSair() {
-    alert("Saindo da sala...");
+    if (isProfessor) {
+      navigate('/dashboard/professor');
+    } else {
+      navigate('/dashboard/aluno');
+    }
   }
 
   function handleIniciar() {
-    alert("Iniciando partida!");
+    navigate('/game');
   }
 
   return (

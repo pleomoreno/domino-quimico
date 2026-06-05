@@ -391,6 +391,7 @@ export default function RoomPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify({ fill_bots: true }),  // ← ADICIONAR
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
@@ -477,7 +478,6 @@ export default function RoomPage() {
                 <button
                   className="btn-iniciar"
                   onClick={handleIniciar}
-                  disabled={alunos.length === 0}
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14">
                     <polygon points="2,1 13,7 2,13" fill="white"/>
@@ -487,7 +487,12 @@ export default function RoomPage() {
               )}
             </div>
             {isProfessor && (
-              <div className="footer-hint">SOMENTE O PROFESSOR PODE INICIAR</div>
+              <div className="footer-hint">
+                {alunos.length === 0
+                  ? 'INICIANDO SEM ALUNOS — BOTS COMPLETAM OS 4 LUGARES'
+                  : `${alunos.length} ALUNO(S) — BOTS COMPLETAM OS LUGARES VAZIOS`
+                }
+              </div>
             )}
           </div>
 

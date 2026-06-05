@@ -52,15 +52,13 @@
         </div>
 
         {/* rodapé */}
-        <div className="absolute bottom-0 left-1 right-0 px-5 py-2 flex justify-between text-[9px] tracking-widest text-dq-muted font-bold">
-        <div className="flex justify-between w-[1998px]">
-          <span className="self-end mb-3">INSTITUTO MAUÁ DE TECNOLOGIA</span>
+        <div className="absolute bottom-0 left-0 right-0 px-5 pb-2 flex items-end justify-between text-[9px] tracking-widest text-dq-muted font-bold">
+          <span className="mb-3">INSTITUTO MAUÁ DE TECNOLOGIA</span>
           <img
             src="/logo_etec_pb.png"
             alt="ETEC Júlio de Mesquita"
-            className="h-20 relative top-3"
+            className="h-16 sm:h-20 relative top-3"
           />
-          </div>
         </div>
       </div>
     )

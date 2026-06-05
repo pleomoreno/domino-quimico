@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
@@ -156,8 +157,9 @@ const turmas = [
 ];
 
 export default function RelatorioPage() {
+  const navigate = useNavigate();
   function handleSair() {
-    alert("Saindo...");
+    navigate('/dashboard/professor');
   }
 
   return (
