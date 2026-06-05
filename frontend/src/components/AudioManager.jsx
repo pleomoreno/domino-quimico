@@ -11,7 +11,7 @@ export default function AudioManager() {
     () => localStorage.getItem('dq_music') !== 'false'
   )
   const [volume, setVolume] = useState(
-    () => parseFloat(localStorage.getItem('dq_volume') ?? '0.4')
+    () => parseFloat(localStorage.getItem('dq_volume') ?? '0.1')
   )
 
   // Cria / recria o elemento de áudio quando a rota muda entre game e menu
@@ -61,7 +61,7 @@ export default function AudioManager() {
   useEffect(() => {
     function onUpdate() {
       const newMusic = localStorage.getItem('dq_music') !== 'false'
-      const newVol   = parseFloat(localStorage.getItem('dq_volume') ?? '0.4')
+      const newVol   = parseFloat(localStorage.getItem('dq_volume') ?? '0.1')
       setMusicOn(newMusic)
       setVolume(newVol)
     }

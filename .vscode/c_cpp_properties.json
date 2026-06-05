@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Fedora Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/leonardo/vcpkg/installed/x64-linux/include"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compileCommands": "/home/leonardo/Documentos/domino-quimico/backend/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}

@@ -166,9 +166,9 @@ export default function RegisterPage() {
           </div>
 
           {/* LGPD checkbox */}
-          <label className="flex items-start gap-2 mt-5 mb-5 cursor-pointer">
+          <label className="flex items-center gap-2 mt-2 mb-5 cursor-pointer">
             <input type="checkbox" checked={lgpd} onChange={e => setLgpd(e.target.checked)}
-              className="mt-1 accent-dq-red" />
+              className=" accent-dq-red" />
             <span className="text-[9px] tracking-wide text-dq-muted font-bold leading-relaxed">
               ACEITO O TRATAMENTO DOS MEUS DADOS DE ACORDO COM A LGPD *
             </span>
