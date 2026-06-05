@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
@@ -190,6 +191,7 @@ const alunosIniciais = [
 ];
 
 export default function GerenciarAlunosPage() {
+  const navigate = useNavigate();
   const [alunos, setAlunos] = useState(alunosIniciais);
 
   function handleExcluir(id) {
@@ -200,7 +202,7 @@ export default function GerenciarAlunosPage() {
   }
 
   function handleSair() {
-    alert("Saindo...");
+    navigate('/dashboard/professor');
   }
 
   return (

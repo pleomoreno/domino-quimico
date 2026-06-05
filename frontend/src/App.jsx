@@ -11,10 +11,12 @@ import DashboardProfPage from './pages/DashboardProfPage'
 import GerenciarAlunosPage from './pages/GerenciarAlunosPage'
 import RelatorioPage from './pages/RelatorioPage'
 import RoomPage from './pages/RoomPage'
+import AudioManager from './components/AudioManager'
 
 export default function App() {
   return (
     <BrowserRouter>
+    <AudioManager/>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />

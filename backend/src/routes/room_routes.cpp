@@ -231,14 +231,6 @@ void register_room_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
 
             int sala_id = sala[0]["id"].as<int>();
 
-            // Verificar se há alunos
-            auto count = ntxn.exec(
-                "SELECT COUNT(*) FROM sala_alunos WHERE sala_id = " +
-                std::to_string(sala_id)
-            );
-            if (count[0][0].as<int>() == 0)
-                return bad_request("Nenhum aluno na sala");
-
             pqxx::work txn(db.conn());
             txn.exec(
                 "UPDATE salas SET status = 'em_andamento' WHERE id = " +

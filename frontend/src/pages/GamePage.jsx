@@ -305,6 +305,84 @@ const createGameState = (levelId) => {
 
 const players = ["A", "B", "C", "D"]
 
+// ─── Sistema de Efeitos Sonoros ─────────────────────────────────────────────
+let _sfxCtx = null
+function getSfxCtx() {
+  try {
+    if (!_sfxCtx || _sfxCtx.state === 'closed') {
+      _sfxCtx = new (window.AudioContext || window.webkitAudioContext)()
+    }
+    if (_sfxCtx.state === 'suspended') _sfxCtx.resume()
+    return _sfxCtx
+  } catch (_) { return null }
+}
+
+function playSound(name) {
+  try {
+    // Respeita mute geral
+    if (localStorage.getItem('dq_music') === 'false') return
+    const ctx = getSfxCtx()
+    if (!ctx) return
+
+    const now = ctx.currentTime
+
+    const tone = (freq, type, duration, volume, freqEnd) => {
+      const osc  = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = type
+      osc.frequency.setValueAtTime(freq, now)
+      if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, now + duration)
+      gain.gain.setValueAtTime(volume, now)
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+      osc.start(now)
+      osc.stop(now + duration)
+    }
+
+    const chord = (freqs, type, duration, volume, delay = 0.12) => {
+      freqs.forEach((f, i) => {
+        setTimeout(() => {
+          try {
+            const ctx2 = getSfxCtx()
+            if (!ctx2) return
+            const now2 = ctx2.currentTime
+            const osc  = ctx2.createOscillator()
+            const gain = ctx2.createGain()
+            osc.connect(gain)
+            gain.connect(ctx2.destination)
+            osc.type = type
+            osc.frequency.setValueAtTime(f, now2)
+            gain.gain.setValueAtTime(volume, now2)
+            gain.gain.exponentialRampToValueAtTime(0.0001, now2 + duration)
+            osc.start(now2)
+            osc.stop(now2 + duration)
+          } catch (_) {}
+        }, i * delay * 1000)
+      })
+    }
+
+    switch (name) {
+      case 'place':   // Peça encaixada — pancada grave
+        tone(320, 'sine', 0.13, 0.4, 90); break
+      case 'error':   // Erro — buzzer curto
+        tone(180, 'square', 0.18, 0.2); break
+      case 'click':   // Botão — toque suave
+        tone(900, 'sine', 0.06, 0.15); break
+      case 'pass':    // Passa a vez — whoosh descendente
+        tone(600, 'sine', 0.16, 0.2, 200); break
+      case 'win':     // Vitória — acorde ascendente
+        chord([523, 659, 784, 1047], 'sine', 0.35, 0.25); break
+      case 'end':     // Derrota/bloqueio — acorde descendente
+        chord([440, 350, 280], 'sine', 0.25, 0.2); break
+      case 'levelup': // Próximo nível — fanfarra rápida
+        chord([523, 659, 784], 'triangle', 0.22, 0.22, 0.1); break
+      default: break
+    }
+  } catch (_) {}
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function GamePage() {
 	const navigate = useNavigate()
 	const [levelId, setLevelId] = useState(LEVELS[0].id)
@@ -324,12 +402,19 @@ export default function GamePage() {
 	const [exitConfirmStep, setExitConfirmStep] = useState(false)
 	const feedbackTimeoutRef = useRef(null)
 	const startTimeRef = useRef(Date.now())
+	const [viewportWidth, setViewportWidth] = useState(() => typeof window !== 'undefined' ? window.innerWidth : 1000)
 	const [stats, setStats] = useState(() =>
 		players.reduce((acc, player) => {
 			acc[player] = { plays: 0, correct: 0, errors: 0, passes: 0 }
 			return acc
 		}, {})
 	)
+
+	useEffect(() => {
+		const handleResize = () => setViewportWidth(window.innerWidth)
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
 
 	const currentLevel = useMemo(
 		() => LEVELS.find((level) => level.id === levelId) || LEVELS[0],
@@ -355,18 +440,18 @@ export default function GamePage() {
 			return { tiles: [], width: 0, height: 0, startDrop: null, endDrop: null }
 		}
 
-		const H_SIZE = { w: 86, h: 50 }
-		const V_SIZE = { w: 50, h: 86 }
+		const H_SIZE = { w: 100, h: 58 }
+		const V_SIZE = { w: 58, h: 100 }
 		const UPRIGHT_BEND_SIZE = V_SIZE
-		const BOARD_W = 980
-		const BOARD_H = 520
-		const MARGIN = 28
+		const BOARD_W = 1100
+		const BOARD_H = 600
+		const MARGIN = 32
 		const GAP = 0
 		const BEND_OVERLAP = 0
 		const BOTTOM_ROW_BACKSHIFT = 0
-		const DOUBLE_JOIN_ADJUST = 8
-		
-		
+		const DOUBLE_JOIN_ADJUST = 10
+
+
 
 		let cx = BOARD_W / 2
 		let cy = BOARD_H / 2
@@ -562,21 +647,29 @@ export default function GamePage() {
 	}, [board])
 
 	const handleOpenExitPrompt = () => {
+		playSound('click')
 		setExitPromptOpen(true)
 		setExitConfirmStep(false)
 	}
 
 	const handleContinueGame = () => {
+		playSound('click')
 		setExitPromptOpen(false)
 		setExitConfirmStep(false)
 	}
 
 	const handleAskExitConfirm = () => {
+		playSound('click')
 		setExitConfirmStep(true)
 	}
 
 	const handleConfirmExit = () => {
-		navigate("/")
+		const tipo = localStorage.getItem('tipo');
+		if (tipo === 'PROFESSOR') {
+			navigate('/dashboard/professor');
+		} else {
+			navigate('/dashboard/aluno');
+		}
 	}
 
 
@@ -684,6 +777,7 @@ export default function GamePage() {
 			setSummary(buildSummary(nextHands, nextStats, winnerByEmpty, blocked))
 			setMessage("Fim de partida")
 			saveGameHistory(winnerByEmpty === "A")
+			playSound(winnerByEmpty === "A" ? 'win' : 'end')
 			return true
 		}
 		if (nextPassStreak >= players.length) {
@@ -695,6 +789,7 @@ export default function GamePage() {
 			const aCount = nextHands.A.length
 			const othersMin = Math.min(...players.filter(p => p !== "A").map(p => nextHands[p].length))
 			saveGameHistory(aCount <= othersMin)
+			playSound(winnerByEmpty === "A" ? 'win' : 'end')
 			return true
 		}
 		return false
@@ -743,12 +838,14 @@ export default function GamePage() {
 	}
 
 	const handleRestartLevelOne = () => {
+		playSound('click')
 		const levelOneId = LEVELS[0].id
 		setLevelId(levelOneId)
 		resetGame(levelOneId)
 	}
 
 	const handleNextLevel = () => {
+		playSound('levelup')
 		const currentIndex = LEVELS.findIndex((level) => level.id === levelId)
 		const nextLevel = LEVELS[currentIndex + 1]
 		if (!nextLevel) return
@@ -766,6 +863,7 @@ export default function GamePage() {
 		if (players[currentTurn] !== "A" || gameOver) return
 		if (board.length === 0) {
 			placeTile("A", tile.id)
+			playSound('place')
 			showFeedback({
 				type: "success",
 				title: "Correto!",
@@ -775,12 +873,16 @@ export default function GamePage() {
 		}
 		const canLeft = canPlaceTileOnSide(tile, "left")
 		const canRight = canPlaceTileOnSide(tile, "right")
-		if (!canLeft && !canRight) return
+		if (!canLeft && !canRight) {
+			playSound('error')
+			return
+		}
 		if (canLeft && canRight) {
 			setPendingPlacement({ tileId: tile.id })
 			return
 		}
 		placeTile("A", tile.id, canRight ? "right" : "left")
+		playSound('place')
 	}
 
 	const placeTile = (playerKey, tileId, preferredSide) => {
@@ -855,6 +957,7 @@ export default function GamePage() {
 		const canDrop = side === "left" ? canDropLeft : canDropRight
 		if (canDrop) {
 			placeTile("A", draggingTileId, side)
+			playSound('place')
 			showFeedback({
 				type: "success",
 				title: "Correto!",
@@ -862,6 +965,7 @@ export default function GamePage() {
 			})
 			return
 		}
+		playSound('error')
 		setStats((prev) => ({
 			...prev,
 			A: {
@@ -881,6 +985,7 @@ export default function GamePage() {
 	const handleChooseSide = (side) => {
 		if (!pendingPlacement) return
 		placeTile("A", pendingPlacement.tileId, side)
+		playSound('place')
 	}
 
 	const handlePass = () => {
@@ -889,6 +994,7 @@ export default function GamePage() {
 		const hand = hands[playerKey]
 		const hasPlayable = hand.some((tile) => isPlayable(tile))
 		if (hasPlayable) {
+			playSound('error')
 			showFeedback({
 				type: "error",
 				title: "Você ainda pode jogar",
@@ -896,6 +1002,7 @@ export default function GamePage() {
 			})
 			return
 		}
+		playSound('pass')
 		const nextStats = {
 			...stats,
 			[playerKey]: {
@@ -985,16 +1092,17 @@ export default function GamePage() {
 			<Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
 			{/* top bar */}
-			<div className="absolute top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-4 gap-4 z-20">
-				<div className="flex items-center gap-2 z-10 text-[11px] tracking-[2px] uppercase text-white/80">
-					Nível: <span className="text-white">{currentLevel.title}</span>
+			<div className="absolute top-0 left-0 right-0 h-10 sm:h-12 bg-dq-red text-white flex items-center px-3 sm:px-4 gap-2 sm:gap-4 z-20">
+				<div className="flex items-center gap-1.5 z-10 text-[9px] sm:text-[11px] tracking-[1px] sm:tracking-[2px] uppercase text-white/80 truncate max-w-[40%] sm:max-w-none">
+					<span className="hidden sm:inline">Nível:</span>
+					<span className="text-white truncate">{currentLevel.title.split(':')[0]}</span>
 				</div>
 				<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-					<div className="font-bold tracking-[4px] text-[16px]">DOMINO QUIMICO</div>
+					<div className="font-bold tracking-[2px] sm:tracking-[4px] text-[12px] sm:text-[16px]">DOMINO QUIMICO</div>
 				</div>
 				<button
 					type="button"
-					className="ml-auto w-8 h-8 flex items-center justify-center rounded-full border border-white/60 text-white hover:bg-white/10 z-10"
+					className="ml-auto w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full border border-white/60 text-white hover:bg-white/10 z-10 text-[12px] sm:text-[14px]"
 					aria-label="Fechar"
 					onClick={handleOpenExitPrompt}
 				>
@@ -1003,141 +1111,185 @@ export default function GamePage() {
 			</div>
 
 			{/* board */}
-				<div className="relative z-10 w-full h-full flex items-center justify-center pt-12">
-				<div className="relative w-[97.5%] h-[90%] bg-neutral-200 border border-black/10 rounded-sm">
-					{/* top hand */}
-					<div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-2">
-						{hands.C.map((item) => (
-							<HiddenTile key={item.id} orientation="vertical" size="sm" />
-						))}
-					</div>
-					<div className="absolute top-4 left-1/2 -translate-x-1/2 text-[14px] text-dq-text">
-						Jogador C: <span className="text-dq-muted">{hands.C.length} Pedras</span>
-					</div>
+				<div className="relative z-10 w-full h-full flex flex-col pt-10 sm:pt-12">
+				{/* Bot info bar - compact on mobile, full on desktop */}
+				<div className="flex items-center justify-center gap-2 sm:gap-4 px-2 py-1.5 sm:py-2 bg-neutral-100/80 border-b border-black/5">
+					{['B','C','D'].map(p => (
+						<div key={p} className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-[13px] ${
+							players[currentTurn] === p ? 'bg-dq-red/10 text-dq-red font-bold' : 'text-dq-muted'
+						}`}>
+							<span className="hidden sm:inline">Jogador</span> {p}: <span className="font-bold">{hands[p].length}</span>
+						</div>
+					))}
+				</div>
 
-					{/* left hand */}
-					<div className="absolute top-[54%] left-2 -translate-y-1/2 flex flex-col gap-1">
-						{hands.B.map((item) => (
-							<HiddenTile key={item.id} orientation="horizontal" size="sm" />
-						))}
-					</div>
-					<div className="absolute top-[12%] left-8 text-[14px] text-dq-text">
-						Jogador B: <span className="text-dq-muted">{hands.B.length} Pedras</span>
-					</div>
+				{/* Center message */}
+				<div className="text-center px-4 py-1.5 sm:py-2">
+					<div className="text-[13px] sm:text-[14px] text-dq-text">{message}</div>
+				</div>
 
-					{/* right hand */}
-					<div className="absolute top-[54%] right-2 -translate-y-1/2 flex flex-col gap-1">
-						{hands.D.map((item) => (
-							<HiddenTile key={item.id} orientation="horizontal" size="sm" />
-						))}
-					</div>
-					<div className="absolute top-[12%] right-10 text-[14px] text-dq-text">
-						Jogador D: <span className="text-dq-muted">{hands.D.length} Pedras</span>
-					</div>
-
-					{/* center info */}
-					<div className="absolute inset-x-0 top-[24%] text-center">
-						<div className="text-[11px] text-dq-muted">{currentLevel.description}</div>
-						<div className="mt-1 text-[14px] text-dq-muted">{message}</div>
-					</div>
-
-					{/* played tiles */}
-					<div
-						className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2"
-						style={{ transform: `translate(-50%, -50%) scale(${boardScale})`, transformOrigin: "center" }}
-					>
-						<div
-							className="relative"
-							style={{ width: `${boardLayout.width}px`, height: `${boardLayout.height}px` }}
-						>
-							{boardLayout.startDrop && (
+				{/* Board area - scrollable on mobile, centered on desktop */}
+				<div className="flex-1 relative overflow-y-auto overflow-x-hidden bg-neutral-200/60 border-y border-black/10">
+					{viewportWidth >= 640 ? (
+						/* --- LAYOUT DESKTOP: Formato Cobrinha Original --- */
+						<div className="absolute inset-0 flex items-center justify-center">
+							<div
+								className="absolute left-1/2 top-1/2"
+								style={{
+									transform: `translate(-50%, -50%) scale(${boardScale * Math.min(1, viewportWidth / 1140)})`,
+									transformOrigin: 'center top',
+								}}
+							>
 								<div
-									className="absolute"
-									style={{ left: boardLayout.startDrop.x, top: boardLayout.startDrop.y }}
+									className="relative"
+									style={{ width: `${boardLayout.width}px`, height: `${boardLayout.height}px` }}
 								>
+									{boardLayout.startDrop && (
+										<div
+											className="absolute"
+											style={{ left: boardLayout.startDrop.x, top: boardLayout.startDrop.y }}
+										>
+											<DropZone
+												label="Esquerda"
+												orientation={boardLayout.startDrop.orientation}
+												isActive={!!draggingTileId}
+												onDrop={() => handleDrop("left")}
+											/>
+										</div>
+									)}
+									{boardLayout.endDrop && (
+										<div
+											className="absolute"
+											style={{ left: boardLayout.endDrop.x, top: boardLayout.endDrop.y }}
+										>
+											<DropZone
+												label="Direita"
+												orientation={boardLayout.endDrop.orientation}
+												isActive={!!draggingTileId}
+												onDrop={() => handleDrop("right")}
+											/>
+										</div>
+									)}
+									{boardLayout.tiles.map((item) => (
+										<div
+											key={item.tile.id}
+											className="absolute"
+											style={{
+												left: 0,
+												top: 0,
+												transform: `translate(${item.x}px, ${item.y}px) rotate(${item.rotation}deg)`,
+												transformOrigin: "center",
+												transition: "transform 0.3s linear",
+											}}
+										>
+											<DominoTile
+												labelTop={item.tile.left.label}
+												labelBottom={item.tile.right.label}
+												detailTop={item.tile.left.detail}
+												detailBottom={item.tile.right.detail}
+												orientation={item.orientation}
+												isDouble={item.tile.left.id === item.tile.right.id}
+												textRotation={item.rotation === 180 ? 180 : 0}
+												isBoardStart={item.index === 0}
+												isBoardEnd={item.index === boardLayout.tiles.length - 1}
+											/>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+					) : (
+						/* --- LAYOUT MOBILE: Lista Vertical Empilhada (Estilo Dominó) --- */
+						<div className="flex flex-col items-center justify-start -space-y-px py-10 min-h-full w-full">
+							{board.length > 0 && (
+								<div className="mb-2">
 									<DropZone
 										label="Esquerda"
-										orientation={boardLayout.startDrop.orientation}
+										orientation="vertical"
 										isActive={!!draggingTileId}
 										onDrop={() => handleDrop("left")}
 									/>
 								</div>
 							)}
-							{boardLayout.endDrop && (
-								<div
-									className="absolute"
-									style={{ left: boardLayout.endDrop.x, top: boardLayout.endDrop.y }}
-								>
+
+							{board.map((tile, index) => {
+								const isDouble = tile.left.id === tile.right.id;
+								return (
+									<DominoTile
+										key={tile.id}
+										labelTop={tile.left.label}
+										labelBottom={tile.right.label}
+										detailTop={tile.left.detail}
+										detailBottom={tile.right.detail}
+										// Peças normais vão de ponta a ponta (vertical).
+										// Carroças cruzam a linha (horizontal).
+										orientation={isDouble ? "horizontal" : "vertical"}
+										// Passamos false apenas aqui para o CSS não forçar a carroça a ficar em pé
+										isDouble={false}
+										isBoardStart={index === 0}
+										isBoardEnd={index === board.length - 1}
+									/>
+								);
+							})}
+
+							{board.length > 0 && (
+								<div className="mt-2">
 									<DropZone
 										label="Direita"
-										orientation={boardLayout.endDrop.orientation}
+										orientation="vertical"
 										isActive={!!draggingTileId}
 										onDrop={() => handleDrop("right")}
 									/>
 								</div>
 							)}
-							{boardLayout.tiles.map((item) => (
-								<div
-									key={item.tile.id}
-									className="absolute"
-									style={{
-										left: 0,
-										top: 0,
-										transform: `translate(${item.x}px, ${item.y}px) rotate(${item.rotation}deg)`,
-										transformOrigin: "center",
-										transition: "transform 0.3s linear",
-									}}
-								>
-									<DominoTile
-										labelTop={item.tile.left.label}
-										labelBottom={item.tile.right.label}
-										detailTop={item.tile.left.detail}
-										detailBottom={item.tile.right.detail}
-										orientation={item.orientation}
-										isDouble={item.tile.left.id === item.tile.right.id}
-										textRotation={item.rotation === 180 ? 180 : 0}
-										isBoardStart={item.index === 0}
-										isBoardEnd={item.index === boardLayout.tiles.length - 1}
-									/>
-								</div>
-							))}
-						</div>
-					</div>
-
-					{pendingPlacement && !gameOver && (
-						<div className="absolute left-1/2 top-[62%] -translate-x-1/2 flex items-center gap-3">
-							<button
-								type="button"
-								className="bg-white text-dq-red border border-dq-red text-[12px] px-4 py-2 rounded-full"
-								onClick={() => handleChooseSide("left")}
-							>
-								Colocar à esquerda
-							</button>
-							<button
-								type="button"
-								className="bg-dq-red text-white text-[12px] px-4 py-2 rounded-full"
-								onClick={() => handleChooseSide("right")}
-							>
-								Colocar à direita
-							</button>
 						</div>
 					)}
 
-					{/* bottom area */}
-					<div className="absolute bottom-8 left-24">
-						<div className="text-[15px] text-dq-text">Seu deck (Jogador A)</div>
-						<button
-							type="button"
-							className="mt-2 bg-dq-red text-white text-[13px] px-6 py-2 rounded-full shadow-inner shadow-black/20 disabled:opacity-50"
-							onClick={handlePass}
-							disabled={players[currentTurn] !== "A" || gameOver || playerHasPlayable}
-						>
-							PASSAR VEZ
-						</button>
-					</div>
+					{/* Botões de Escolha de Lado quando há dupla possibilidade */}
+					{pendingPlacement && !gameOver && (
+						<div className="fixed sm:absolute left-1/2 bottom-[140px] sm:bottom-auto sm:top-[62%] -translate-x-1/2 flex flex-row items-center gap-2 sm:gap-3 z-30 bg-white/90 sm:bg-transparent p-3 sm:p-0 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.2)] sm:shadow-none backdrop-blur-sm sm:backdrop-blur-none">
+							<button
+								type="button"
+								className="bg-white text-dq-red border border-dq-red text-[11px] sm:text-[12px] px-4 sm:px-5 py-2.5 sm:py-2 rounded-full font-bold"
+								onClick={() => handleChooseSide("left")}
+							>
+								<span className="sm:hidden">↑ Topo</span>
+								<span className="hidden sm:inline">← Esquerda</span>
+							</button>
+							<button
+								type="button"
+								className="bg-dq-red text-white border border-dq-red text-[11px] sm:text-[12px] px-4 sm:px-5 py-2.5 sm:py-2 rounded-full font-bold shadow-md"
+								onClick={() => handleChooseSide("right")}
+							>
+								<span className="sm:hidden">Fundo ↓</span>
+								<span className="hidden sm:inline">Direita →</span>
+							</button>
+						</div>
+					)}
+				</div>
 
-					<div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-						<div className="bg-neutral-300 rounded-[20px] px-4 py-3 flex items-center gap-2">
+				{/* Bottom player hand */}
+				<div className="relative z-10 bg-neutral-200/80 border-t border-black/10 px-2 sm:px-4 py-2 sm:py-3">
+					<div className="flex items-center justify-between mb-1.5 sm:mb-2 px-1">
+						<div className="text-[11px] sm:text-[13px] text-dq-text">
+							Seu deck <span className="text-dq-muted">({hands.A.length})</span>
+						</div>
+						<div className="flex items-center gap-2 sm:gap-3">
+							<span className="text-[10px] sm:text-[12px] text-dq-muted">
+								Vez: <span className="text-dq-text font-bold">{players[currentTurn]}</span>
+							</span>
+							<button
+								type="button"
+								className="bg-dq-red text-white text-[10px] sm:text-[12px] px-3 sm:px-5 py-1.5 sm:py-2 rounded-full shadow-inner shadow-black/20 disabled:opacity-50 tracking-[1px]"
+								onClick={handlePass}
+								disabled={players[currentTurn] !== "A" || gameOver || playerHasPlayable}
+							>
+								PASSAR
+							</button>
+						</div>
+					</div>
+					<div className="overflow-x-auto pb-1 -mx-1">
+						<div className="flex items-center gap-1.5 sm:gap-2 px-1 w-max mx-auto">
 							{hands.A.map((item) => (
 								<DominoTile
 									key={item.id}
@@ -1159,54 +1311,50 @@ export default function GamePage() {
 							))}
 						</div>
 					</div>
-
-					<div className="absolute bottom-8 right-10 text-[16px]">
-						Vez: <span className="text-dq-text">Jogador {players[currentTurn]}</span>
-					</div>
 				</div>
 			</div>
 			</div>
 
 			{exitPromptOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-					<div className="w-[420px] bg-white rounded-xl border border-dq-red/40 shadow-[0_8px_30px_rgba(0,0,0,0.25)] px-8 py-6 text-center text-dq-text">
-						<h2 className="text-[18px] font-bold text-dq-text">Sair do jogo?</h2>
-						<p className="mt-2 text-[14px] text-dq-muted leading-relaxed">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+					<div className="w-full max-w-[360px] sm:max-w-[420px] bg-white rounded-xl border border-dq-red/40 shadow-[0_8px_30px_rgba(0,0,0,0.25)] px-6 sm:px-8 py-5 sm:py-6 text-center text-dq-text">
+						<h2 className="text-[16px] sm:text-[18px] font-bold text-dq-text">Sair do jogo?</h2>
+						<p className="mt-2 text-[13px] sm:text-[14px] text-dq-muted leading-relaxed">
 							Você pode continuar a partida ou sair agora.
 						</p>
 						{!exitConfirmStep ? (
-							<div className="mt-5 flex items-center justify-center gap-3">
+							<div className="mt-4 sm:mt-5 flex items-center justify-center gap-3">
 								<button
 									type="button"
-									className="bg-white text-dq-red border border-dq-red text-[13px] px-5 py-2 rounded-full"
+									className="bg-white text-dq-red border border-dq-red text-[12px] sm:text-[13px] px-4 sm:px-5 py-2 rounded-full"
 									onClick={handleContinueGame}
 								>
 									Continuar
 								</button>
 								<button
 									type="button"
-									className="bg-dq-red text-white text-[13px] px-5 py-2 rounded-full"
+									className="bg-dq-red text-white text-[12px] sm:text-[13px] px-4 sm:px-5 py-2 rounded-full"
 									onClick={handleAskExitConfirm}
 								>
 									Sair
 								</button>
 							</div>
 						) : (
-							<div className="mt-5">
-								<p className="text-[13px] text-dq-muted">
+							<div className="mt-4 sm:mt-5">
+								<p className="text-[12px] sm:text-[13px] text-dq-muted">
 									Tem certeza? Essa ação encerra a partida atual.
 								</p>
-								<div className="mt-4 flex items-center justify-center gap-3">
+								<div className="mt-3 sm:mt-4 flex items-center justify-center gap-3">
 									<button
 										type="button"
-										className="bg-white text-dq-red border border-dq-red text-[13px] px-5 py-2 rounded-full"
+										className="bg-white text-dq-red border border-dq-red text-[12px] sm:text-[13px] px-4 sm:px-5 py-2 rounded-full"
 										onClick={handleContinueGame}
 									>
 										Voltar
 									</button>
 									<button
 										type="button"
-										className="bg-dq-red text-white text-[13px] px-5 py-2 rounded-full"
+										className="bg-dq-red text-white text-[12px] sm:text-[13px] px-4 sm:px-5 py-2 rounded-full"
 										onClick={handleConfirmExit}
 									>
 										Confirmar saída
@@ -1219,26 +1367,26 @@ export default function GamePage() {
 			)}
 
 			{feedback && !gameOver && (
-			<div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
-				<div className="w-[420px] bg-white rounded-xl border border-dq-red/40 shadow-[0_8px_30px_rgba(0,0,0,0.25)] px-8 py-6 text-center text-dq-text">
+			<div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4">
+				<div className="w-full max-w-[360px] sm:max-w-[420px] bg-white rounded-xl border border-dq-red/40 shadow-[0_8px_30px_rgba(0,0,0,0.25)] px-6 sm:px-8 py-5 sm:py-6 text-center text-dq-text">
 					<div
-						className={`mx-auto mb-3 flex items-center justify-center w-16 h-16 rounded-full ${
+						className={`mx-auto mb-3 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full ${
 							feedback.type === "success"
 								? "bg-emerald-500/10 text-emerald-500"
 								: "bg-rose-500/10 text-rose-500"
 						}`}
 					>
-						<span className="text-4xl font-bold">
+						<span className="text-2xl sm:text-4xl font-bold">
 							{feedback.type === "success" ? "✓" : "✕"}
 						</span>
 					</div>
-					<h2 className="text-[20px] font-bold text-dq-text">{feedback.title}</h2>
-					<p className="mt-2 text-[14px] text-dq-text leading-relaxed">
+					<h2 className="text-[17px] sm:text-[20px] font-bold text-dq-text">{feedback.title}</h2>
+					<p className="mt-2 text-[13px] sm:text-[14px] text-dq-text leading-relaxed">
 						{feedback.message}
 					</p>
 					<button
 						type="button"
-						className={`mt-5 w-full text-white text-[15px] font-bold tracking-[2px] py-3 rounded-full transition-transform active:scale-95 ${
+						className={`mt-4 sm:mt-5 w-full text-white text-[14px] sm:text-[15px] font-bold tracking-[2px] py-3 rounded-full transition-transform active:scale-95 ${
 							feedback.type === "success" ? "bg-emerald-500 hover:bg-emerald-600" : "bg-dq-red hover:bg-red-700"
 						}`}
 						onClick={() => setFeedback(null)}
@@ -1250,31 +1398,31 @@ export default function GamePage() {
 			)}
 
 			{gameOver && summary && (
-				<div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40">
-					<div className="w-[92%] max-w-[980px] bg-neutral-100 rounded-2xl border border-dq-red/30 shadow-[0_12px_36px_rgba(0,0,0,0.25)] px-8 py-6 text-dq-text">
+				<div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 px-3 py-4">
+					<div className="w-full max-w-[980px] max-h-[95vh] overflow-y-auto bg-neutral-100 rounded-xl sm:rounded-2xl border border-dq-red/30 shadow-[0_12px_36px_rgba(0,0,0,0.25)] px-4 sm:px-8 py-4 sm:py-6 text-dq-text">
 						<div className="flex items-center justify-between">
 							<div>
-								<h2 className="text-[18px] text-dq-red font-bold">DOMINO QUIMICO</h2>
-								<p className="text-[13px] text-dq-muted">Resumo da partida</p>
+								<h2 className="text-[15px] sm:text-[18px] text-dq-red font-bold">DOMINO QUIMICO</h2>
+								<p className="text-[11px] sm:text-[13px] text-dq-muted">Resumo da partida</p>
 							</div>
-							<div className="text-[12px] text-dq-muted">
-								Tempo: {summary.durationMin}m {String(summary.durationRemSec).padStart(2, "0")}s
+							<div className="text-[10px] sm:text-[12px] text-dq-muted">
+								{summary.durationMin}m {String(summary.durationRemSec).padStart(2, "0")}s
 							</div>
 						</div>
 
-						<div className="mt-4 grid grid-cols-[1.4fr_0.9fr] gap-6">
-							<div className="bg-dq-red/90 text-white rounded-xl px-6 py-5 shadow-inner shadow-black/20">
-								<div className="flex items-center gap-4">
-									<div className="text-[34px]">🏆</div>
+						<div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-[1.4fr_0.9fr] gap-3 sm:gap-6">
+							<div className="bg-dq-red/90 text-white rounded-xl px-4 sm:px-6 py-4 sm:py-5 shadow-inner shadow-black/20">
+								<div className="flex items-center gap-3 sm:gap-4">
+									<div className="text-[28px] sm:text-[34px]">🏆</div>
 									<div>
-										<div className="text-[14px] uppercase tracking-[2px]">Fim de partida</div>
-										<div className="text-[20px] font-bold">
+										<div className="text-[12px] sm:text-[14px] uppercase tracking-[2px]">Fim de partida</div>
+										<div className="text-[16px] sm:text-[20px] font-bold">
 											{summary.champion
-												? `Campeão Jogador ${summary.champion}`
+												? `Campeão: ${summary.champion}`
 												: "Empate (bloqueio)"}
 										</div>
 										{summary.blocked && (
-											<div className="text-[12px] text-white/80">
+											<div className="text-[11px] sm:text-[12px] text-white/80">
 												Ninguém ficou sem pedras.
 											</div>
 										)}
@@ -1282,69 +1430,55 @@ export default function GamePage() {
 								</div>
 							</div>
 
-							<div className="bg-white rounded-xl border border-dq-red/20 px-4 py-4">
-								<div className="text-[14px] font-bold text-dq-red mb-2">Estatísticas da Partida</div>
-								<div className="space-y-2 text-[13px]">
-									<div className="flex items-center justify-between bg-neutral-100 rounded-md px-3 py-2">
-										<span>Total de Jogadas</span>
+							<div className="bg-white rounded-xl border border-dq-red/20 px-3 sm:px-4 py-3 sm:py-4">
+								<div className="text-[12px] sm:text-[14px] font-bold text-dq-red mb-2">Estatísticas</div>
+								<div className="grid grid-cols-2 sm:grid-cols-1 gap-1.5 sm:gap-2 text-[11px] sm:text-[13px]">
+									<div className="flex items-center justify-between bg-neutral-100 rounded-md px-2 sm:px-3 py-1.5 sm:py-2">
+										<span>Jogadas</span>
 										<strong>{summary.totalPlays}</strong>
 									</div>
-									<div className="flex items-center justify-between bg-neutral-100 rounded-md px-3 py-2">
-										<span>Acertos totais da mesa</span>
+									<div className="flex items-center justify-between bg-neutral-100 rounded-md px-2 sm:px-3 py-1.5 sm:py-2">
+										<span>Acertos</span>
 										<strong className="text-emerald-600">{summary.totalCorrect}</strong>
 									</div>
-									<div className="flex items-center justify-between bg-neutral-100 rounded-md px-3 py-2">
-										<span>Erros totais</span>
+									<div className="flex items-center justify-between bg-neutral-100 rounded-md px-2 sm:px-3 py-1.5 sm:py-2">
+										<span>Erros</span>
 										<strong className="text-rose-600">{summary.totalErrors}</strong>
 									</div>
-									<div className="flex items-center justify-between bg-neutral-100 rounded-md px-3 py-2">
-										<span>Passes totais</span>
+									<div className="flex items-center justify-between bg-neutral-100 rounded-md px-2 sm:px-3 py-1.5 sm:py-2">
+										<span>Passes</span>
 										<strong className="text-dq-text">{summary.totalPasses}</strong>
-									</div>
-									<div className="bg-neutral-100 rounded-md px-3 py-2">
-										<div className="text-[12px] text-dq-muted">Pedra mais difícil</div>
-										<div className="mt-2 inline-flex items-center gap-2 bg-white border border-black/20 rounded-md px-2 py-1 text-[11px]">
-											{mostMissedTile ? (
-												<>
-													<span>{mostMissedTile.left.label}</span>
-													<span className="text-dq-muted">|</span>
-													<span>{mostMissedTile.right.label}</span>
-												</>
-											) : (
-												<span className="text-dq-muted">Sem dados</span>
-											)}
-										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 
-						<div className="mt-6 bg-dq-red/90 rounded-xl px-5 py-4 text-white">
-							<div className="text-[14px] font-bold mb-2">Ranking final da partida</div>
-							<div className="space-y-2">
+						<div className="mt-3 sm:mt-6 bg-dq-red/90 rounded-xl px-3 sm:px-5 py-3 sm:py-4 text-white">
+							<div className="text-[12px] sm:text-[14px] font-bold mb-2">Ranking</div>
+							<div className="space-y-1.5 sm:space-y-2">
 								{summary.ranking.map((player, index) => (
 									<div
 										key={player}
-										className="flex items-center justify-between bg-white/10 rounded-md px-3 py-2 text-[13px]"
+										className="flex items-center justify-between bg-white/10 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-[11px] sm:text-[13px]"
 									>
-										<div className="flex items-center gap-2">
+										<div className="flex items-center gap-1.5 sm:gap-2">
 											<span className="font-bold">{index + 1}º</span>
 											<span>Jogador {player}</span>
 										</div>
-										<div className="text-[12px] text-white/80">
-											{hands[player].length} pedras | {stats[player].correct} acertos | {stats[player].errors} erros
+										<div className="text-[10px] sm:text-[12px] text-white/80">
+											{hands[player].length}p | {stats[player].correct}✓ | {stats[player].errors}✕
 										</div>
 									</div>
 								))}
 							</div>
 						</div>
 
-						<div className="mt-5 flex items-center justify-center gap-3">
+						<div className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
 							{LEVELS.findIndex((level) => level.id === levelId) <
 								LEVELS.length - 1 && (
 								<button
 									type="button"
-									className="bg-emerald-500 text-white text-[13px] px-5 py-2 rounded-full"
+									className="bg-emerald-500 text-white text-[12px] sm:text-[13px] px-4 sm:px-5 py-2 rounded-full"
 									onClick={handleNextLevel}
 								>
 									Próximo nível
@@ -1352,14 +1486,14 @@ export default function GamePage() {
 							)}
 							<button
 								type="button"
-								className="bg-dq-red text-white text-[13px] px-5 py-2 rounded-full"
-								onClick={() => (window.location.href = "/")}
+								className="bg-dq-red text-white text-[12px] sm:text-[13px] px-4 sm:px-5 py-2 rounded-full"
+								onClick={handleConfirmExit}
 							>
-								Voltar ao inicio
+								Voltar ao início
 							</button>
 							<button
 								type="button"
-								className="bg-white text-dq-red border border-dq-red text-[13px] px-5 py-2 rounded-full"
+								className="bg-white text-dq-red border border-dq-red text-[12px] sm:text-[13px] px-4 sm:px-5 py-2 rounded-full"
 								onClick={handleRestartLevelOne}
 							>
 								Jogar Novamente
@@ -1419,12 +1553,12 @@ function DominoTile({
 		"bg-white border border-black/50 rounded-[6px] shadow-[0_1px_0_rgba(0,0,0,0.15)] text-dq-text"
 	const sizeMap = {
 		md: {
-			vertical: "w-[50px] h-[86px]",
-			horizontal: "w-[86px] h-[50px]",
+			vertical: "w-[58px] h-[100px]",
+			horizontal: "w-[100px] h-[58px]",
 		},
 		hand: {
-			vertical: "w-[50px] h-[78px]",
-			horizontal: "w-[78px] h-[50px]",
+			vertical: "w-[56px] h-[92px]",
+			horizontal: "w-[92px] h-[56px]",
 		},
 	}
 	const tileSize = isVertical
@@ -1447,7 +1581,7 @@ function DominoTile({
 			onDragEnd={onDragEnd}
 		>
 			<div
-				className={`flex-1 min-w-0 min-h-0 flex items-center justify-center text-[10px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden ${
+				className={`flex-1 min-w-0 min-h-0 flex items-center justify-center text-[11px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden ${
 					isVertical ? "border-b border-black/20" : "border-r border-black/20"
 				}`}
 				title={detailTop ? `${labelTop} — ${detailTop}` : labelTop}
@@ -1459,7 +1593,7 @@ function DominoTile({
 				</span>
 			</div>
 			<div
-				className="flex-1 min-w-0 min-h-0 flex items-center justify-center text-[10px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden"
+				className="flex-1 min-w-0 min-h-0 flex items-center justify-center text-[11px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden"
 				title={detailBottom ? `${labelBottom} — ${detailBottom}` : labelBottom}
 			>
 				<span
@@ -1474,7 +1608,7 @@ function DominoTile({
 
 function DropZone({ label, onDrop, isActive, orientation = "horizontal" }) {
 	const sizeClass =
-		orientation === "vertical" ? "w-[50px] h-[86px]" : "w-[86px] h-[50px]"
+		orientation === "vertical" ? "w-[58px] h-[100px]" : "w-[100px] h-[58px]"
 	return (
 		<div
 			className={`${sizeClass} rounded-[6px] border-2 border-dashed flex items-center justify-center ${

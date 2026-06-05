@@ -19,6 +19,15 @@ export default function DashboardAlunoPage() {
     } catch { return []; }
   });
 
+  // Stats totais (histórico completo, não só os 8 exibidos)
+  const statsTotal = (() => {
+    try {
+      const all = JSON.parse(localStorage.getItem('game_history') || '[]')
+      const wins = all.filter(g => g.result === 'W').length
+      return { total: all.length, wins, rate: all.length ? Math.round((wins / all.length) * 100) : 0 }
+    } catch { return { total: 0, wins: 0, rate: 0 } }
+  })()
+
   function handleJogar() {
     navigate('/game');
   }
@@ -58,7 +67,7 @@ export default function DashboardAlunoPage() {
   }
 
   return (
-    <div className="relative w-screen h-screen bg-white overflow-hidden font-mono text-dq-red">
+    <div className="relative w-full min-h-screen bg-white font-mono text-dq-red">
       {/* grid */}
       <div className="absolute inset-0" style={{
         backgroundImage: `
@@ -75,12 +84,12 @@ export default function DashboardAlunoPage() {
       <Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
       {/* top bar */}
-      <div className="absolute top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-6 z-20">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center text-[11px] font-bold tracking-wider">
+      <div className="fixed top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-4 sm:px-6 z-20">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 flex-shrink-0 rounded-full border border-white/40 flex items-center justify-center text-[11px] font-bold tracking-wider">
             {iniciais}
           </div>
-          <span className="text-[12px] tracking-[2px] uppercase text-white/80">{nome}</span>
+          <span className="text-[11px] sm:text-[12px] tracking-[2px] uppercase text-white/80 truncate max-w-[120px] sm:max-w-none">{nome}</span>
         </div>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="font-bold tracking-[4px] text-[16px]">DOMINO QUIMICO</div>
@@ -94,8 +103,8 @@ export default function DashboardAlunoPage() {
       </div>
 
       {/* main content */}
-      <div className="relative z-10 w-full h-full pt-16 pb-6 px-6 flex items-start justify-center overflow-y-auto">
-        <div className="w-full max-w-[900px] flex flex-col gap-5">
+      <div className="relative z-10 w-full pt-20 pb-8 px-4 sm:px-6 flex items-start justify-center">
+        <div className="w-full max-w-[900px] lg:max-w-5xl flex flex-col gap-5">
 
           {/* Row: Partida Rápida + Entrar na Sala */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,20 +137,20 @@ export default function DashboardAlunoPage() {
               <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-dq-red" />
               <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-dq-red" />
               <div className="text-[11px] tracking-[3px] text-dq-muted font-bold mb-4">// ENTRAR EM SALA</div>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <input
                   type="text"
                   placeholder="CÓDIGO"
                   value={codigoSala}
                   onChange={e => setCodigoSala(e.target.value.toUpperCase())}
                   maxLength={6}
-                  className="flex-1 border-2 border-dq-red/30 px-4 py-3 text-[18px] text-dq-red font-bold tracking-[6px] text-center bg-white/50 outline-none focus:border-dq-red/70 transition-colors placeholder-dq-muted"
+                  className="flex-1 min-w-0 border-2 border-dq-red/30 px-4 py-3 text-[16px] sm:text-[18px] text-dq-red font-bold tracking-[4px] sm:tracking-[6px] text-center bg-white/50 outline-none focus:border-dq-red/70 transition-colors placeholder-dq-muted"
                   onKeyDown={e => e.key === 'Enter' && handleEntrarSala()}
                 />
                 <button
                   onClick={handleEntrarSala}
                   disabled={loadingSala}
-                  className="px-5 py-3 border-2 border-dq-red text-dq-red font-bold text-[13px] tracking-[2px] hover:bg-dq-red/10 transition-colors disabled:opacity-50 active:scale-95"
+                  className="w-full sm:w-auto px-5 py-3 border-2 border-dq-red text-dq-red font-bold text-[13px] tracking-[2px] hover:bg-dq-red/10 transition-colors disabled:opacity-50 active:scale-95"
                 >
                   {loadingSala ? '...' : 'ENTRAR'}
                 </button>
@@ -154,6 +163,24 @@ export default function DashboardAlunoPage() {
             </div>
           </div>
 
+          {/* Estatísticas rápidas */}
+<div className="grid grid-cols-3 gap-3">
+  {[
+    { label: 'PARTIDAS', value: statsTotal.total },
+    { label: 'VITÓRIAS',  value: statsTotal.wins  },
+    { label: 'APROVEIT.', value: `${statsTotal.rate}%` },
+  ].map(({ label, value }) => (
+    <div key={label} className="relative border-2 border-dq-red/30 bg-white/60 backdrop-blur-sm px-4 py-4 text-center">
+      <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-dq-red" />
+      <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-dq-red" />
+      <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-dq-red" />
+      <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-dq-red" />
+      <div className="text-[24px] sm:text-[28px] font-bold text-dq-red">{value}</div>
+      <div className="text-[9px] tracking-[2px] text-dq-muted font-bold mt-1">{label}</div>
+    </div>
+  ))}
+</div>
+
           {/* Desempenhos Recentes */}
           <div className="relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-5">
             <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
@@ -161,25 +188,25 @@ export default function DashboardAlunoPage() {
             <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-dq-red" />
             <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-dq-red" />
 
-            <div className="text-[11px] tracking-[3px] text-dq-muted font-bold mb-4">// DESEMPENHOS RECENTES</div>
+            <div className="text-[11px] tracking-[3px] text-dq-muted font-bold mb-4">// ÚLTIMAS PARTIDAS</div>
 
             {historico.length === 0 ? (
-              <div className="text-center py-8">
+              <div className="text-center py-6">
                 <div className="text-[14px] text-dq-muted tracking-[2px]">NENHUMA PARTIDA REGISTRADA</div>
                 <div className="text-[11px] text-dq-muted/60 mt-2 tracking-[1px]">JOGUE UMA PARTIDA RÁPIDA PARA VER SEU HISTÓRICO</div>
               </div>
             ) : (
-              <div className="flex gap-3 flex-wrap">
+              <div className="flex gap-2 flex-wrap">
                 {historico.map((game, i) => (
                   <div
                     key={i}
-                    className={`flex flex-col items-center justify-center w-16 h-16 border-2 ${
+                    className={`flex flex-col items-center justify-center w-14 h-14 sm:w-16 sm:h-16 border-2 ${
                       game.result === 'W'
                         ? 'border-emerald-500/50 bg-emerald-500/10'
                         : 'border-dq-red/30 bg-dq-red/5'
                     }`}
                   >
-                    <span className={`text-[22px] font-bold ${
+                    <span className={`text-[20px] sm:text-[22px] font-bold ${
                       game.result === 'W' ? 'text-emerald-500' : 'text-dq-red'
                     }`}>
                       {game.result}
