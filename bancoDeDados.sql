@@ -1,4 +1,4 @@
--- 0. LIMPEZA 
+-- 0. LIMPEZA
 
 DROP TABLE IF EXISTS user_sessions      CASCADE;
 DROP TABLE IF EXISTS moves              CASCADE;
@@ -120,21 +120,89 @@ CREATE TABLE domino_values (
     categoria VARCHAR(20)  NOT NULL,
 
     CONSTRAINT chk_categoria
-        CHECK (categoria IN ('ÁCIDO', 'BASE', 'SAL', 'ÓXIDO'))
+        CHECK (categoria IN ('ÁCIDO', 'BASE', 'SAL', 'ÓXIDO', 'HIDRETO'))
 );
 
 -- Exemplos de valores; adicione conforme o conteúdo pedagógico
 INSERT INTO domino_values (valor, categoria) VALUES
-    ('HCl',   'ÁCIDO'),
-    ('H2SO4', 'ÁCIDO'),
-    ('HNO3',  'ÁCIDO'),
-    ('NaOH',  'BASE'),
-    ('KOH',   'BASE'),
-    ('Ca(OH)2','BASE'),
-    ('NaCl',  'SAL'),
-    ('CaCO3', 'SAL'),
-    ('Na2O',  'ÓXIDO'),
-    ('CaO',   'ÓXIDO');
+    -- Classificações (nomes de função — os dois lados das "buchas")
+    ('Ácido',   'ÁCIDO'),
+    ('Base',    'BASE'),
+    ('Sal',     'SAL'),
+    ('Óxido',   'ÓXIDO'),
+    ('Hidreto', 'HIDRETO'),
+
+    -- Fórmulas: Ácidos
+    ('HCl',    'ÁCIDO'),
+    ('H2SO4',  'ÁCIDO'),
+    ('HNO3',   'ÁCIDO'),
+
+    -- Fórmulas: Bases
+    ('NaOH',    'BASE'),
+    ('KOH',     'BASE'),
+    ('Ca(OH)2', 'BASE'),
+
+    -- Fórmulas: Sais
+    ('NaCl',   'SAL'),
+    ('CaCO3',  'SAL'),
+    ('Na2SO4', 'SAL'),
+    ('KNO3',   'SAL'),
+
+    -- Fórmulas: Óxidos
+    ('Na2O',   'ÓXIDO'),
+    ('CaO',    'ÓXIDO'),
+    ('CO2',    'ÓXIDO'),
+    ('Fe2O3',  'ÓXIDO'),
+
+    -- Fórmulas: Hidretos (faltavam completamente!)
+    ('NaH',  'HIDRETO'),
+    ('CaH2', 'HIDRETO');
+
+-- Peças do Dominó Químico
+-- Formato: (valor_a, valor_b) onde cada um é id da tabela domino_values
+-- "Buchas" = peças com duas classificações (nomes de função)
+-- Referências por ordem do INSERT acima:
+-- 1=Ácido  2=Base  3=Sal  4=Óxido  5=Hidreto
+-- 6=HCl  7=H2SO4  8=HNO3
+-- 9=NaOH 10=KOH  11=Ca(OH)2
+-- 12=NaCl 13=CaCO3 14=Na2SO4 15=KNO3
+-- 16=Na2O 17=CaO 18=CO2 19=Fe2O3
+-- 20=NaH  21=CaH2
+
+INSERT INTO domino_tiles (valor_a, valor_b) VALUES
+    -- Buchas (classificação ↔ classificação — lados opostos de função)
+    (1, 2),   -- Ácido | Base
+    (1, 3),   -- Ácido | Sal
+    (1, 4),   -- Ácido | Óxido
+    (1, 5),   -- Ácido | Hidreto  ← PEÇA INICIAL (regra do PDF)
+    (2, 3),   -- Base | Sal
+    (2, 4),   -- Base | Óxido
+    (2, 5),   -- Base | Hidreto
+    (3, 4),   -- Sal | Óxido
+    (3, 5),   -- Sal | Hidreto
+    (4, 5),   -- Óxido | Hidreto
+
+    -- Fórmula ↔ Classificação (encaixes normais)
+    (6,  1),  -- HCl     | Ácido
+    (7,  1),  -- H2SO4   | Ácido
+    (8,  1),  -- HNO3    | Ácido
+    (9,  2),  -- NaOH    | Base
+    (10, 2),  -- KOH     | Base
+    (11, 2),  -- Ca(OH)2 | Base
+    (12, 3),  -- NaCl    | Sal
+    (13, 3),  -- CaCO3   | Sal
+    (14, 3),  -- Na2SO4  | Sal
+    (16, 4),  -- Na2O    | Óxido
+    (17, 4),  -- CaO     | Óxido
+    (18, 4),  -- CO2     | Óxido
+    (19, 4),  -- Fe2O3   | Óxido
+    (20, 5),  -- NaH     | Hidreto
+    (21, 5),  -- CaH2    | Hidreto
+
+    -- Fórmula ↔ Fórmula (mesma função — combinações extras)
+    (6,  7),  -- HCl    | H2SO4   (Ácido ↔ Ácido)
+    (9, 11),  -- NaOH   | Ca(OH)2 (Base  ↔ Base)
+    (12,14);  -- NaCl   | Na2SO4  (Sal   ↔ Sal)
 
 -- 6. PEÇAS DE DOMINÓ
 
@@ -179,7 +247,7 @@ CREATE TABLE match_players (
     id              SERIAL PRIMARY KEY,
     match_id        INT     NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
     user_id         INT     NOT NULL REFERENCES users(id)   ON DELETE CASCADE,
-    ordem_jogada    INT,                    
+    ordem_jogada    INT,
     pontuacao       INT     DEFAULT 0,
     vencedor        BOOLEAN DEFAULT FALSE,
     UNIQUE (match_id, user_id)
@@ -191,7 +259,7 @@ CREATE TABLE player_hands (
     id              SERIAL PRIMARY KEY,
     match_player_id INT     NOT NULL REFERENCES match_players(id) ON DELETE CASCADE,
     tile_id         INT     NOT NULL REFERENCES domino_tiles(id),
-    jogada_em       TIMESTAMP              
+    jogada_em       TIMESTAMP
 );
 
 -- 10. TABULEIRO

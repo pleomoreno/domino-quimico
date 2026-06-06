@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FloatingDecor from '../components/FloatingDecor';
 
 const API_URL = 'http://localhost:8080';
 
@@ -88,7 +89,7 @@ export default function DashboardProfessorPage() {
       ),
     ]
 
-    const csvContent = '\uFEFF' + linhas.join('\n') // BOM para Excel reconhecer UTF-8
+    const csvContent = '\uFEFF' + linhas.join('\n')
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -102,7 +103,6 @@ export default function DashboardProfessorPage() {
 
   return (
     <div className="relative w-full min-h-screen bg-white font-mono text-dq-red">
-      {/* grid */}
       <div className="absolute inset-0" style={{
         backgroundImage: `
           linear-gradient(rgba(200,16,46,0.12) 1px, transparent 1px),
@@ -111,13 +111,13 @@ export default function DashboardProfessorPage() {
         backgroundSize: '36px 36px',
       }} />
 
-      {/* cantos */}
+      <FloatingDecor />
+
       <Corner pos="top-3 left-3" borders="border-t-2 border-l-2" />
       <Corner pos="top-3 right-3" borders="border-t-2 border-r-2" />
       <Corner pos="bottom-3 left-3" borders="border-b-2 border-l-2" />
       <Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
-      {/* top bar */}
       <div className="fixed top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-4 sm:px-6 z-20">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center text-[11px] font-bold tracking-wider">
@@ -137,11 +137,9 @@ export default function DashboardProfessorPage() {
         </button>
       </div>
 
-      {/* main content */}
       <div className="relative z-10 w-full pt-20 pb-8 px-4 sm:px-6 flex items-start justify-center">
         <div className="w-full max-w-[900px] lg:max-w-5xl flex flex-col gap-5">
 
-          {/* Criar Sala / Sala Criada */}
           {!salaCriada ? (
             <button
               onClick={handleCriarSala}
@@ -205,7 +203,6 @@ export default function DashboardProfessorPage() {
             </div>
           )}
 
-          {/* Ações Rápidas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ActionCard
               title="VER RELATÓRIOS"
@@ -227,7 +224,6 @@ export default function DashboardProfessorPage() {
             />
           </div>
 
-          {/* Visão geral das turmas */}
           <div className="relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-5">
             <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
             <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-dq-red" />

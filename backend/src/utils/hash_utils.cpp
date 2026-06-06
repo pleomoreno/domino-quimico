@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <vector>
 
-// Usa PBKDF2-SHA256 com salt aleatório: "pbkdf2$<salt_hex>$<hash_hex>"
 namespace HashUtils {
 
     static std::string to_hex(const unsigned char* data, size_t len) {
@@ -32,7 +31,6 @@ namespace HashUtils {
     }
 
     bool verify_password(const std::string& password, const std::string& stored) {
-        // Esperado: "pbkdf2$<salt_hex>$<hash_hex>"
         auto p1 = stored.find('$');
         auto p2 = stored.rfind('$');
         if (p1 == std::string::npos || p1 == p2) return false;
@@ -40,7 +38,6 @@ namespace HashUtils {
         std::string salt_hex = stored.substr(p1 + 1, p2 - p1 - 1);
         std::string hash_hex = stored.substr(p2 + 1);
 
-        // hex -> bytes
         auto from_hex = [](const std::string& h) {
             std::vector<unsigned char> bytes;
             for (size_t i = 0; i + 1 < h.size(); i += 2)
@@ -57,7 +54,6 @@ namespace HashUtils {
                            10000, EVP_sha256(),
                            sizeof(out), out);
 
-        // comparação segura (tempo constante)
         return CRYPTO_memcmp(out, hash_bytes.data(), sizeof(out)) == 0;
     }
 }

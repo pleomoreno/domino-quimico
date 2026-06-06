@@ -70,7 +70,6 @@ export default function LoginPage() {
   return (
     <div className="relative w-full min-h-screen bg-white flex items-center justify-center font-mono">
 
-      {/* z-0: grid */}
       <div className="absolute inset-0 z-0" style={{
         backgroundImage: `
           linear-gradient(rgba(200,16,46,0.12) 1px, transparent 1px),
@@ -79,16 +78,13 @@ export default function LoginPage() {
         backgroundSize: '36px 36px',
       }} />
 
-      {/* z-1: decorações flutuantes */}
       <FloatingDecor />
 
-      {/* z-2: cantos da tela */}
       <Corner pos="top-3 left-3"     borders="border-t-2 border-l-2" />
       <Corner pos="top-3 right-3"    borders="border-t-2 border-r-2" />
       <Corner pos="bottom-3 left-3"  borders="border-b-2 border-l-2" />
       <Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
-      {/* sombra atrás do card */}
       <div className="absolute z-[3]" style={{
         width: 500, height: 520,
         background: 'radial-gradient(ellipse, rgba(200,16,46,0.18) 0%, transparent 70%)',
@@ -97,7 +93,6 @@ export default function LoginPage() {
         filter: 'blur(24px)',
       }} />
 
-      {/* z-10: card */}
       <div
         className="relative z-10 w-full max-w-[460px] mx-4 border-2 border-dq-red/50 px-6 sm:px-10 py-8 flex flex-col"
         style={{
@@ -115,7 +110,6 @@ export default function LoginPage() {
           style={{ filter: 'drop-shadow(0 0 12px rgba(200,16,46,0.4))' }} />
 
         <p className="text-center text-[11px] tracking-[3px] text-dq-muted font-bold mb-6">
-          // ACESSO AO SISTEMA
         </p>
 
         <form onSubmit={handleLogin} className="flex flex-col">
@@ -164,7 +158,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* rodapé */}
       <div className="absolute bottom-3 left-0 right-0 px-5 py-2 flex justify-between text-[9px] tracking-widest text-dq-muted font-bold">
         <span>INSTITUTO MAUÁ DE TECNOLOGIA</span>
         <span className="hidden sm:inline">ETEC JÚLIO DE MESQUITA · 2026</span>

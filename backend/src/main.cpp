@@ -13,7 +13,6 @@
 #include <fstream>
 #include <string>
 
-// Carrega .env simples
 void load_env(const std::string &path = ".env")
 {
     std::ifstream f(path);
@@ -35,7 +34,6 @@ int main()
 {
     load_env();
 
-    // Inicializa DB na startup (falha rápido se não conectar)
     try
     {
         Database::instance();
@@ -48,7 +46,6 @@ int main()
 
     crow::App<crow::CORSHandler, AuthMiddleware> app;
 
-    // --- NOVA CONFIGURAÇÃO DE CORS ---
     auto& cors = app.get_middleware<crow::CORSHandler>();
     std::string cors_origin = std::getenv("CORS_ORIGIN") ? std::getenv("CORS_ORIGIN") : "http://localhost:5173";
 
@@ -56,9 +53,7 @@ int main()
         .headers("Content-Type", "Authorization")
         .methods("POST"_method, "GET"_method, "OPTIONS"_method, "PUT"_method, "DELETE"_method)
         .origin(cors_origin);
-    // ---------------------------------
 
-    // Registra todos os grupos de rotas
     register_auth_routes(app);
     register_user_routes(app);
     register_match_routes(app);
@@ -66,7 +61,6 @@ int main()
     register_report_routes(app);
     register_room_routes(app);
 
-    // Health check
     CROW_ROUTE(app, "/api/health")([]()
                                    {
         crow::json::wvalue res;

@@ -14,11 +14,9 @@ export default function AudioManager() {
     () => parseFloat(localStorage.getItem('dq_volume') ?? '0.1')
   )
 
-  // Cria / recria o elemento de áudio quando a rota muda entre game e menu
   useEffect(() => {
     const track = isGame ? '/audio/gm.mp3' : '/audio/bgm.mp3'
 
-    // Para a música anterior
     if (audioRef.current) {
       audioRef.current.pause()
       audioRef.current.src = ''
@@ -39,7 +37,6 @@ export default function AudioManager() {
     }
   }, [isGame]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Toca ou pausa conforme musicOn e ready
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -50,14 +47,12 @@ export default function AudioManager() {
     }
   }, [musicOn, ready])
 
-  // Ajusta volume em tempo real
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume
     }
   }, [volume])
 
-  // Escuta mudanças vindas da ConfigPage (via CustomEvent)
   useEffect(() => {
     function onUpdate() {
       const newMusic = localStorage.getItem('dq_music') !== 'false'
@@ -69,7 +64,6 @@ export default function AudioManager() {
     return () => window.removeEventListener('dq-audio-update', onUpdate)
   }, [])
 
-  // Desbloqueia autoplay no primeiro clique/tecla do usuário
   useEffect(() => {
     function tryPlay() {
       const audio = audioRef.current
@@ -122,14 +116,12 @@ export default function AudioManager() {
       }}
     >
       {musicOn ? (
-        // Speaker ON
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
           stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
         </svg>
       ) : (
-        // Speaker OFF (muted X)
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
           stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />

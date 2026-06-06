@@ -17,7 +17,6 @@ void register_report_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
         try {
             auto& db = Database::instance();
 
-            // Verifica se turma pertence ao professor
             {
                 pqxx::nontransaction ntxn(db.conn());
                 auto check = ntxn.exec(
@@ -71,7 +70,6 @@ void register_report_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
         try {
             auto& db = Database::instance();
 
-            // Verifica se turma pertence ao professor
             {
                 pqxx::nontransaction ntxn(db.conn());
                 auto check = ntxn.exec(
@@ -123,7 +121,6 @@ void register_report_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             auto& db = Database::instance();
             pqxx::nontransaction txn(db.conn());
 
-            // Verifica se o aluno pertence a uma turma do professor
             auto check = txn.exec(
                 "SELECT ta.aluno_id FROM turma_alunos ta "
                 "JOIN turmas t ON t.id = ta.turma_id "
@@ -133,7 +130,6 @@ void register_report_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             );
             if (check.empty()) return forbidden("Aluno não pertence às suas turmas");
 
-            // Dados do aluno
             auto aluno = txn.exec(
                 "SELECT id, nome, email FROM users WHERE id = " +
                 std::to_string(aluno_id) + " AND anonimizado = FALSE"
@@ -145,7 +141,6 @@ void register_report_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             data["aluno"]["nome"]  = aluno[0]["nome"].as<std::string>();
             data["aluno"]["email"] = aluno[0]["email"].as<std::string>();
 
-            // Stats por nível
             auto stats = txn.exec(
                 "SELECT gl.dificuldade, ps.partidas_jogadas, ps.vitorias, "
                 "ps.derrotas, ps.pontos_totais, ps.ultima_partida "
@@ -168,7 +163,6 @@ void register_report_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             }
             data["stats"] = std::move(stats_list);
 
-            // Histórico de partidas recentes
             auto history = txn.exec(
                 "SELECT m.id AS match_id, gl.dificuldade, m.status, "
                 "mp.vencedor, mp.pontuacao, m.finalizado_em "

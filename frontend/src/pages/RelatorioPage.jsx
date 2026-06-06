@@ -173,7 +173,6 @@ export default function RelatorioPage() {
           <div className="corner corner-bl" />
           <div className="corner corner-br" />
 
-          {/* Header */}
           <div className="relatorio-header">
             <div className="header-left">
               <div className="logo-badge">
@@ -184,7 +183,6 @@ export default function RelatorioPage() {
             <button className="btn-sair" onClick={handleSair}>SAIR</button>
           </div>
 
-          {/* Grid */}
           <div className="turmas-grid">
             {turmas.map((t, i) => (
               <div

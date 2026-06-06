@@ -60,7 +60,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             auto& db = Database::instance();
             pqxx::nontransaction txn(db.conn());
 
-            // Encontra o match_player_id
             auto mp = txn.exec(
                 "SELECT id FROM match_players WHERE match_id = " +
                 std::to_string(match_id) + " AND user_id = " + std::to_string(ctx.user_id)
@@ -110,7 +109,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             auto& db = Database::instance();
             pqxx::nontransaction txn(db.conn());
 
-            // Conta total de jogadas para determinar de quem é a vez
             auto moves_count = txn.exec(
                 "SELECT COUNT(*) FROM moves WHERE match_id = " + std::to_string(match_id)
             );
@@ -161,7 +159,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             auto& db = Database::instance();
             pqxx::nontransaction ntxn(db.conn());
 
-            // Verifica status da partida
             auto match_check = ntxn.exec(
                 "SELECT status, level_id FROM matches WHERE id = " + std::to_string(match_id)
             );
@@ -171,13 +168,11 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
 
             int level_id = match_check[0]["level_id"].as<int>();
 
-            // Busca dificuldade do nível
             auto level_check = ntxn.exec(
                 "SELECT dificuldade FROM game_levels WHERE id = " + std::to_string(level_id)
             );
             std::string dificuldade = level_check[0][0].as<std::string>();
 
-            // Encontra o match_player_id do jogador
             auto mp = ntxn.exec(
                 "SELECT id FROM match_players WHERE match_id = " +
                 std::to_string(match_id) + " AND user_id = " + std::to_string(ctx.user_id)
@@ -185,7 +180,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             if (mp.empty()) return forbidden("Você não está nesta partida");
             int mp_id = mp[0][0].as<int>();
 
-            // Verifica se é a vez do jogador
             auto moves_count = ntxn.exec(
                 "SELECT COUNT(*) FROM moves WHERE match_id = " + std::to_string(match_id)
             );
@@ -202,7 +196,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             if (current_mp_id != mp_id)
                 return bad_request("Não é a sua vez");
 
-            // Verifica se a peça está na mão do jogador
             auto hand_check = ntxn.exec(
                 "SELECT id FROM player_hands WHERE match_player_id = " +
                 std::to_string(mp_id) + " AND tile_id = " + std::to_string(tile_id) +
@@ -212,7 +205,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
                 return bad_request("Peça não está na sua mão");
             int hand_id = hand_check[0][0].as<int>();
 
-            // Busca dados da peça a ser jogada
             auto tile_data = ntxn.exec(
                 "SELECT dt.valor_a, dt.valor_b, "
                 "dva.categoria AS cat_a, dvb.categoria AS cat_b, "
@@ -227,7 +219,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             std::string val_a = tile_data[0]["val_a"].as<std::string>();
             std::string val_b = tile_data[0]["val_b"].as<std::string>();
 
-            // Busca a ponta do tabuleiro no lado solicitado
             std::string order = (lado == "ESQUERDA") ? "ASC" : "DESC";
             auto ponta = ntxn.exec(
                 "SELECT bt.tile_id, bt.lado, "
@@ -248,38 +239,28 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             std::string ponta_val_a = ponta[0]["val_a"].as<std::string>();
             std::string ponta_val_b = ponta[0]["val_b"].as<std::string>();
 
-            // A ponta exposta depende do lado:
-            // ESQUERDA → valor_a da peça na ponta esquerda
-            // DIREITA  → valor_b da peça na ponta direita
             std::string ponta_cat = (lado == "ESQUERDA") ? ponta_cat_a : ponta_cat_b;
             std::string ponta_val = (lado == "ESQUERDA") ? ponta_val_a : ponta_val_b;
 
-            // Validação de compatibilidade
             bool compativel = false;
             if (dificuldade == "FÁCIL") {
-                // Apenas categoria
                 compativel = (cat_a == ponta_cat || cat_b == ponta_cat);
             } else if (dificuldade == "MÉDIO") {
-                // Categoria deve bater (mesma regra fácil, mais rigoroso se quiser)
                 compativel = (cat_a == ponta_cat || cat_b == ponta_cat);
             } else {
-                // DIFÍCIL: fórmula exata
                 compativel = (val_a == ponta_val || val_b == ponta_val);
             }
 
             if (!compativel)
                 return bad_request("Peça incompatível com a ponta do tabuleiro");
 
-            // Executa a jogada
             pqxx::work txn(db.conn());
 
-            // Remove da mão
             txn.exec(
                 "UPDATE player_hands SET jogada_em = NOW() WHERE id = " +
                 std::to_string(hand_id)
             );
 
-            // Calcula posição
             auto pos_result = txn.exec(
                 "SELECT COALESCE(" +
                 std::string(lado == "ESQUERDA" ? "MIN(posicao) - 1" : "MAX(posicao) + 1") +
@@ -288,7 +269,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             );
             int nova_pos = pos_result[0][0].as<int>();
 
-            // Insere no tabuleiro
             txn.exec(
                 "INSERT INTO board_tiles (match_id, tile_id, posicao, lado) VALUES (" +
                 std::to_string(match_id) + ", " +
@@ -297,7 +277,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
                 txn.quote(lado) + ")"
             );
 
-            // Registra jogada
             txn.exec(
                 "INSERT INTO moves (match_id, player_id, tile_id, lado_jogado) VALUES (" +
                 std::to_string(match_id) + ", " +
@@ -306,7 +285,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
                 txn.quote(lado) + ")"
             );
 
-            // Verifica vitória (mão vazia)
             auto remaining = txn.exec(
                 "SELECT COUNT(*) FROM player_hands WHERE match_player_id = " +
                 std::to_string(mp_id) + " AND jogada_em IS NULL"
@@ -314,17 +292,14 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             bool venceu = (remaining[0][0].as<int>() == 0);
 
             if (venceu) {
-                // Marca vencedor
                 txn.exec(
                     "UPDATE match_players SET vencedor = TRUE WHERE id = " +
                     std::to_string(mp_id)
                 );
-                // Finaliza partida
                 txn.exec(
                     "UPDATE matches SET status = 'FINALIZADA', finalizado_em = NOW() "
                     "WHERE id = " + std::to_string(match_id)
                 );
-                // Atualiza stats de todos os jogadores
                 auto all_players = txn.exec(
                     "SELECT mp.id, mp.user_id, mp.vencedor, mp.pontuacao "
                     "FROM match_players mp WHERE mp.match_id = " +
@@ -363,7 +338,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             auto& db = Database::instance();
             pqxx::nontransaction ntxn(db.conn());
 
-            // Verifica se é a vez do jogador
             auto mp = ntxn.exec(
                 "SELECT id FROM match_players WHERE match_id = " +
                 std::to_string(match_id) + " AND user_id = " + std::to_string(ctx.user_id)
@@ -384,8 +358,6 @@ void register_game_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
             if (players[current_idx][0].as<int>() != mp_id)
                 return bad_request("Não é a sua vez");
 
-            // Registra passe (tile_id = 0 dummy, mas usamos tile_id da primeira peça do tabuleiro + passou_vez)
-            // Buscar qualquer tile_id válido (da primeira peça no tabuleiro)
             auto first_tile = ntxn.exec(
                 "SELECT tile_id FROM board_tiles WHERE match_id = " +
                 std::to_string(match_id) + " LIMIT 1"

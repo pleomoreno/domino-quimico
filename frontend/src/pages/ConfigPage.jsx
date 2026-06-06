@@ -404,10 +404,8 @@ export default function ConfigPage() {
           <div className="corner corner-bl" />
           <div className="corner corner-br" />
 
-          {/* Title */}
           <div className="config-title">CONFIGURAR PARTIDA</div>
 
-          {/* Mode */}
           <div className="section-box">
             <div className="mode-grid">
               {MODES.map(m => (
@@ -423,7 +421,6 @@ export default function ConfigPage() {
             </div>
           </div>
 
-          {/* Difficulty */}
           <div className="section-box">
             <div className="diff-title">Selecione a Dificuldade</div>
             <div className="diff-grid">
@@ -440,7 +437,6 @@ export default function ConfigPage() {
             </div>
           </div>
 
-          {/* Música e Sons */}
           <div className="audio-section">
             <div className="audio-section-title">// MÚSICA E SONS</div>
             <div className="audio-row">
@@ -472,7 +468,6 @@ export default function ConfigPage() {
             </div>
           </div>
 
-          {/* Settings + Continuar */}
           <div className="settings-section">
             <div className="settings-left">
               <div className="setting-row">
