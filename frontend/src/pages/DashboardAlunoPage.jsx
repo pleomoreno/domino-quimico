@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FloatingDecor from '../components/FloatingDecor';
 
 const API_URL = 'http://localhost:8080';
 
@@ -12,20 +13,24 @@ export default function DashboardAlunoPage() {
   const nome = localStorage.getItem('nome') || 'Aluno';
   const iniciais = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
-  // Histórico de partidas recentes (local storage)
   const [historico] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('game_history') || '[]').slice(0, 8);
     } catch { return []; }
   });
 
-  // Stats totais (histórico completo, não só os 8 exibidos)
   const statsTotal = (() => {
     try {
       const all = JSON.parse(localStorage.getItem('game_history') || '[]')
       const wins = all.filter(g => g.result === 'W').length
-      return { total: all.length, wins, rate: all.length ? Math.round((wins / all.length) * 100) : 0 }
-    } catch { return { total: 0, wins: 0, rate: 0 } }
+      const draws = all.filter(g => g.result === 'D').length
+      return {
+		total: all.length,
+		wins,
+		draws,
+		rate: all.length ? Math.round((wins / all.length) * 100) : 0
+	  }
+    } catch { return { total: 0, wins: 0, draws: 0, rate: 0 } }
   })()
 
   function handleJogar() {
@@ -68,7 +73,6 @@ export default function DashboardAlunoPage() {
 
   return (
     <div className="relative w-full min-h-screen bg-white font-mono text-dq-red">
-      {/* grid */}
       <div className="absolute inset-0" style={{
         backgroundImage: `
           linear-gradient(rgba(200,16,46,0.12) 1px, transparent 1px),
@@ -77,13 +81,13 @@ export default function DashboardAlunoPage() {
         backgroundSize: '36px 36px',
       }} />
 
-      {/* cantos */}
+      <FloatingDecor />
+
       <Corner pos="top-3 left-3" borders="border-t-2 border-l-2" />
       <Corner pos="top-3 right-3" borders="border-t-2 border-r-2" />
       <Corner pos="bottom-3 left-3" borders="border-b-2 border-l-2" />
       <Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
-      {/* top bar */}
       <div className="fixed top-0 left-0 right-0 h-12 bg-dq-red text-white flex items-center px-4 sm:px-6 z-20">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="w-8 h-8 flex-shrink-0 rounded-full border border-white/40 flex items-center justify-center text-[11px] font-bold tracking-wider">
@@ -102,13 +106,10 @@ export default function DashboardAlunoPage() {
         </button>
       </div>
 
-      {/* main content */}
       <div className="relative z-10 w-full pt-20 pb-8 px-4 sm:px-6 flex items-start justify-center">
         <div className="w-full max-w-[900px] lg:max-w-5xl flex flex-col gap-5">
 
-          {/* Row: Partida Rápida + Entrar na Sala */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Partida Rápida */}
             <button
               onClick={handleJogar}
               className="group relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-8 text-left transition-all hover:border-dq-red hover:shadow-[0_0_20px_rgba(200,16,46,0.15)] active:scale-[0.98]"
@@ -130,7 +131,6 @@ export default function DashboardAlunoPage() {
               </div>
             </button>
 
-            {/* Entrar na Sala */}
             <div className="relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-6">
               <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
               <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-dq-red" />
@@ -163,7 +163,6 @@ export default function DashboardAlunoPage() {
             </div>
           </div>
 
-          {/* Estatísticas rápidas */}
 <div className="grid grid-cols-3 gap-3">
   {[
     { label: 'PARTIDAS', value: statsTotal.total },
@@ -181,7 +180,6 @@ export default function DashboardAlunoPage() {
   ))}
 </div>
 
-          {/* Desempenhos Recentes */}
           <div className="relative border-2 border-dq-red/40 bg-white/60 backdrop-blur-sm px-6 py-5">
             <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-dq-red" />
             <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-dq-red" />
@@ -190,30 +188,41 @@ export default function DashboardAlunoPage() {
 
             <div className="text-[11px] tracking-[3px] text-dq-muted font-bold mb-4">// ÚLTIMAS PARTIDAS</div>
 
-            {historico.length === 0 ? (
+{historico.length === 0 ? (
               <div className="text-center py-6">
                 <div className="text-[14px] text-dq-muted tracking-[2px]">NENHUMA PARTIDA REGISTRADA</div>
                 <div className="text-[11px] text-dq-muted/60 mt-2 tracking-[1px]">JOGUE UMA PARTIDA RÁPIDA PARA VER SEU HISTÓRICO</div>
               </div>
             ) : (
               <div className="flex gap-2 flex-wrap">
-                {historico.map((game, i) => (
-                  <div
-                    key={i}
-                    className={`flex flex-col items-center justify-center w-14 h-14 sm:w-16 sm:h-16 border-2 ${
-                      game.result === 'W'
-                        ? 'border-emerald-500/50 bg-emerald-500/10'
-                        : 'border-dq-red/30 bg-dq-red/5'
-                    }`}
-                  >
-                    <span className={`text-[20px] sm:text-[22px] font-bold ${
-                      game.result === 'W' ? 'text-emerald-500' : 'text-dq-red'
-                    }`}>
-                      {game.result}
-                    </span>
-                    <span className="text-[8px] text-dq-muted tracking-wider">{game.level || 'N1'}</span>
-                  </div>
-                ))}
+                {historico.map((game, i) => {
+                  let borderColor = 'border-dq-red/30';
+                  let bgColor = 'bg-dq-red/5';
+                  let textColor = 'text-dq-red';
+
+                  if (game.result === 'W') {
+                    borderColor = 'border-emerald-500/50';
+                    bgColor = 'bg-emerald-500/10';
+                    textColor = 'text-emerald-500';
+                  }
+                  else if (game.result === 'D') {
+                    borderColor = 'border-amber-500/50';
+                    bgColor = 'bg-amber-500/10';
+                    textColor = 'text-amber-500';
+                  }
+
+                  return (
+                    <div
+                      key={i}
+                      className={`flex flex-col items-center justify-center w-14 h-14 sm:w-16 sm:h-16 border-2 ${borderColor} ${bgColor}`}
+                    >
+                      <span className={`text-[20px] sm:text-[22px] font-bold ${textColor}`}>
+                        {game.result}
+                      </span>
+                      <span className="text-[8px] text-dq-muted tracking-wider">{game.level || 'N1'}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

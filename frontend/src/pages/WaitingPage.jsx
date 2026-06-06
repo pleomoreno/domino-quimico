@@ -320,7 +320,7 @@ const players = [
   { id: 4, name: "Ana",     role: "",                ready: true  },
 ];
 
-const totalNeeded = 0; // todos prontos
+const totalNeeded = 0;
 
 export default function WaitingPage() {
   const navigate = useNavigate();
@@ -351,7 +351,6 @@ export default function WaitingPage() {
           <div className="corner corner-bl" />
           <div className="corner corner-br" />
 
-          {/* Header */}
           <div className="waiting-header">
             <div className="header-left">
               <div className="logo-badge">
@@ -367,14 +366,12 @@ export default function WaitingPage() {
             </div>
           </div>
 
-          {/* Room info */}
           <div className="room-info">
             <div className="room-info-label">NOME DA SALA</div>
             <div className="room-name">Laboratório 01</div>
             <div className="room-code">CÓDIGO DA SALA: <span>QUI7X92</span></div>
           </div>
 
-          {/* Players */}
           <div className="players-section">
             <div className="players-label">JOGADORES</div>
             <div className="players-list">
@@ -401,7 +398,6 @@ export default function WaitingPage() {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="waiting-footer">
             <div className="footer-buttons">
               <button className="btn-sair" onClick={handleSair}>

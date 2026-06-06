@@ -6,14 +6,12 @@
 #include <pqxx/pqxx>
 #include <algorithm>
 
-// Extrai domínio do e-mail e determina o tipo de usuário
 static std::string extrair_dominio(const std::string &email)
 {
     auto pos = email.find('@');
     if (pos == std::string::npos)
         return "";
     std::string domain = email.substr(pos + 1);
-    // Lowercase
     std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
     return domain;
 }
@@ -25,7 +23,7 @@ static std::string detectar_tipo_por_email(const std::string &email)
         return "ALUNO";
     if (domain == "cps.sp.gov.br")
         return "PROFESSOR";
-    return ""; // domínio inválido
+    return "";
 }
 
 void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
@@ -36,7 +34,6 @@ void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
         auto body = crow::json::load(req.body);
         if (!body) return bad_request("JSON inválido");
 
-        // Campos obrigatórios
         if (!body.has("nome") || !body.has("email") ||
             !body.has("senha") ||
             !body.has("lgpd_consentimento")) {
@@ -48,7 +45,6 @@ void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
         std::string senha = body["senha"].s();
         bool lgpd         = body["lgpd_consentimento"].b();
 
-        // Detectar tipo pelo domínio do e-mail
         std::string tipo = detectar_tipo_por_email(email);
         if (tipo.empty())
             return bad_request("E-mail não autorizado para esta plataforma");
@@ -61,7 +57,6 @@ void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
         try {
             auto& db = Database::instance();
 
-            // Verifica e-mail duplicado
             {
                 pqxx::nontransaction ntxn(db.conn());
                 auto check = ntxn.exec(
@@ -110,7 +105,6 @@ void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
         std::string email = body["email"].s();
         std::string senha = body["senha"].s();
 
-        // Validar domínio do e-mail no login
         std::string tipo_esperado = detectar_tipo_por_email(email);
         if (tipo_esperado.empty())
             return bad_request("E-mail não autorizado para esta plataforma");
@@ -152,7 +146,6 @@ void register_auth_routes(crow::App<crow::CORSHandler, AuthMiddleware>& app)
 
             std::string token = JwtUtils::generate(user_id, tipo);
 
-            // Salva sessão
             pqxx::work wtxn(db.conn());
             wtxn.exec(
                 "INSERT INTO user_sessions (user_id, token_hash, expira_em) "

@@ -11,7 +11,6 @@ const PIECES = [
   { top: 'Fe₂O₃',   bot: 'Óxido'  },
 ]
 
-// posições fixas pra não recalcular no render
 const PIECE_CONFIGS = [
   { left: '4%',  top: '12%', delay: 0,   duration: 4  },
   { left: '82%', top: '8%',  delay: 1.5, duration: 5  },
@@ -51,7 +50,6 @@ export default function FloatingDecor() {
         }
       `}</style>
 
-      {/* peças de dominó flutuantes */}
       {PIECE_CONFIGS.map((cfg, i) => {
         const piece = PIECES[i % PIECES.length]
         return (
@@ -82,7 +80,6 @@ export default function FloatingDecor() {
         )
       })}
 
-      {/* bolinhas flutuantes */}
       {DOT_CONFIGS.map((cfg, i) => (
         <div
           key={i}

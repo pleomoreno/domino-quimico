@@ -351,14 +351,12 @@ export default function RoomPage() {
     }
   }, [code]);
 
-  // Poll every 3 seconds
   useEffect(() => {
     fetchStudents();
     const interval = setInterval(fetchStudents, 3000);
     return () => clearInterval(interval);
   }, [fetchStudents]);
 
-  // Redirect when game starts
   useEffect(() => {
     if (roomStatus === 'em_andamento') {
       navigate('/game');
@@ -373,7 +371,6 @@ export default function RoomPage() {
         headers: { 'Authorization': `Bearer ${token}` },
       });
     } catch (err) {
-      // ignore
     }
     if (isProfessor) {
       navigate('/dashboard/professor');
@@ -391,7 +388,7 @@ export default function RoomPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ fill_bots: true }),  // ← ADICIONAR
+        body: JSON.stringify({ fill_bots: true }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
@@ -413,7 +410,6 @@ export default function RoomPage() {
           <div className="corner corner-bl" />
           <div className="corner corner-br" />
 
-          {/* Header */}
           <div className="waiting-header">
             <div className="header-left">
               <div className="logo-badge">
@@ -429,14 +425,12 @@ export default function RoomPage() {
             </div>
           </div>
 
-          {/* Room info */}
           <div className="room-info">
             <div className="room-info-label">CÓDIGO DA SALA</div>
             <div className="room-name">{code}</div>
             <div className="room-code">STATUS: <span>{roomStatus.toUpperCase()}</span></div>
           </div>
 
-          {/* Players */}
           <div className="players-section">
             <div className="players-label">JOGADORES ({alunos.length})</div>
             <div className="players-list">
@@ -461,14 +455,12 @@ export default function RoomPage() {
             </div>
           </div>
 
-          {/* Error */}
           {error && (
             <div className="status-section">
               <div className="status-msg warning">{error}</div>
             </div>
           )}
 
-          {/* Footer */}
           <div className="waiting-footer">
             <div className="footer-buttons">
               <button className="btn-sair" onClick={handleSair}>

@@ -8,7 +8,6 @@
 #include <vector>
 #include <string>
 
-// Gera código de sala aleatório de 6 caracteres alfanuméricos
 static std::string gerar_codigo_sala()
 {
     static const char chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -54,7 +53,6 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             );
             int match_id = result[0][0].as<int>();
 
-            // Criador entra automaticamente na partida
             txn.exec(
                 "INSERT INTO match_players (match_id, user_id) VALUES (" +
                 std::to_string(match_id) + ", " + std::to_string(ctx.user_id) + ")"
@@ -117,7 +115,6 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
         try {
             auto& db = Database::instance();
 
-            // Verifica se a partida existe e está aguardando
             pqxx::nontransaction ntxn(db.conn());
             auto match = ntxn.exec(
                 "SELECT status, max_jogadores, "
@@ -132,7 +129,6 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             int total = match[0]["total"].as<int>();
             if (total >= max_j) return bad_request("Partida lotada");
 
-            // Verifica se já está na partida
             auto already = ntxn.exec(
                 "SELECT id FROM match_players WHERE match_id = " +
                 std::to_string(match_id) + " AND user_id = " + std::to_string(ctx.user_id)
@@ -187,7 +183,6 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
                 data["finalizado_em"] = row["finalizado_em"].as<std::string>();
             data["criado_em"] = row["criado_em"].as<std::string>();
 
-            // Lista jogadores
             auto players = txn.exec(
                 "SELECT mp.id, u.nome, mp.ordem_jogada, mp.pontuacao, mp.vencedor "
                 "FROM match_players mp "
@@ -223,7 +218,6 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
         try {
             auto& db = Database::instance();
 
-            // Verifica se a partida está AGUARDANDO
             pqxx::nontransaction ntxn(db.conn());
             auto match = ntxn.exec(
                 "SELECT m.status, m.level_id FROM matches m WHERE m.id = " +
@@ -235,7 +229,6 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
 
             int level_id = match[0]["level_id"].as<int>();
 
-            // Busca jogadores
             auto players_result = ntxn.exec(
                 "SELECT id, user_id FROM match_players WHERE match_id = " +
                 std::to_string(match_id)
@@ -243,7 +236,6 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             int num_players = players_result.size();
             if (num_players < 2) return bad_request("Mínimo 2 jogadores para iniciar");
 
-            // Busca peças do nível
             auto tiles_result = ntxn.exec(
                 "SELECT dt.id FROM domino_tiles dt "
                 "JOIN tile_levels tl ON tl.tile_id = dt.id "
@@ -257,12 +249,10 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             if ((int)tile_ids.size() < num_players * 7 + 1)
                 return bad_request("Peças insuficientes para este nível e número de jogadores");
 
-            // Embaralha
             std::random_device rd;
             std::mt19937 gen(rd());
             std::shuffle(tile_ids.begin(), tile_ids.end(), gen);
 
-            // Coleta IDs dos jogadores e ordem aleatória
             std::vector<int> player_ids;
             for (const auto& row : players_result)
                 player_ids.push_back(row["id"].as<int>());
@@ -272,9 +262,7 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
 
             int tile_idx = 0;
 
-            // Distribui 7 peças por jogador
             for (int i = 0; i < num_players; ++i) {
-                // Define ordem de jogada
                 txn.exec(
                     "UPDATE match_players SET ordem_jogada = " + std::to_string(i + 1) +
                     " WHERE id = " + std::to_string(player_ids[i])
@@ -288,14 +276,12 @@ void register_match_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
                 }
             }
 
-            // Coloca 1 peça no centro
             txn.exec(
                 "INSERT INTO board_tiles (match_id, tile_id, posicao, lado) VALUES (" +
                 std::to_string(match_id) + ", " +
                 std::to_string(tile_ids[tile_idx]) + ", 0, 'CENTRO')"
             );
 
-            // Atualiza status
             txn.exec(
                 "UPDATE matches SET status = 'EM_ANDAMENTO', iniciado_em = NOW() "
                 "WHERE id = " + std::to_string(match_id)

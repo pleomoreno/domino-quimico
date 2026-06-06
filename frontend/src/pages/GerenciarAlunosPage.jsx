@@ -216,7 +216,6 @@ export default function GerenciarAlunosPage() {
           <div className="corner corner-bl" />
           <div className="corner corner-br" />
 
-          {/* Header */}
           <div className="gerenciar-header">
             <div className="header-left">
               <div className="logo-badge">
@@ -227,14 +226,12 @@ export default function GerenciarAlunosPage() {
             <button className="btn-sair" onClick={handleSair}>SAIR</button>
           </div>
 
-          {/* Table header */}
           <div className="table-header">
             <span>ALUNOS</span>
             <span>VITÓRIA / PARTIDA</span>
             <span></span>
           </div>
 
-          {/* Lista */}
           <div className="alunos-list">
             {alunos.length === 0 && (
               <div className="empty-state">Nenhum aluno cadastrado</div>

@@ -206,7 +206,6 @@ void register_user_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
         try {
             auto& db = Database::instance();
 
-            // Verifica se turma pertence ao professor
             {
                 pqxx::nontransaction ntxn(db.conn());
                 auto check = ntxn.exec(
@@ -216,7 +215,6 @@ void register_user_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
                 if (check.empty()) return forbidden("Turma não pertence a este professor");
             }
 
-            // Busca aluno pelo email
             pqxx::nontransaction ntxn2(db.conn());
             auto aluno = ntxn2.exec(
                 "SELECT id FROM users WHERE email = " + ntxn2.quote(email) +

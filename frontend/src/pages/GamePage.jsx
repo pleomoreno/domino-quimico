@@ -255,16 +255,21 @@ const buildDeck = (levelId) => {
 	return shuffleArray(tiles)
 }
 
+const players = ["A", "B", "C", "D"]
+
 const dealHands = (levelId) => {
 	const deck = buildDeck(levelId)
 	const hands = { A: [], B: [], C: [], D: [] }
-	players.forEach((player, playerIndex) => {
-		const start = playerIndex * 7
-		hands[player] = deck.slice(start, start + 7)
-	})
+
+	for (let i = 0; i < 7; i += 1) {
+		players.forEach((player) => {
+			hands[player].push(deck.pop())
+		})
+	}
 
 	let starterKey = players[0]
-	let startTile = { ...hands[starterKey][0] }
+	let startTile = null
+
 	players.some((player) => {
 		const tileIndex = hands[player].findIndex((tile) => {
 			const leftCategory = tile.left.category
@@ -283,6 +288,11 @@ const dealHands = (levelId) => {
 		return false
 	})
 
+	if (!startTile) {
+		startTile = { ...hands[players[0]][0] }
+		hands[players[0]].splice(0, 1)
+	}
+
 	return { hands, starterKey, startTile }
 }
 
@@ -295,6 +305,7 @@ const createGameState = (levelId) => {
 			{
 				...startTile,
 				orientation: startTile.left.id === startTile.right.id ? "vertical" : "horizontal",
+				isAnchor: true
 			},
 		],
 		currentTurn: (starterIndex + 1) % players.length,
@@ -302,8 +313,6 @@ const createGameState = (levelId) => {
 		starterKey,
 	}
 }
-
-const players = ["A", "B", "C", "D"]
 
 // ─── Sistema de Efeitos Sonoros ─────────────────────────────────────────────
 let _sfxCtx = null
@@ -319,7 +328,6 @@ function getSfxCtx() {
 
 function playSound(name) {
   try {
-    // Respeita mute geral
     if (localStorage.getItem('dq_music') === 'false') return
     const ctx = getSfxCtx()
     if (!ctx) return
@@ -363,19 +371,19 @@ function playSound(name) {
     }
 
     switch (name) {
-      case 'place':   // Peça encaixada — pancada grave
+      case 'place':
         tone(320, 'sine', 0.13, 0.4, 90); break
-      case 'error':   // Erro — buzzer curto
+      case 'error':
         tone(180, 'square', 0.18, 0.2); break
-      case 'click':   // Botão — toque suave
+      case 'click':
         tone(900, 'sine', 0.06, 0.15); break
-      case 'pass':    // Passa a vez — whoosh descendente
+      case 'pass':
         tone(600, 'sine', 0.16, 0.2, 200); break
-      case 'win':     // Vitória — acorde ascendente
+      case 'win':
         chord([523, 659, 784, 1047], 'sine', 0.35, 0.25); break
-      case 'end':     // Derrota/bloqueio — acorde descendente
+      case 'end':
         chord([440, 350, 280], 'sine', 0.25, 0.2); break
-      case 'levelup': // Próximo nível — fanfarra rápida
+      case 'levelup':
         chord([523, 659, 784], 'triangle', 0.22, 0.22, 0.1); break
       default: break
     }
@@ -440,38 +448,25 @@ export default function GamePage() {
 			return { tiles: [], width: 0, height: 0, startDrop: null, endDrop: null }
 		}
 
-		const H_SIZE = { w: 100, h: 58 }
-		const V_SIZE = { w: 58, h: 100 }
-		const UPRIGHT_BEND_SIZE = V_SIZE
+		const H_SIZE = { w: 134, h: 66 }
+		const V_SIZE = { w: 66, h: 134 }
 		const BOARD_W = 1100
-		const BOARD_H = 600
+		const BOARD_H = 3000
 		const MARGIN = 32
 		const GAP = 0
 		const BEND_OVERLAP = 0
 		const BOTTOM_ROW_BACKSHIFT = 0
 		const DOUBLE_JOIN_ADJUST = 10
 
-
-
-		let cx = BOARD_W / 2
-		let cy = BOARD_H / 2
-		let direction = "right"
-		let horizontalDir = "right"
-
-		const getRotation = (dir, isDouble) => {
-			if (dir === "right" || dir === "left") {
-				if (isDouble) return 90
-				return dir === "left" ? 180 : 0
+		const getRotation = (dir, isDouble, isLeftChain) => {
+			if (isDouble) {
+				return 0
 			}
-			if (isDouble) return 0
-			return dir === "up" ? 270 : 90
-		}
-
-		const getBaseSize = (dir, isDouble) => {
-			if (dir === "right" || dir === "left") {
-				return isDouble ? V_SIZE : H_SIZE
-			}
-			return isDouble ? H_SIZE : V_SIZE
+			if (dir === "down") return isLeftChain ? 180 : 0
+			if (dir === "up") return isLeftChain ? 0 : 180
+			if (dir === "left") return isLeftChain ? 0 : 180
+			if (dir === "right") return isLeftChain ? 180 : 0
+			return 0
 		}
 
 		const getRenderSize = (baseSize, rotation) => {
@@ -479,145 +474,161 @@ export default function GamePage() {
 			return { w: baseSize.h, h: baseSize.w }
 		}
 
-		const getTileMetrics = (dir, isDouble) => {
-			const forceUpright = isDouble || (dir === "down" && !isDouble)
-			const rotation = forceUpright ? 0 : getRotation(dir, isDouble)
-			const orientation = forceUpright
-				? "vertical"
-				: rotation % 180 === 0
-					? "horizontal"
-					: "vertical"
-			const baseSize = forceUpright
-				? UPRIGHT_BEND_SIZE
-				: getBaseSize(dir, isDouble)
+		const getTileMetrics = (dir, isDouble, isLeftChain) => {
+			const forceUpright = isDouble || dir === "down" || dir === "up"
+			const rotation = getRotation(dir, isDouble, isLeftChain)
+			const orientation = forceUpright ? "vertical" : "horizontal"
+			const baseSize = forceUpright ? V_SIZE : H_SIZE
 			const renderSize = getRenderSize(baseSize, rotation)
 			return { baseSize, orientation, renderSize, rotation }
 		}
 
-		const tiles = board.map((tile, index) => {
-			const isDouble = tile.left.id === tile.right.id
-			const { orientation, renderSize, rotation } = getTileMetrics(
-				direction,
-				isDouble
-			)
-			const x = Math.round(cx - renderSize.w / 2)
-			const y = Math.round(cy - renderSize.h / 2)
-			const item = {
-				tile,
-				x,
-				y,
-				rotation,
-				orientation,
-				direction,
-				index,
-				isDouble,
-				renderSize,
-				centerX: cx,
-				centerY: cy,
-			}
+		const layoutItems = []
 
-			if (index < board.length - 1) {
-				const nextTile = board[index + 1]
-				const nextIsDouble = nextTile.left.id === nextTile.right.id
+		let anchorIndex = board.findIndex(t => t.isAnchor)
+		if (anchorIndex === -1) anchorIndex = 0
+
+		const cxStart = BOARD_W / 2
+		const cyStart = BOARD_H / 2
+		const anchorTile = board[anchorIndex]
+		const anchorIsDouble = anchorTile.left.id === anchorTile.right.id
+		const { orientation: aOri, renderSize: aRen, rotation: aRot } = getTileMetrics("right", anchorIsDouble, false)
+
+		layoutItems.push({
+			tile: anchorTile,
+			x: Math.round(cxStart - aRen.w / 2),
+			y: Math.round(cyStart - aRen.h / 2),
+			rotation: aRot,
+			orientation: aOri,
+			direction: "right",
+			index: anchorIndex,
+			isDouble: anchorIsDouble,
+			renderSize: aRen,
+			centerX: cxStart,
+			centerY: cyStart,
+		})
+
+		const placeChain = (startIndex, endIndex, step, prevCx, prevCy, prevRenderSize, prevIsDouble, prevDir, prevHorizDir, bendDir, isLeftChain) => {
+			let cx = prevCx
+			let cy = prevCy
+			let direction = prevDir
+			let horizontalDir = prevHorizDir
+			let currentRenderSize = prevRenderSize
+			let currentIsDouble = prevIsDouble
+
+			for (let i = startIndex; i !== endIndex + step; i += step) {
+				const tile = board[i]
+				const isDouble = tile.left.id === tile.right.id
+
 				let nextDirection = direction
 				let nextHorizontalDir = horizontalDir
 
 				if (direction === "right" || direction === "left") {
-					const { renderSize: nextRenderSize } = getTileMetrics(
-						direction,
-						nextIsDouble
-					)
-					const joinAdjust = nextIsDouble ? DOUBLE_JOIN_ADJUST : 0
-					const minStep = renderSize.w / 2 + nextRenderSize.w / 2
-					const step = Math.max(
-						minStep,
-						minStep + GAP - joinAdjust
-					)
-					const nextCx = direction === "right" ? cx + step : cx - step
-					const limit =
-						direction === "right"
-							? BOARD_W - MARGIN - nextRenderSize.w / 2
-							: MARGIN + nextRenderSize.w / 2
-					if (
-						(direction === "right" && nextCx > limit) ||
-						(direction === "left" && nextCx < limit)
-					) {
-						nextDirection = "down"
+					const { renderSize: nextRenSize } = getTileMetrics(direction, isDouble, isLeftChain)
+					const joinAdjust = isDouble ? DOUBLE_JOIN_ADJUST : 0
+					const minStep = currentRenderSize.w / 2 + nextRenSize.w / 2
+					const moveStep = Math.max(minStep, minStep + GAP - joinAdjust)
+
+					const nextCx = direction === "right" ? cx + moveStep : cx - moveStep
+					const limit = direction === "right"
+						? BOARD_W - MARGIN - nextRenSize.w / 2
+						: MARGIN + nextRenSize.w / 2
+
+					if ((direction === "right" && nextCx > limit) || (direction === "left" && nextCx < limit)) {
+						nextDirection = bendDir
 						nextHorizontalDir = direction
-						const bendX =
-							direction === "right" ? cx + renderSize.w / 4 : cx - renderSize.w / 4
-						const bendY = cy + renderSize.h / 2
-						const { renderSize: downNextRenderSize } = getTileMetrics(
-							"down",
-							nextIsDouble
-						)
-						const nextCy =
-							bendY + downNextRenderSize.h / 2 + GAP - BEND_OVERLAP
+
+						const bendX = direction === "right" ? cx + currentRenderSize.w / 4 : cx - currentRenderSize.w / 4
+						const { renderSize: bendRenSize } = getTileMetrics(bendDir, isDouble, isLeftChain)
+
+						const nextCy = bendDir === "down"
+							? cy + currentRenderSize.h / 2 + bendRenSize.h / 2 + GAP - BEND_OVERLAP
+							: cy - currentRenderSize.h / 2 - bendRenSize.h / 2 - GAP + BEND_OVERLAP
+
 						const clampX = Math.min(
-							Math.max(bendX, MARGIN + downNextRenderSize.w / 2),
-							BOARD_W - MARGIN - downNextRenderSize.w / 2
+							Math.max(bendX, MARGIN + bendRenSize.w / 2),
+							BOARD_W - MARGIN - bendRenSize.w / 2
 						)
 						cx = clampX
 						cy = nextCy
 					} else {
 						cx = nextCx
 					}
-				} else if (direction === "down") {
+				} else if (direction === "down" || direction === "up") {
 					const nextDir = horizontalDir === "right" ? "left" : "right"
-					const { renderSize: nextRenderSize } = getTileMetrics(
-						nextDir,
-						nextIsDouble
-					)
-					const joinAdjust = nextIsDouble ? DOUBLE_JOIN_ADJUST : 0
-					if (nextIsDouble || isDouble) {
-						const nextCy =
-							cy + renderSize.h / 2 + nextRenderSize.h / 2 + GAP
+					const { renderSize: nextRenSize } = getTileMetrics(nextDir, isDouble, isLeftChain)
+					const joinAdjust = isDouble ? DOUBLE_JOIN_ADJUST : 0
+
+					if (isDouble || currentIsDouble) {
+						const nextCy = direction === "down"
+							? cy + currentRenderSize.h / 2 + nextRenSize.h / 2 + GAP
+							: cy - currentRenderSize.h / 2 - nextRenSize.h / 2 - GAP
 						cy = nextCy
-						nextDirection = "down"
+						nextDirection = direction
 					} else {
-					const bendX =
-						nextDir === "right"
-							? cx + renderSize.w / 2 - BOTTOM_ROW_BACKSHIFT
-							: cx - renderSize.w / 2 + BOTTOM_ROW_BACKSHIFT
-					const bendY = cy + renderSize.h / 4
-					const nextCy = bendY
-					const minStepX = nextRenderSize.w / 2
-					const stepX = Math.max(
-						minStepX,
-						minStepX + GAP - joinAdjust
-					)
-					const nextCx = nextDir === "right" ? bendX + stepX : bendX - stepX
-					const limitX =
-						nextDir === "right"
-							? BOARD_W - MARGIN - nextRenderSize.w / 2
-							: MARGIN + nextRenderSize.w / 2
-					cy = nextCy
-					cx =
-						nextDir === "right"
-							? Math.min(nextCx, limitX)
-							: Math.max(nextCx, limitX)
-					nextDirection = nextDir
-					nextHorizontalDir = nextDir
+						const bendX = nextDir === "right"
+							? cx + currentRenderSize.w / 2 - BOTTOM_ROW_BACKSHIFT
+							: cx - currentRenderSize.w / 2 + BOTTOM_ROW_BACKSHIFT
+						const bendY = direction === "down"
+							? cy + currentRenderSize.h / 4
+							: cy - currentRenderSize.h / 4
+
+						const minStepX = nextRenSize.w / 2
+						const stepX = Math.max(minStepX, minStepX + GAP - joinAdjust)
+						const nextCx = nextDir === "right" ? bendX + stepX : bendX - stepX
+
+						const limitX = nextDir === "right"
+							? BOARD_W - MARGIN - nextRenSize.w / 2
+							: MARGIN + nextRenSize.w / 2
+
+						cy = bendY
+						cx = nextDir === "right" ? Math.min(nextCx, limitX) : Math.max(nextCx, limitX)
+						nextDirection = nextDir
+						nextHorizontalDir = nextDir
 					}
 				}
 
 				direction = nextDirection
 				horizontalDir = nextHorizontalDir
+
+				const { orientation, renderSize, rotation } = getTileMetrics(direction, isDouble, isLeftChain)
+				currentRenderSize = renderSize
+				currentIsDouble = isDouble
+
+				layoutItems.push({
+					tile,
+					x: Math.round(cx - renderSize.w / 2),
+					y: Math.round(cy - renderSize.h / 2),
+					rotation,
+					orientation,
+					direction,
+					index: i,
+					isDouble,
+					renderSize,
+					centerX: cx,
+					centerY: cy,
+				})
 			}
-
-			return item
-		})
-
-		const oppositeDir = (dir) => {
-			if (dir === "right") return "left"
-			if (dir === "left") return "right"
-			if (dir === "up") return "down"
-			return "up"
 		}
+
+		if (anchorIndex < board.length - 1) {
+			placeChain(anchorIndex + 1, board.length - 1, 1, cxStart, cyStart, aRen, anchorIsDouble, "right", "right", "down", false)
+		}
+
+		if (anchorIndex > 0) {
+			placeChain(anchorIndex - 1, 0, -1, cxStart, cyStart, aRen, anchorIsDouble, "left", "left", "up", true)
+		}
+
+		layoutItems.sort((a, b) => a.index - b.index)
 
 		const getDropLayout = (item, isStart) => {
 			if (!item) return null
-			const dir = isStart ? oppositeDir(item.direction) : item.direction
+			let dir = item.direction
+
+			if (isStart && item.index === anchorIndex) {
+				dir = "left"
+			}
+
 			const isHorizontal = dir === "right" || dir === "left"
 			let dx = 0
 			let dy = 0
@@ -634,15 +645,50 @@ export default function GamePage() {
 				x: Math.round(centerX - size.w / 2),
 				y: Math.round(centerY - size.h / 2),
 				orientation: isHorizontal ? "horizontal" : "vertical",
+				w: size.w,
+				h: size.h
 			}
 		}
 
+		let startDrop = getDropLayout(layoutItems[0], true)
+		let endDrop = getDropLayout(layoutItems[layoutItems.length - 1], false)
+
+		let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
+		const updateBounds = (x, y, w, h) => {
+			if (x < minX) minX = x
+			if (x + w > maxX) maxX = x + w
+			if (y < minY) minY = y
+			if (y + h > maxY) maxY = y + h
+		}
+
+		layoutItems.forEach(item => updateBounds(item.x, item.y, item.renderSize.w, item.renderSize.h))
+		if (startDrop) updateBounds(startDrop.x, startDrop.y, startDrop.w, startDrop.h)
+		if (endDrop) updateBounds(endDrop.x, endDrop.y, endDrop.w, endDrop.h)
+
+		const distLeft = cxStart - minX
+		const distRight = maxX - cxStart
+		const distTop = cyStart - minY
+		const distBottom = maxY - cyStart
+
+		const maxDistX = Math.max(distLeft, distRight, 100)
+		const maxDistY = Math.max(distTop, distBottom, 100)
+
+		const PADDING = 60
+		const finalWidth = (maxDistX + PADDING) * 2
+		const finalHeight = (maxDistY + PADDING) * 2
+
+		const symMinX = cxStart - maxDistX - PADDING
+		const symMinY = cyStart - maxDistY - PADDING
+
+
 		return {
-			tiles,
-			width: BOARD_W,
-			height: BOARD_H,
-			startDrop: getDropLayout(tiles[0], true),
-			endDrop: getDropLayout(tiles[tiles.length - 1], false),
+			tiles: layoutItems,
+			width: finalWidth,
+			height: finalHeight,
+			shiftX: symMinX,
+			shiftY: symMinY,
+			startDrop,
+			endDrop,
 		}
 	}, [board])
 
@@ -754,15 +800,14 @@ export default function GamePage() {
 		}
 	}
 
-	const saveGameHistory = (isWin) => {
+	const saveGameHistory = (resultStatus) => {
 		try {
 			const history = JSON.parse(localStorage.getItem('game_history') || '[]');
 			history.unshift({
-				result: isWin ? 'W' : 'L',
+				result: resultStatus,
 				level: currentLevel.title.split(':')[0] || 'N1',
 				date: new Date().toISOString(),
 			});
-			// Keep only last 20 games
 			localStorage.setItem('game_history', JSON.stringify(history.slice(0, 20)));
 		} catch (e) { /* ignore */ }
 	}
@@ -776,7 +821,7 @@ export default function GamePage() {
 			setGameOver(true)
 			setSummary(buildSummary(nextHands, nextStats, winnerByEmpty, blocked))
 			setMessage("Fim de partida")
-			saveGameHistory(winnerByEmpty === "A")
+			saveGameHistory(winnerByEmpty === "A" ? 'W' : 'L')
 			playSound(winnerByEmpty === "A" ? 'win' : 'end')
 			return true
 		}
@@ -785,11 +830,19 @@ export default function GamePage() {
 			setGameOver(true)
 			setSummary(buildSummary(nextHands, nextStats, null, blocked))
 			setMessage("Fim de partida (bloqueio)")
-			// In blocked games, player A wins if they have fewest tiles
+
 			const aCount = nextHands.A.length
 			const othersMin = Math.min(...players.filter(p => p !== "A").map(p => nextHands[p].length))
-			saveGameHistory(aCount <= othersMin)
-			playSound(winnerByEmpty === "A" ? 'win' : 'end')
+
+			let resultStatus = 'L';
+			if (aCount < othersMin) {
+				resultStatus = 'W';
+			} else if (aCount === othersMin) {
+				resultStatus = 'D';
+			}
+
+			saveGameHistory(resultStatus)
+			playSound(resultStatus === 'W' ? 'win' : 'end')
 			return true
 		}
 		return false
@@ -892,7 +945,7 @@ export default function GamePage() {
 
 		let nextBoard = []
 		if (board.length === 0) {
-			nextBoard = [{ ...tile, orientation: "horizontal" }]
+			nextBoard = [{ ...tile, orientation: "horizontal", isAnchor: true }]
 		} else {
 			const canRight = canPlaceTileOnSide(tile, "right")
 			const canLeft = canPlaceTileOnSide(tile, "left")
@@ -1024,11 +1077,26 @@ export default function GamePage() {
 
 		const timeout = setTimeout(() => {
 			const hand = hands[playerKey]
-			const playable = hand.find((tile) => isPlayable(tile))
-			if (playable) {
-				placeTile(playerKey, playable.id)
+
+			const playableTiles = hand.filter((tile) => isPlayable(tile))
+
+			if (playableTiles.length > 0) {
+				const tile = playableTiles[0]
+
+				const canLeft = canPlaceTileOnSide(tile, "left")
+				const canRight = canPlaceTileOnSide(tile, "right")
+
+				let chosenSide = "right"
+				if (canLeft && canRight) {
+					chosenSide = Math.random() > 0.5 ? "left" : "right"
+				} else if (canLeft) {
+					chosenSide = "left"
+				}
+
+				placeTile(playerKey, tile.id, chosenSide)
 				return
 			}
+
 			const nextStats = {
 				...stats,
 				[playerKey]: {
@@ -1073,7 +1141,6 @@ export default function GamePage() {
 	return (
 		<>
 			<div className="relative w-screen h-screen bg-white overflow-hidden font-mono text-dq-red">
-			{/* grid */}
 			<div
 				className="absolute inset-0"
 				style={{
@@ -1085,13 +1152,11 @@ export default function GamePage() {
 				}}
 			/>
 
-			{/* cantos */}
 			<Corner pos="top-3 left-3" borders="border-t-2 border-l-2" />
 			<Corner pos="top-3 right-3" borders="border-t-2 border-r-2" />
 			<Corner pos="bottom-3 left-3" borders="border-b-2 border-l-2" />
 			<Corner pos="bottom-3 right-3" borders="border-b-2 border-r-2" />
 
-			{/* top bar */}
 			<div className="absolute top-0 left-0 right-0 h-10 sm:h-12 bg-dq-red text-white flex items-center px-3 sm:px-4 gap-2 sm:gap-4 z-20">
 				<div className="flex items-center gap-1.5 z-10 text-[9px] sm:text-[11px] tracking-[1px] sm:tracking-[2px] uppercase text-white/80 truncate max-w-[40%] sm:max-w-none">
 					<span className="hidden sm:inline">Nível:</span>
@@ -1110,9 +1175,7 @@ export default function GamePage() {
 				</button>
 			</div>
 
-			{/* board */}
 				<div className="relative z-10 w-full h-full flex flex-col pt-10 sm:pt-12">
-				{/* Bot info bar - compact on mobile, full on desktop */}
 				<div className="flex items-center justify-center gap-2 sm:gap-4 px-2 py-1.5 sm:py-2 bg-neutral-100/80 border-b border-black/5">
 					{['B','C','D'].map(p => (
 						<div key={p} className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-[13px] ${
@@ -1123,83 +1186,86 @@ export default function GamePage() {
 					))}
 				</div>
 
-				{/* Center message */}
 				<div className="text-center px-4 py-1.5 sm:py-2">
 					<div className="text-[13px] sm:text-[14px] text-dq-text">{message}</div>
 				</div>
 
-				{/* Board area - scrollable on mobile, centered on desktop */}
 				<div className="flex-1 relative overflow-y-auto overflow-x-hidden bg-neutral-200/60 border-y border-black/10">
 					{viewportWidth >= 640 ? (
-						/* --- LAYOUT DESKTOP: Formato Cobrinha Original --- */
 						<div className="absolute inset-0 flex items-center justify-center">
 							<div
 								className="absolute left-1/2 top-1/2"
 								style={{
 									transform: `translate(-50%, -50%) scale(${boardScale * Math.min(1, viewportWidth / 1140)})`,
-									transformOrigin: 'center top',
+									transformOrigin: 'center',
 								}}
 							>
 								<div
 									className="relative"
 									style={{ width: `${boardLayout.width}px`, height: `${boardLayout.height}px` }}
 								>
-									{boardLayout.startDrop && (
-										<div
-											className="absolute"
-											style={{ left: boardLayout.startDrop.x, top: boardLayout.startDrop.y }}
-										>
-											<DropZone
-												label="Esquerda"
-												orientation={boardLayout.startDrop.orientation}
-												isActive={!!draggingTileId}
-												onDrop={() => handleDrop("left")}
-											/>
-										</div>
-									)}
-									{boardLayout.endDrop && (
-										<div
-											className="absolute"
-											style={{ left: boardLayout.endDrop.x, top: boardLayout.endDrop.y }}
-										>
-											<DropZone
-												label="Direita"
-												orientation={boardLayout.endDrop.orientation}
-												isActive={!!draggingTileId}
-												onDrop={() => handleDrop("right")}
-											/>
-										</div>
-									)}
-									{boardLayout.tiles.map((item) => (
-										<div
-											key={item.tile.id}
-											className="absolute"
-											style={{
-												left: 0,
-												top: 0,
-												transform: `translate(${item.x}px, ${item.y}px) rotate(${item.rotation}deg)`,
-												transformOrigin: "center",
-												transition: "transform 0.3s linear",
-											}}
-										>
-											<DominoTile
-												labelTop={item.tile.left.label}
-												labelBottom={item.tile.right.label}
-												detailTop={item.tile.left.detail}
-												detailBottom={item.tile.right.detail}
-												orientation={item.orientation}
-												isDouble={item.tile.left.id === item.tile.right.id}
-												textRotation={item.rotation === 180 ? 180 : 0}
-												isBoardStart={item.index === 0}
-												isBoardEnd={item.index === boardLayout.tiles.length - 1}
-											/>
-										</div>
-									))}
+									<div className="absolute top-0 left-0 w-full h-full" style={{ transform: `translate(${-boardLayout.shiftX}px, ${-boardLayout.shiftY}px)` }}>
+
+										{boardLayout.startDrop && (
+											<div
+												className="absolute"
+												style={{ left: boardLayout.startDrop.x, top: boardLayout.startDrop.y }}
+											>
+												<DropZone
+													label="Esquerda"
+													orientation={boardLayout.startDrop.orientation}
+													isActive={!!draggingTileId}
+													onDrop={() => handleDrop("left")}
+												/>
+											</div>
+										)}
+
+										{boardLayout.endDrop && (
+											<div
+												className="absolute"
+												style={{ left: boardLayout.endDrop.x, top: boardLayout.endDrop.y }}
+											>
+												<DropZone
+													label="Direita"
+													orientation={boardLayout.endDrop.orientation}
+													isActive={!!draggingTileId}
+													onDrop={() => handleDrop("right")}
+												/>
+											</div>
+										)}
+
+										{boardLayout.tiles.map((item) => (
+											<div
+												key={item.tile.id}
+												className="absolute"
+												style={{
+													left: 0,
+													top: 0,
+													transform: `translate(${item.x}px, ${item.y}px) rotate(${item.rotation}deg)`,
+													transformOrigin: "center",
+													transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+												}}
+											>
+												<DominoTile
+													labelTop={item.tile.left.label}
+													labelBottom={item.tile.right.label}
+													detailTop={item.tile.left.detail}
+													detailBottom={item.tile.right.detail}
+													kindTop={item.tile.left.kind}
+													kindBottom={item.tile.right.kind}
+													orientation={item.orientation}
+													isDouble={item.tile.left.id === item.tile.right.id}
+													textRotation={item.rotation === 180 ? 180 : 0}
+													isBoardStart={item.index === 0}
+													isBoardEnd={item.index === boardLayout.tiles.length - 1}
+												/>
+											</div>
+										))}
+									</div>
 								</div>
 							</div>
 						</div>
 					) : (
-						/* --- LAYOUT MOBILE: Lista Vertical Empilhada (Estilo Dominó) --- */
 						<div className="flex flex-col items-center justify-start -space-y-px py-10 min-h-full w-full">
 							{board.length > 0 && (
 								<div className="mb-2">
@@ -1221,10 +1287,9 @@ export default function GamePage() {
 										labelBottom={tile.right.label}
 										detailTop={tile.left.detail}
 										detailBottom={tile.right.detail}
-										// Peças normais vão de ponta a ponta (vertical).
-										// Carroças cruzam a linha (horizontal).
+										kindTop={tile.left.kind}
+										kindBottom={tile.right.kind}
 										orientation={isDouble ? "horizontal" : "vertical"}
-										// Passamos false apenas aqui para o CSS não forçar a carroça a ficar em pé
 										isDouble={false}
 										isBoardStart={index === 0}
 										isBoardEnd={index === board.length - 1}
@@ -1245,7 +1310,6 @@ export default function GamePage() {
 						</div>
 					)}
 
-					{/* Botões de Escolha de Lado quando há dupla possibilidade */}
 					{pendingPlacement && !gameOver && (
 						<div className="fixed sm:absolute left-1/2 bottom-[140px] sm:bottom-auto sm:top-[62%] -translate-x-1/2 flex flex-row items-center gap-2 sm:gap-3 z-30 bg-white/90 sm:bg-transparent p-3 sm:p-0 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.2)] sm:shadow-none backdrop-blur-sm sm:backdrop-blur-none">
 							<button
@@ -1268,7 +1332,6 @@ export default function GamePage() {
 					)}
 				</div>
 
-				{/* Bottom player hand */}
 				<div className="relative z-10 bg-neutral-200/80 border-t border-black/10 px-2 sm:px-4 py-2 sm:py-3">
 					<div className="flex items-center justify-between mb-1.5 sm:mb-2 px-1">
 						<div className="text-[11px] sm:text-[13px] text-dq-text">
@@ -1297,6 +1360,8 @@ export default function GamePage() {
 									labelBottom={item.right.label}
 									detailTop={item.left.detail}
 									detailBottom={item.right.detail}
+									kindTop={item.left.kind}
+									kindBottom={item.right.kind}
 									orientation="vertical"
 									size="hand"
 									isDouble={item.left.id === item.right.id}
@@ -1515,12 +1580,12 @@ function HiddenTile({ orientation = "vertical", size = "md" }) {
 		"bg-white border border-black/50 rounded-[6px] shadow-[0_1px_0_rgba(0,0,0,0.15)]"
 	const sizeMap = {
 		md: {
-			vertical: "w-[42px] h-[64px]",
-			horizontal: "w-[64px] h-[42px]",
+			vertical: "w-[66px] h-[134px]",
+			horizontal: "w-[134px] h-[66px]",
 		},
 		sm: {
-			vertical: "w-[34px] h-[52px]",
-			horizontal: "w-[52px] h-[34px]",
+			vertical: "w-[64px] h-[104px]",
+			horizontal: "w-[104px] h-[64px]",
 		},
 	}
 	const tileClass =
@@ -1537,6 +1602,8 @@ function DominoTile({
 	labelBottom,
 	detailTop,
 	detailBottom,
+	kindTop,
+	kindBottom,
 	orientation = "horizontal",
 	isDouble = false,
 	textRotation = 0,
@@ -1550,20 +1617,33 @@ function DominoTile({
 	const isVertical = orientation === "vertical" || isDouble
 	const effectiveRotation = isDouble ? 0 : textRotation
 	const base =
-		"bg-white border border-black/50 rounded-[6px] shadow-[0_1px_0_rgba(0,0,0,0.15)] text-dq-text"
+		"bg-white border border-black/50 rounded-[6px] shadow-[0_1px_0_rgba(0,0,0,0.15)] font-bold"
+
 	const sizeMap = {
 		md: {
-			vertical: "w-[58px] h-[100px]",
-			horizontal: "w-[100px] h-[58px]",
+			vertical: "w-[66px] h-[134px]",
+			horizontal: "w-[134px] h-[66px]",
 		},
 		hand: {
-			vertical: "w-[56px] h-[92px]",
-			horizontal: "w-[92px] h-[56px]",
+			vertical: "w-[64px] h-[116px]",
+			horizontal: "w-[116px] h-[64px]",
 		},
 	}
+
+	const getColor = (kind) => {
+		switch(kind) {
+			case "formula": return "text-blue-700"
+			case "nome": return "text-emerald-700"
+			case "classificacao": return "text-purple-700"
+			case "propriedade": return "text-amber-700"
+			default: return "text-dq-text"
+		}
+	}
+
 	const tileSize = isVertical
 		? sizeMap[size]?.vertical || sizeMap.md.vertical
 		: sizeMap[size]?.horizontal || sizeMap.md.horizontal
+
 	return (
 		<div
 			className={`domino-tile ${base} ${tileSize} flex ${
@@ -1581,9 +1661,9 @@ function DominoTile({
 			onDragEnd={onDragEnd}
 		>
 			<div
-				className={`flex-1 min-w-0 min-h-0 flex items-center justify-center text-[11px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden ${
+				className={`flex-1 min-w-0 min-h-0 flex items-center justify-center text-[11.5px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden ${
 					isVertical ? "border-b border-black/20" : "border-r border-black/20"
-				}`}
+				} ${getColor(kindTop)}`}
 				title={detailTop ? `${labelTop} — ${detailTop}` : labelTop}
 			>
 				<span
@@ -1593,7 +1673,7 @@ function DominoTile({
 				</span>
 			</div>
 			<div
-				className="flex-1 min-w-0 min-h-0 flex items-center justify-center text-[11px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden"
+				className={`flex-1 min-w-0 min-h-0 flex items-center justify-center text-[11.5px] leading-tight px-1 text-center break-words whitespace-normal overflow-hidden ${getColor(kindBottom)}`}
 				title={detailBottom ? `${labelBottom} — ${detailBottom}` : labelBottom}
 			>
 				<span
@@ -1608,7 +1688,7 @@ function DominoTile({
 
 function DropZone({ label, onDrop, isActive, orientation = "horizontal" }) {
 	const sizeClass =
-		orientation === "vertical" ? "w-[58px] h-[100px]" : "w-[100px] h-[58px]"
+		orientation === "vertical" ? "w-[66px] h-[134px]" : "w-[134px] h-[66px]"
 	return (
 		<div
 			className={`${sizeClass} rounded-[6px] border-2 border-dashed flex items-center justify-center ${

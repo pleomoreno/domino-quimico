@@ -56,7 +56,6 @@ namespace JwtUtils {
 
     bool is_session_revoked(int user_id, const std::string& token) {
         try {
-            // Usa o mesmo token_hash que o login salva (últimos 32 chars)
             std::string token_hash = token.substr(token.size() - 32);
 
             auto& db = Database::instance();
@@ -69,14 +68,13 @@ namespace JwtUtils {
             );
 
             if (result.empty()) {
-                // Sem sessão registrada — aceita (compatibilidade com register que não cria sessão)
                 return false;
             }
 
             return result[0]["revogado"].as<bool>();
         } catch (const std::exception& e) {
             std::cerr << "[JWT] Erro ao verificar sessão: " << e.what() << "\n";
-            return false; // Em caso de erro de DB, não bloqueia (fail-open)
+            return false;
         }
     }
 }

@@ -6,7 +6,6 @@
 #include <random>
 #include <string>
 
-// Gera código de sala aleatório de 6 caracteres alfanuméricos
 static std::string gerar_codigo_sala()
 {
     static const char chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -31,7 +30,6 @@ void register_room_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
         try {
             auto& db = Database::instance();
 
-            // Gera código único
             std::string codigo;
             for (int tentativa = 0; tentativa < 10; ++tentativa) {
                 codigo = gerar_codigo_sala();
@@ -83,7 +81,6 @@ void register_room_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
 
             auto row = result[0];
 
-            // Contar alunos
             auto alunos_count = txn.exec(
                 "SELECT COUNT(*) FROM sala_alunos WHERE sala_id = " +
                 std::to_string(row["id"].as<int>())
@@ -116,7 +113,6 @@ void register_room_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             auto& db = Database::instance();
             pqxx::nontransaction ntxn(db.conn());
 
-            // Buscar sala
             auto sala = ntxn.exec(
                 "SELECT id, status, max_jogadores FROM salas WHERE codigo = " +
                 ntxn.quote(codigo)
@@ -130,14 +126,12 @@ void register_room_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
             if (status != "aguardando")
                 return bad_request("Sala não está aceitando novos jogadores");
 
-            // Verificar se já está na sala
             auto already = ntxn.exec(
                 "SELECT id FROM sala_alunos WHERE sala_id = " +
                 std::to_string(sala_id) + " AND aluno_id = " + std::to_string(ctx.user_id)
             );
             if (!already.empty()) return bad_request("Você já está nesta sala");
 
-            // Verificar vagas
             auto count = ntxn.exec(
                 "SELECT COUNT(*) FROM sala_alunos WHERE sala_id = " +
                 std::to_string(sala_id)

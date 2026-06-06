@@ -372,13 +372,11 @@ export default function LobbyMultiplayer() {
 
       <div className="lobby-wrapper">
         <div className="lobby-container">
-          {/* Corner brackets */}
           <div className="corner corner-tl" />
           <div className="corner corner-tr" />
           <div className="corner corner-bl" />
           <div className="corner corner-br" />
 
-          {/* ── Header ── */}
           <div className="lobby-header">
             <div className="logo-badge">
               <img src="/logo.png" alt="Logo" width="32" height="32" style={{ objectFit: "contain" }} />
@@ -387,10 +385,8 @@ export default function LobbyMultiplayer() {
             {flash && <div className="flash-msg">{flash}</div>}
           </div>
 
-          {/* ── Body ── */}
           <div className="lobby-body">
 
-            {/* ── Left: Create Room ── */}
             <div className="left-panel">
               <div className="tab-header">
                 <button className="tab-btn active" style={{ cursor : "default" }}>
@@ -441,7 +437,6 @@ export default function LobbyMultiplayer() {
               </button>
             </div>
 
-            {/* ── Right: Join Room ── */}
             <div className="right-panel">
               <div className="tab-header">
                 <button className="tab-btn active" style={{ cursor: "default" }}>
