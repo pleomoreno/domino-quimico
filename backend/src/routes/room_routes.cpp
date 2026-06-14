@@ -243,7 +243,7 @@ void register_room_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
         } });
 
     // ───── DELETE /api/rooms/<string>/leave ───── (aluno sai da sala)
-    CROW_ROUTE(app, "/api/rooms/<string>/leave").methods(crow::HTTPMethod::DELETE)([&app](const crow::request &req, const std::string &codigo)
+    CROW_ROUTE(app, "/api/rooms/<string>/leave").methods(crow::HTTPMethod::Delete)([&app](const crow::request &req, const std::string &codigo)
                                                                                    {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);

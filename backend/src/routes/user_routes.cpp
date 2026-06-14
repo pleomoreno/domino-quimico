@@ -65,7 +65,7 @@ void register_user_routes(crow::App<crow::CORSHandler, AuthMiddleware> &app)
         } });
 
     // ───── DELETE /api/users/me ───── (LGPD: anonimizar conta)
-    CROW_ROUTE(app, "/api/users/me").methods(crow::HTTPMethod::DELETE)([&app](const crow::request &req)
+    CROW_ROUTE(app, "/api/users/me").methods(crow::HTTPMethod::Delete)([&app](const crow::request &req)
                                                                        {
         auto& ctx = app.get_context<AuthMiddleware>(req);
         REQUIRE_AUTH(ctx);

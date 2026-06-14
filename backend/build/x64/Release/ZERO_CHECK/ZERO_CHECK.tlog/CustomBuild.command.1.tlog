@@ -1,0 +1,10 @@
+^C:\USERS\ADMINISTRATOR\DOWNLOADS\DOMINO-QUIMICO\BACKEND\BUILD\CMAKEFILES\F3DAFEA0963AA563C8AC84632D8D2C0D\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Administrator/Downloads/domino-quimico/backend -BC:/Users/Administrator/Downloads/domino-quimico/backend/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Administrator/Downloads/domino-quimico/backend/build/DominoQuimico.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

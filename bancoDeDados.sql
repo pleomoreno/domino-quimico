@@ -169,6 +169,12 @@ INSERT INTO domino_values (valor, categoria) VALUES
 -- 16=Na2O 17=CaO 18=CO2 19=Fe2O3
 -- 20=NaH  21=CaH2
 
+CREATE TABLE domino_tiles (
+    id          SERIAL PRIMARY KEY,
+    valor_a     INT NOT NULL REFERENCES domino_values(id),
+    valor_b     INT NOT NULL REFERENCES domino_values(id)
+);
+
 INSERT INTO domino_tiles (valor_a, valor_b) VALUES
     -- Buchas (classificação ↔ classificação — lados opostos de função)
     (1, 2),   -- Ácido | Base
@@ -206,11 +212,7 @@ INSERT INTO domino_tiles (valor_a, valor_b) VALUES
 
 -- 6. PEÇAS DE DOMINÓ
 
-CREATE TABLE domino_tiles (
-    id          SERIAL PRIMARY KEY,
-    valor_a     INT NOT NULL REFERENCES domino_values(id),
-    valor_b     INT NOT NULL REFERENCES domino_values(id)
-);
+
 
 -- Junction: peça para cada nível (controla quais peças aparecem em cada dificuldade)
 CREATE TABLE tile_levels (

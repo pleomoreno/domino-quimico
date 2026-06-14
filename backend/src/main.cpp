@@ -12,6 +12,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#ifdef _WIN32
+#include <cstdlib>
+#endif
 
 void load_env(const std::string &path = ".env")
 {
@@ -26,7 +29,11 @@ void load_env(const std::string &path = ".env")
             continue;
         auto key = line.substr(0, eq);
         auto val = line.substr(eq + 1);
+        #ifdef _WIN32
+        _putenv_s(key.c_str(), val.c_str());
+        #else
         setenv(key.c_str(), val.c_str(), 0);
+        #endif
     }
 }
 

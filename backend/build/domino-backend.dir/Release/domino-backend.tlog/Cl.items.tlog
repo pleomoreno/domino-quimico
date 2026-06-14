@@ -1,0 +1,14 @@
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\db\database.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\database.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\main.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\main.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\middleware\auth_middleware.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\auth_middleware.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\models\match.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\match.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\models\tile.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\tile.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\models\user.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\user.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\routes\auth_routes.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\auth_routes.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\routes\game_routes.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\game_routes.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\routes\match_routes.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\match_routes.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\routes\report_routes.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\report_routes.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\routes\room_routes.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\room_routes.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\routes\user_routes.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\user_routes.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\utils\hash_utils.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\hash_utils.obj
+C:\Users\Administrator\Downloads\domino-quimico\backend\src\utils\jwt_utils.cpp;C:\Users\Administrator\Downloads\domino-quimico\backend\build\domino-backend.dir\Release\jwt_utils.obj
