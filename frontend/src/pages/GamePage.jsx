@@ -559,33 +559,26 @@ export default function GamePage() {
 					const { renderSize: nextRenSize } = getTileMetrics(nextDir, isDouble, isLeftChain)
 					const joinAdjust = isDouble ? DOUBLE_JOIN_ADJUST : 0
 
-					if (isDouble || currentIsDouble) {
-						const nextCy = direction === "down"
-							? cy + currentRenderSize.h / 2 + nextRenSize.h / 2 + GAP
-							: cy - currentRenderSize.h / 2 - nextRenSize.h / 2 - GAP
-						cy = nextCy
-						nextDirection = direction
-					} else {
-						const bendX = nextDir === "right"
-							? cx + currentRenderSize.w / 2 - BOTTOM_ROW_BACKSHIFT
-							: cx - currentRenderSize.w / 2 + BOTTOM_ROW_BACKSHIFT
-						const bendY = direction === "down"
-							? cy + currentRenderSize.h / 4
-							: cy - currentRenderSize.h / 4
+					const bendX = nextDir === "right"
+						? cx + currentRenderSize.w / 2 - BOTTOM_ROW_BACKSHIFT
+						: cx - currentRenderSize.w / 2 + BOTTOM_ROW_BACKSHIFT
 
-						const minStepX = nextRenSize.w / 2
-						const stepX = Math.max(minStepX, minStepX + GAP - joinAdjust)
-						const nextCx = nextDir === "right" ? bendX + stepX : bendX - stepX
+					const bendY = direction === "down"
+						? cy + currentRenderSize.h / 4
+						: cy - currentRenderSize.h / 4
 
-						const limitX = nextDir === "right"
-							? BOARD_W - MARGIN - nextRenSize.w / 2
-							: MARGIN + nextRenSize.w / 2
+					const minStepX = nextRenSize.w / 2
+					const stepX = Math.max(minStepX, minStepX + GAP - joinAdjust)
+					const nextCx = nextDir === "right" ? bendX + stepX : bendX - stepX
 
-						cy = bendY
-						cx = nextDir === "right" ? Math.min(nextCx, limitX) : Math.max(nextCx, limitX)
-						nextDirection = nextDir
-						nextHorizontalDir = nextDir
-					}
+					const limitX = nextDir === "right"
+						? BOARD_W - MARGIN - nextRenSize.w / 2
+						: MARGIN + nextRenSize.w / 2
+
+					cy = bendY
+					cx = nextDir === "right" ? Math.min(nextCx, limitX) : Math.max(nextCx, limitX)
+					nextDirection = nextDir
+					nextHorizontalDir = nextDir
 				}
 
 				direction = nextDirection
