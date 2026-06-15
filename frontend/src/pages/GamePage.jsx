@@ -555,37 +555,34 @@ export default function GamePage() {
 						cx = nextCx
 					}
 				} else if (direction === "down" || direction === "up") {
+					// 1. Define para qual lado a cobrinha vai virar agora (Esquerda ou Direita)
 					const nextDir = horizontalDir === "right" ? "left" : "right"
 					const { renderSize: nextRenSize } = getTileMetrics(nextDir, isDouble, isLeftChain)
 					const joinAdjust = isDouble ? DOUBLE_JOIN_ADJUST : 0
 
-					if (isDouble || currentIsDouble) {
-						const nextCy = direction === "down"
-							? cy + currentRenderSize.h / 2 + nextRenSize.h / 2 + GAP
-							: cy - currentRenderSize.h / 2 - nextRenSize.h / 2 - GAP
-						cy = nextCy
-						nextDirection = direction
-					} else {
-						const bendX = nextDir === "right"
-							? cx + currentRenderSize.w / 2 - BOTTOM_ROW_BACKSHIFT
-							: cx - currentRenderSize.w / 2 + BOTTOM_ROW_BACKSHIFT
-						const bendY = direction === "down"
-							? cy + currentRenderSize.h / 4
-							: cy - currentRenderSize.h / 4
+					// 2. Calcula as coordenadas exatas de onde a nova peça horizontal vai nascer
+					const bendX = nextDir === "right"
+						? cx + currentRenderSize.w / 2 - BOTTOM_ROW_BACKSHIFT
+						: cx - currentRenderSize.w / 2 + BOTTOM_ROW_BACKSHIFT
 
-						const minStepX = nextRenSize.w / 2
-						const stepX = Math.max(minStepX, minStepX + GAP - joinAdjust)
-						const nextCx = nextDir === "right" ? bendX + stepX : bendX - stepX
+					// Faz a peça nascer perfeitamente alinhada com a metade inferior da peça anterior
+					const bendY = direction === "down"
+						? cy + currentRenderSize.h / 4
+						: cy - currentRenderSize.h / 4
 
-						const limitX = nextDir === "right"
-							? BOARD_W - MARGIN - nextRenSize.w / 2
-							: MARGIN + nextRenSize.w / 2
+					const minStepX = nextRenSize.w / 2
+					const stepX = Math.max(minStepX, minStepX + GAP - joinAdjust)
+					const nextCx = nextDir === "right" ? bendX + stepX : bendX - stepX
 
-						cy = bendY
-						cx = nextDir === "right" ? Math.min(nextCx, limitX) : Math.max(nextCx, limitX)
-						nextDirection = nextDir
-						nextHorizontalDir = nextDir
-					}
+					const limitX = nextDir === "right"
+						? BOARD_W - MARGIN - nextRenSize.w / 2
+						: MARGIN + nextRenSize.w / 2
+
+					// 3. Aplica o movimento imediatamente (sem forçar a descer)
+					cy = bendY
+					cx = nextDir === "right" ? Math.min(nextCx, limitX) : Math.max(nextCx, limitX)
+					nextDirection = nextDir
+					nextHorizontalDir = nextDir
 				}
 
 				direction = nextDirection
